@@ -17,11 +17,43 @@ This repository contains my practical documentation and methodology for various 
 * **Blue Team / SOC**: Log analysis, incident response, and security hardening (see my Windows 11 Migration project).
 * **OSINT**: People OSINT (SOCMINT), data gathering, and digital footprint analysis.
 * **Foundational IT**: Networking (Network+), Security concepts (Security+), and system administration.
+* **DFIR**
+* **Threat Intel**
 
 ## 🛠️ Skills & Tools
 * **Networking & Security**: Wireshark, Nmap, SIEM concepts
 * **Systems**: Linux (Ubuntu, Kali), Windows Hardening
 * **Scripting**: Bash, foundational Python for security automation
+
+## 📘 My Lab Profile
+
+* **Labs & Hands-on:**
+    * Hack The Box Academy: [HTB Profile](https://app.hackthebox.com/profile/#2566537)
+    * TryHackMe: [THM Profile](https://tryhackme.com/p/poseidon.smash)
+    * LabEx and Linux Journey: [LabEx Profile](https://labex.io/users/uriel0byte-11746032)
+    * PicoCTF: [PicoCTF Profile](https://play.picoctf.org/users/urielbyte)
+    * LetsDefend: []
+    * CyberDefenders: [CyberDef Profile](https://cyberdefenders.org/p/poseidon.smash)
+    * Rootme: []
+    * Cybrary: [Cybrary](https://app.cybrary.it/browse/urielbyte)
+    * DFIR: []
+    * Blue Team Labs: []
+    * Interesting additional resources :
+        - Hacker101: https://www.hacker101.com/start-here
+
+ * **Utilizing AIs**
+    * NotebookLM: Creating Summaries, Quizes and Flashcards.
+    * Gemini: Helping on CTFs.
+    * Perplexity: Reviewing topics such as Network+ and Security+
+  
+* **Roadmaps & Knowledge Bases:**
+    * Roadmap.sh: [Roadmap.sh Profile](https://roadmap.sh/u/urielbyte)
+    * 90DaysOfCyberSecurity: [90DaysOfCyberSecurity](https://github.com/farhanashrafdev/90DaysOfCyberSecurity/tree/main)
+    * The Book of Secret Knowledge: [the-book-of-secret-knowledge](https://github.com/trimstray/the-book-of-secret-knowledge?tab=readme-ov-file#manualshowtostutorials-toc)
+
+* **Notes & Consolidation:**
+    * LogSeq (My internal notes, which are then summarized here in this repo)
+    * NotelookLM (Summaries and Quizes) 
 
 ---
 *Always learning, always cataloging the next threat.*
