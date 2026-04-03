@@ -15,7 +15,6 @@ Your task is to analyze the provided PCAP file to uncover how the file appeared 
 * **Date of Investigation:** 4-4-2026
 
 ### 3. Investigation Methodology & Findings
-
 * **Step 1: Identifying the Attacker**
   * *Method:* Filtered Wireshark traffic by HTTP requests to spot anomalous behavior. Using the filter `http.request.method == GET` to identify the source IP. Use a geo-IP lookup service to identify the geographical origin of the attack, which located at Tianjin, China. Then expand the Hypertext Transfer Protocol section in the HTTP GET packet to find User-Agent field to view the attacker's User-Agent.
   * *Finding:* The attacker's IP address was identified as `117.11.88.124`. The attacker's Full User-Agent: `Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0`
@@ -33,7 +32,6 @@ Your task is to analyze the provided PCAP file to uncover how the file appeared 
 * **Malicious Files:** `image.jpg.php`
 
 ### 5. Mitigation & Recommendations
-*How would you stop this from happening again?*
 * Implement geo-blocking for suspicious IPs
 * Update the web server software to patch the exploited vulnerability.
 * Configure a Web Application Firewall (WAF) to block malicious HTTP requests.
