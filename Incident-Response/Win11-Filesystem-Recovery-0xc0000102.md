@@ -31,7 +31,7 @@ The incident was a compounding failure sequence involving physical hardware inst
 Before addressing software corruption, physical hardware stability had to be verified to prevent immediate re-corruption of repaired files.
 1. Powered down the system and disconnected the main power supply.
 2. Conducted a physical inspection of motherboard components, identifying an active DRAM debug LED.
-3. Reseated the physical RAM modules (DIMMs) in their respective slots to ensure proper contact and eliminate bridging errors.
+3. Extracted the physical RAM modules (DIMMs). Utilized a rubber friction eraser to manually clean the gold contact pins. This mitigates microscopic galvanic oxidation and carbon build-up that causes bridging errors or memory read/write faults. Reseated the DIMMs to ensure strict seating tolerances.
 4. Rebooted the system to verify the DRAM LED cleared, confirming successful POST.
 
 ### Phase 2: Local Boot Configuration Repair 
@@ -61,8 +61,8 @@ To perform offline repairs, the encrypted OS volume required manual decryption v
 Aggressive offline repair tools were deployed to reconstruct the corrupted filesystem.
 1. **Command:** `chkdsk C: /f /r /x`
    * *Rationale:* Scanned filesystem metadata and physical sectors. Forced repair of logical errors (`/f`), recovered readable data from bad sectors (`/r`), and forced the volume to dismount before scanning (`/x`).
-2. **Command:** `sfc /scannow`
-   * *Rationale:* Executed against the offline Windows directory to verify cryptographic signatures of core binaries and replace compromised files from the component store.
+2. **Command:** `sfc /scannow /offbootdir=C:\ /offwindir=C:\Windows`
+   * *Rationale:* When operating in the external WinRE (the `X:` drive RAM disk), standard SFC commands will scan the temporary environment, not the host. The `/offbootdir` and `/offwindir` flags explicitly redirect the System File Checker to verify the cryptographic signatures of the offline, decrypted `C:` drive to replace compromised files from its component store.
 
 ### Phase 6: Boot Restoration
 1. System initially rebooted back into the Windows 11 Setup environment due to the external USB retaining primary boot priority.
