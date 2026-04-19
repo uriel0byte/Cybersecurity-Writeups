@@ -28,6 +28,7 @@ This repository contains my practical documentation and methodology for various 
 ## Featured Labs & Writeups
 * [Windows 11 Filesystem & Boot Configuration Recovery](./Incident-Response/Win11-Filesystem-Recovery-0xc0000102.md) 
 > "In a SOC environment, an analyst needs to be able to look at a system failure and differentiate between a destructive malware payload and a cascading hardware fault. This incident allowed me to map the Windows boot sequence, interact directly with the TPM and BitLocker via CLI, and perform offline forensic recovery of a corrupted filesystem."
+* [Advent of Cyber 2025](./TryHackMe/AOC-2025-Documentation/README.md)
 
 ## 📘 My Lab Profile
 
