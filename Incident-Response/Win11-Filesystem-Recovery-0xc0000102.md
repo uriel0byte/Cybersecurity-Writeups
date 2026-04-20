@@ -1,6 +1,6 @@
 # Incident Report: Windows 11 Boot Failure and Filesystem Corruption (Error 0xc0000102)
 * Date : 4/20/2026
-* ![Image](./Incident-Response/Evidence/Win11-File-Recovery-0xc0000102/S__104538117.jpg)
+* ![Image](./Evidence/Win11-File-Recovery-0xc0000102/S__104538117.jpg)
 
 ## Executive Summary
 After coming back from vacation, the PC failed to boot up and got stuck on the ASUS logo. There were side problems that happened when trying to fix the main problem (like after trying to do a hard shutdown and access the command prompt the system froze; unplugging all the external USBs caused the system to not start up; then I tried taking the CMOS battery out and in again, the system started but the ASUS logo wouldn't show. I had to take apart my PC again to re-insert the RAM, using an eraser to clean the contacts and make the RAM work, etc.). The main goal was to fix the corrupted OS file. I bought a new USB and borrowed a friend's PC to install Windows media on it to fix the system.
