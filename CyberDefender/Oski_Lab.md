@@ -16,7 +16,7 @@ Analyze a sandbox report using Any.Run to identify Stealc malware behavior, extr
 
 ### 3. Investigation Methodology & Findings
 * **Step 1: Identifying the Threat actor**
-  * *Method:* The payload was extracted. The MD5 hash associated with the payload was identified, pivoted to VirusTotal. Identifying it as a Trojan/Ransomware, which does data exfiltration and credential theft. The creation time of the malware was determined. This helps to build a timeline of the attack if it's targeted, active campaign or just a commodity malware.
+  * *Method:* The payload was extracted. The MD5 hash associated with the payload was identified and analyzed using VirusTotal. Identifying it as a Trojan/Ransomware, which does data exfiltration and credential theft. The creation time of the malware was determined. This helps to build a timeline of the attack if it's targeted, active campaign or just a commodity malware.
   * *Finding:* `12c1842c3ccafe7408c23ebf292ee3d9` MD5 hash. `2022-09-28 17:40` pulled from file's Portable Executable or PE header. Can be found in VirusTotal's Detail Tab History section.
   `VPN.exe.bin` is the name of the malware.
 
@@ -25,7 +25,7 @@ Analyze a sandbox report using Any.Run to identify Stealc malware behavior, extr
   * *Finding:* The attacker's IP address was identified as `171.22.28.221`. `GET http://171.22.28.221/9e226a84ec50246d/sqlite3.dll` and `POST http://171.22.28.221/5c06c05b7b34e8e6.php` pulled from Relation Tab in Contact URLs field and Behavior tab Network Communication field. 
 
 * **Step 3: Credential Access & Obfuscation**
-  * *Method:* Post-infection analysis revealed `sqlite3.dll` as the first requested library DLL file that the malware request post-infection. Its objective is to steal information, harvest saved credentials, session cookies credit card numbers, autofill data from web browsers. To access these sensitive data, it has to access SQLite database. An `RC4 key` was identified within the malware configuration used for encryption or decryption (Obfuscation) may be embedded in the malware configuration from Any.run report. Analysis of the Any.run sandbox report identified the primary MITRE ATT&CK technique as `T1555` (Credentials from Password Stores), which specifically targeting and extracting credentials from local system files, password managers, or browser databases. Malware often deletes files to cover its tracks.
+  * *Method:* Post-infection analysis revealed `sqlite3.dll` as the first requested library DLL file that the malware request post-infection. Its objective is to steal information, harvest saved credentials, session cookies, credit card numbers, and autofill data from web browsers. To access these sensitive data, it has to access SQLite database. An `RC4 key` was identified within the malware configuration used for encryption or decryption (Obfuscation) may be embedded in the malware configuration from Any.run report. Analysis of the Any.run sandbox report identified the primary MITRE ATT&CK technique as `T1555` (Credentials from Password Stores), which specifically targets and extracts credentials from local system files, password managers, or browser databases. Malware often deletes files to cover its tracks.
   * *Finding:* `sqlite3.dll` pulled from Behavior tab File Dropped field. `5329514621441247975720749009` The RC4 key pulled from `https://any.run/report/a040a0af8697e30506218103074c7d6ea77a84ba3ac1ee5efae20f15530a19bb/d55e2294-5377-4a45-b393-f5a8b20f7d44` Malware Configuration section Key: RC4 field.
 
 * **Step 4: Defense Evasion & Cleanup**
@@ -44,8 +44,8 @@ Analyze a sandbox report using Any.Run to identify Stealc malware behavior, extr
 ### 5. Mitigation & Recommendations
 * Implement signature-based detection of known malware variants in IDS/IPS, AVs.
 * Implement Endpoint Detection and Response (EDR) rules to flag anomalous `cmd.exe` usage, especially strings containing `timeout` and `del`.
-* Blocking the specific C2 IP (171.22.28.221) at the Firewall.
 * Implement strict file validation on the sending outbound HTTP request to an unknown endpoint.
-* Mandatory Global Password Reset: Force the accountant to change every single password they had saved on that machine.
-* Revoke Active Sessions: Clear all active login tokens so the attacker can't use the stolen session cookies to bypass login screens.
-* Enforce MFA: Ensure Multi-Factor Authentication is turned on for all corporate accounts so that even if the attacker tries to use the stolen password, they are blocked by the MFA prompt.
+* Block the specific C2 IP (171.22.28.221) at the Firewall.
+* Force the accountant to change every single password they had saved on that machine (Mandatory Global Password Reset).
+* Clear all active login tokens so the attacker can't use the stolen session cookies to bypass login screens (Revoke Active Sessions).
+* Ensure Multi-Factor Authentication is turned on for all corporate accounts so that even if the attacker tries to use the stolen password, they are blocked by the MFA prompt (Enforce MFA).
