@@ -43,6 +43,7 @@ This repository contains my practical documentation and methodology for various 
     * Cybrary: [Cybrary](https://app.cybrary.it/browse/urielbyte)
     * DFIR: []
     * Blue Team Labs: []
+    * Security Blue Team: []
     * Credly: [Credly](https://www.credly.com/users/supawat-huncharoen)
     * Interesting additional resources :
         - Hacker101: https://www.hacker101.com/start-here
