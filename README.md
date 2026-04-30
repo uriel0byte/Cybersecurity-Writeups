@@ -44,6 +44,7 @@ This repository contains my practical documentation and methodology for various 
     * DFIR: []
     * Blue Team Labs: []
     * Security Blue Team: []
+    * CrackTheLab: []
     * Credly: [Credly](https://www.credly.com/users/supawat-huncharoen)
     * Interesting additional resources :
         - Hacker101: https://www.hacker101.com/start-here
