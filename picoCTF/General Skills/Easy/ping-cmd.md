@@ -8,7 +8,7 @@ Can you make the server reveal its secrets? It seems to be able to ping Google D
 2. Sometimes, You can run more than one command at a time.
 
 # Steps
-1. Connect to the give remote server.
+1. Connect to the given remote server.
 ```
 urielbyte-picoctf@webshell:~$ nc mysterious-sea.picoctf.net 64057
 Enter an IP address to ping! (We have tight security because we only allow '8.8.8.8'): 8.8.8.8
