@@ -42,7 +42,7 @@ Your task is to analyze the provided PCAP file to uncover how the file appeared 
 ### 6. MITRE ATT&CK Mapping
 |Tactic|Technique ID|Technique Name |Lab Evidence|
 |----------------|-------------------------------|-----------------------------|-----------------------------|
-|Initial Access|T1190|Exploit Public-Facing Application|The attacker exploited an unrestricted file upload vulnerability on the `/reviews/upload.php` endpoint.|
+|Initial Access|**T1190**|Exploit Public-Facing Application|The attacker exploited an unrestricted file upload vulnerability on the `/reviews/upload.php` endpoint.|
 |Persistence|**T1505.003**|Server Software Component: Web Shell|The attacker successfully bypassed filters by renaming their payload to `image.jpg.php` to establish a foothold.|
 |Execution|**T1059.004**|Command and Scripting Interpreter: Unix Shell|The attacker utilized `nc` (Netcat) via the web shell to execute a reverse shell connection back to their machine on port 8080.|
 |Exfiltration|**T1048**|Exfiltration Over Alternative Protocol|The attacker utilized `curl` over HTTP to exfiltrate the contents of the server's `/etc/passwd` file.|

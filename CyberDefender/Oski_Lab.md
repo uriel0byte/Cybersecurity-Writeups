@@ -18,7 +18,8 @@ Analyze a sandbox report using Any.Run to identify Stealc malware behavior, extr
 * **Step 1: Identifying the Threat actor**
   * *Method:* The payload was extracted. The MD5 hash associated with the payload was identified and analyzed using VirusTotal. Identifying it as a Trojan/Ransomware, which does data exfiltration and credential theft. The creation time of the malware was determined. This helps to build a timeline of the attack if it's targeted, active campaign or just a commodity malware.
   * *Finding:* `12c1842c3ccafe7408c23ebf292ee3d9` MD5 hash. `2022-09-28 17:40` pulled from file's Portable Executable or PE header. Can be found in VirusTotal's Detail Tab History section.
-  `VPN.exe.bin` is the name of the malware.
+  `VPN.exe` is the name of the malware.
+  * ![The Process Tree](Screenshots/Oski_1.png)
 
 * **Step 2: Command & Control (C2) Communication**
   * *Method:* Network analysis revealed command and control (C2) server that the malware communicates with to help trace back to the attacker. Network activity was analyzed to identify the outbound connections to URLs or IP addresses, as these may indicate communication with a command and control (C2) server. Found the `GET` and `POST` HTTP requests which indicate that this device sent a `GET` request to download the `sqlite3.dll` from `171.22.28.221` and send `POST` request to upload data to `171.22.28.221/5c06c05b7b34e8e6.php` endpoint. 
@@ -35,6 +36,7 @@ Analyze a sandbox report using Any.Run to identify Stealc malware behavior, extr
 * **Step 5: Compromised Data**
   * *Method:* Since the attack is Command and Control (C2), the HTTP request `POST http://171.22.28.221/5c06c05b7b34e8e6.php`, indicate the exfiltration but cannot identify which exact data is exfiltrated due to no further investigation (out of scope).
   * *Finding:* The attacker exfiltrated the credentials from the host via HTTP request to bypass DNS filtering and avoid signature-based detection mechanism by using `5c06c05b7b34e8e6.php` endpoint.
+  * ![The Stealer Activity or C2 Connection](Screenshots/Oski_2.png)
 
 ### 4. Indicators of Compromise (IoCs)
 * **Attacker IP Address(es):** `171.22.28.221`
@@ -49,3 +51,19 @@ Analyze a sandbox report using Any.Run to identify Stealc malware behavior, extr
 * Force the accountant to change every single password they had saved on that machine (Mandatory Global Password Reset).
 * Clear all active login tokens so the attacker can't use the stolen session cookies to bypass login screens (Revoke Active Sessions).
 * Ensure Multi-Factor Authentication is turned on for all corporate accounts so that even if the attacker tries to use the stolen password, they are blocked by the MFA prompt (Enforce MFA).
+
+### 6. MITRE ATT&CK Mapping
+|Tactic|Technique ID|Technique Name |Lab Evidence|
+|----------------|-------------------------------|-----------------------------|-----------------------------|
+|Execution|**T1204.002**|User Execution: Malicious File|The infection chain was initiated by the execution of a malicious payload (`VPN.exe`) originating from an attached PPT file.|
+|Defense Evasion|**T1070.004**|Indicator Removal: File Deletion|The malware executed `cmd.exe` with commands (`del /f /q`) to delete its own executable and associated DLLs to cover its tracks.|
+|Credential Access|**T1555.003**|Credentials from Password Stores: Credentials from Web Browsers|The malware downloaded `sqlite3.dll` to target, decrypt, and extract credentials stored in local web browser databases.|
+|Command and Control|**T1071.001**|Application Layer Protocol: Web Protocols|The malware established communication with its C2 infrastructure (`171.22.28.221`) using standard HTTP GET and POST requests.|
+|Exfiltration|**T1041**|Exfiltration Over C2 Channel|Stolen endpoint data and credentials were exfiltrated to the attacker-controlled server via a specific PHP endpoint (`5c06c05b7b34e8e6.php`).|
+
+### 7. Lessons Learned
+-   **Sandbox Analysis:** Developed proficiency in reading dynamic analysis sandbox reports (e.g., ANY.RUN) to trace malicious process trees, file drops, and network communication vectors.
+    
+-   **Info-Stealer Mechanics:** Gained a deep understanding of the Stealc malware family's operational objectives, specifically its reliance on `sqlite3.dll` to harvest local browser data and its use of RC4 encryption for obfuscation.
+    
+-   **Defense Evasion Tracking:** Learned to identify host-level cleanup operations, such as malware spawning `cmd.exe` to self-delete and remove artifacts from the `C:\ProgramData\` directory.
