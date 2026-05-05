@@ -47,7 +47,8 @@ This repository contains my practical documentation and methodology for various 
 
  * **Utilizing AIs**
     * NotebookLM: Creating Summaries, Quizes and Flashcards.
-    * Gemini: Helping on CTFs.
+    * Gemini: Helping on CTFs, Checking on the reports.
+    * Claude: Checking on the reports.
     * Perplexity: Reviewing topics such as Network+ and Security+
   
 * **Roadmaps & Knowledge Bases:**
