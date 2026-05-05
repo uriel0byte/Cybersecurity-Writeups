@@ -42,7 +42,6 @@ This repository contains my practical documentation and methodology for various 
     * LetsDefend: [LetsDefend](https://app.letsdefend.io/user/urielbyte)
     * CyberDefenders: [CyberDef Profile](https://cyberdefenders.org/p/poseidon.smash)
     * Security Blue Team+ Blue Team Labs Online: [BTLO Profile](https://blueteamlabs.online/home/user/82d77b7cbeca1bbfed8b49)
-    * Credly: [Credly](https://www.credly.com/users/supawat-huncharoen)
     * Interesting additional resources :
         - Hacker101: https://www.hacker101.com/start-here
 
