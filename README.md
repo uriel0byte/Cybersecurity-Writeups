@@ -8,10 +8,12 @@ My background in library science gives me a unique advantage in threat hunting a
 ## 📂 Repository Structure
 This repository contains my practical documentation and methodology for various cybersecurity challenges and labs.
 
-* **`/TryHackMe`**: Write-ups and documentation for THM rooms, including my comprehensive Advent of Cyber 2025 logs.
-* **`/HackTheBox`**: Walkthroughs for HTB modules focusing on networking and Linux fundamentals.
+* **`/CyberDefender`**: Professional Incident Response Report on SOC Analyst Tier 1 Track Labs.
+* **`/TryHackMe`**: Write-ups and documentation for THM challenges, including my comprehensive Advent of Cyber 2025 logs.
+* **`/HackTheBox`**: Starting points or free labs I took. Looking forward to do HTB Sherlock.
 * **`/picoCTF`**: Solutions and analytical breakdowns for picoCTF challenges.
 * **`/OverTheWire`**: Bash scripting and Linux command-line exercises (Bandit).
+* **`/Incident-Response`**: Real-world problems I've experienced such as Incident Report: Windows 11 Boot Failure and Filesystem Corruption (Error 0xc0000102).
 
 ## 🎯 Core Focus Areas
 * **Blue Team / SOC**: Log analysis, incident response, and security hardening (see my Windows 11 Migration project).
