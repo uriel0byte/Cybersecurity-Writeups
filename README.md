@@ -41,7 +41,7 @@ The ILS background is not incidental. Cataloging and extracting intelligence fro
 | Operating Systems | Linux (Ubuntu, Kali), Windows 11 |
 | Network Analysis | Wireshark, Nmap |
 | SOC & Triage | Alert triage, IR reporting, ServiceDesk-Simulator |
-| OSINT | Sherlock, Blackbird, WhatsMyName, Lullar, Fazeel Azeez Channel Finder, OSINT Framework, advanced dorking |
+| OSINT | Blackbird, WhatsMyName, OSINT Framework, advanced dorking |
 | SIEM | Splunk (in progress) |
 | Scripting | Bash |
 
