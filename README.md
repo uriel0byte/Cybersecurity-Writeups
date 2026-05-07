@@ -87,7 +87,7 @@ A real failure I had to diagnose and recover from myself. The exercise forced me
 
 ## Lab Profiles
 
-[HackTheBox](https://app.hackthebox.com/profile/#2566537) · [TryHackMe](https://tryhackme.com/p/poseidon.smash) · [CyberDefenders](https://cyberdefenders.org/p/poseidon.smash) · [LabEx](https://labex.io/users/uriel0byte-11746032) · [PicoCTF](https://play.picoctf.org/users/urielbyte) · [LetsDefend](https://app.letsdefend.io/user/urielbyte) · [BlueTeamLabs](https://blueteamlabs.online/home/user/82d77b7cbeca1bbfed8b49) · [Roadmap.sh](https://roadmap.sh/u/urielbyte)
+[HackTheBox](https://app.hackthebox.com/profile/#2566537) · [TryHackMe](https://tryhackme.com/p/poseidon.smash) · [CyberDefenders](https://cyberdefenders.org/p/poseidon.smash) · [LabEx](https://labex.io/users/uriel0byte-11746032) · [PicoCTF](https://play.picoctf.org/users/urielbyte) · [LetsDefend](https://app.letsdefend.io/user/urielbyte) · [BlueTeamLabs](https://blueteamlabs.online/home/user/82d77b7cbeca1bbfed8b49)
 
 ---
 
@@ -107,6 +107,7 @@ A real failure I had to diagnose and recover from myself. The exercise forced me
 - [awesome-security](https://github.com/sbilly/awesome-security)
 - [awesome-annual-security-reports](https://github.com/jacobdjwilson/awesome-annual-security-reports)
 - [Hacker101](https://www.hacker101.com/start-here)
+- [Roadmap.sh](https://roadmap.sh/u/urielbyte)
 
 ---
 
