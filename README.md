@@ -54,6 +54,9 @@ This repository contains my practical documentation and methodology for various 
 * **Roadmaps & Knowledge Bases:**
     * Roadmap.sh: [Roadmap.sh Profile](https://roadmap.sh/u/urielbyte)
     * 90DaysOfCyberSecurity: [90DaysOfCyberSecurity](https://github.com/farhanashrafdev/90DaysOfCyberSecurity/tree/main)
+    * Awesome CyberCecurity University: [awesome-cyber-security-university](https://github.com/brootware/awesome-cyber-security-university)
+    * Awesome Security: [awsome-security](https://github.com/sbilly/awesome-security)
+    * Awesome Security Reports: [awsome-annual-security-reports](https://github.com/jacobdjwilson/awesome-annual-security-reports)
     * The Book of Secret Knowledge: [the-book-of-secret-knowledge](https://github.com/trimstray/the-book-of-secret-knowledge?tab=readme-ov-file#manualshowtostutorials-toc)
 
 * **Notes & Consolidation:**
