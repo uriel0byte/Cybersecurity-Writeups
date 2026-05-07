@@ -1,67 +1,113 @@
 # Cybersecurity & CTF Write-ups
-*By uriel0byte*
+*uriel0byte*
 
-Welcome to my technical portfolio. I am an Information and Library Science (ILS) student transitioning into Cybersecurity, with a strong focus on Blue Team operations, SOC analysis, and Open Source Intelligence (OSINT).
+I'm an Information and Library Science student transitioning into cybersecurity, focused on Blue Team operations, SOC analysis, and OSINT.
 
-My background in library science gives me a unique advantage in threat hunting and incident response: I specialize in organizing, cataloging, and extracting critical information from massive datasets.
-
-## 📂 Repository Structure
-This repository contains my practical documentation and methodology for various cybersecurity challenges and labs.
-
-* **`/CyberDefender`**: Professional Incident Response Report on SOC Analyst Tier 1 Track Labs.
-* **`/TryHackMe`**: Write-ups and documentation for THM challenges, including my comprehensive Advent of Cyber 2025 logs.
-* **`/HackTheBox`**: Starting points or free labs I took. Looking forward to do HTB Sherlock.
-* **`/picoCTF`**: Solutions and analytical breakdowns for picoCTF challenges.
-* **`/OverTheWire`**: Bash scripting and Linux command-line exercises (Bandit).
-* **`/Incident-Response`**: Real-world problems I've experienced such as Incident Report: Windows 11 Boot Failure and Filesystem Corruption (Error 0xc0000102).
-
-## 🎯 Core Focus Areas
-* **Blue Team / SOC**: Log analysis, incident response, and security hardening (see my Windows 11 Migration project).
-* **OSINT**: People OSINT (SOCMINT), data gathering, and digital footprint analysis.
-* **Foundational IT**: Networking (Network+), Security concepts (Security+), and system administration.
-* **DFIR**
-* **Threat Intel**
-
-## 🛠️ Skills & Tools
-* **Networking & Security**: Wireshark, Nmap, SIEM concepts
-* **Systems**: Linux (Ubuntu, Kali), Windows Hardening
-* **Scripting**: Bash, foundational Python for security automation
-
-## Featured Labs & Writeups
-* [Windows 11 Filesystem & Boot Configuration Recovery](./Incident-Response/Win11-Filesystem-Recovery-0xc0000102.md) 
-> "In a SOC environment, an analyst needs to be able to look at a system failure and differentiate between a destructive malware payload and a cascading hardware fault. This incident allowed me to map the Windows boot sequence, interact directly with the TPM and BitLocker via CLI, and perform offline forensic recovery of a corrupted filesystem."
-* [Advent of Cyber 2025](./TryHackMe/AOC-2025-Documentation/README.md)
-
-## 📘 My Lab Profile
-
-* **Labs & Hands-on:**
-    * Hack The Box Academy: [HTB Profile](https://app.hackthebox.com/profile/#2566537)
-    * TryHackMe: [THM Profile](https://tryhackme.com/p/poseidon.smash)
-    * LabEx and Linux Journey: [LabEx Profile](https://labex.io/users/uriel0byte-11746032)
-    * PicoCTF: [PicoCTF Profile](https://play.picoctf.org/users/urielbyte)
-    * LetsDefend: [LetsDefend](https://app.letsdefend.io/user/urielbyte)
-    * CyberDefenders: [CyberDef Profile](https://cyberdefenders.org/p/poseidon.smash)
-    * Security Blue Team+ Blue Team Labs Online: [BTLO Profile](https://blueteamlabs.online/home/user/82d77b7cbeca1bbfed8b49)
-    * Interesting additional resources :
-        - Hacker101: https://www.hacker101.com/start-here
-
- * **Utilizing AIs**
-    * NotebookLM: Creating Summaries, Quizes and Flashcards.
-    * Gemini: Helping on CTFs, Checking on the reports.
-    * Claude: Checking on the reports.
-    * Perplexity: Reviewing topics such as Network+ and Security+
-  
-* **Roadmaps & Knowledge Bases:**
-    * Roadmap.sh: [Roadmap.sh Profile](https://roadmap.sh/u/urielbyte)
-    * 90DaysOfCyberSecurity: [90DaysOfCyberSecurity](https://github.com/farhanashrafdev/90DaysOfCyberSecurity/tree/main)
-    * Awesome CyberCecurity University: [awesome-cyber-security-university](https://github.com/brootware/awesome-cyber-security-university)
-    * Awesome Security: [awsome-security](https://github.com/sbilly/awesome-security)
-    * Awesome Security Reports: [awsome-annual-security-reports](https://github.com/jacobdjwilson/awesome-annual-security-reports)
-    * The Book of Secret Knowledge: [the-book-of-secret-knowledge](https://github.com/trimstray/the-book-of-secret-knowledge?tab=readme-ov-file#manualshowtostutorials-toc)
-
-* **Notes & Consolidation:**
-    * LogSeq (My internal notes, which are then summarized here in this repo)
-    * NotelookLM (Summaries and Quizes) 
+The ILS background is not incidental. Cataloging and extracting intelligence from unstructured datasets is the core of what librarians do, and it maps almost perfectly onto log triage, threat hunting, and incident response. The domain changed. The methodology didn't.
 
 ---
-*Always learning, always cataloging the next threat.*
+
+## Repository Structure
+
+| Folder | Contents |
+|---|---|
+| `/CyberDefenders` | Incident response reports from SOC Analyst Tier 1 track labs |
+| `/TryHackMe` | Challenge write-ups including full Advent of Cyber 2025 documentation |
+| `/HackTheBox` | Starting point labs and free tier walkthroughs |
+| `/picoCTF` | Solutions and analytical breakdowns |
+| `/OverTheWire` | Bandit exercises covering Bash scripting and Linux CLI |
+| `/Incident-Response` | Real-world problems I've worked through personally, including the Windows 11 boot failure and filesystem corruption recovery (Error 0xc0000102) |
+
+---
+
+## Focus Areas
+
+**Current Strength**
+- SOC Operations and Alert Triage
+- Log Analysis and SIEM (Splunk)
+- OSINT / SOCMINT
+
+**Actively Building**
+- Network Traffic Analysis
+- DFIR
+- Threat Intelligence and Threat Hunting
+
+---
+
+## Tools
+
+| Category | Tools |
+|---|---|
+| Operating Systems | Linux (Ubuntu, Kali), Windows 11 |
+| Network Analysis | Wireshark, Nmap |
+| SOC & Triage | Alert triage, IR reporting, ServiceDesk-Simulator |
+| OSINT | Sherlock, Blackbird, WhatsMyName, Lullar, Fazeel Azeez Channel Finder, OSINT Framework, advanced dorking |
+| SIEM | Splunk (in progress) |
+| Scripting | Bash |
+
+---
+
+## Featured Write-ups
+
+**[Windows 11 Filesystem & Boot Configuration Recovery](./Incident-Response/Win11-Filesystem-Recovery-0xc0000102.md)**
+
+A real failure I had to diagnose and recover from myself. The exercise forced me to map the Windows boot sequence end-to-end, interact with TPM and BitLocker directly via CLI, and perform offline forensic recovery on a corrupted filesystem. In a SOC context, being able to distinguish a cascading hardware fault from a destructive payload matters.
+
+**[Advent of Cyber 2025](./TryHackMe/AOC-2025-Documentation/README.md)**
+
+---
+
+## Completed Projects
+
+- Windows 11 Filesystem & Boot Configuration Recovery + IR Report
+- Home WiFi Security Audit and Hardening + Report
+- Sanitized People OSINT (SOCMINT) Investigation Report
+- Advent of Cyber 2025 (TryHackMe) + Full Documentation
+- Windows 11 Migration Project + Report
+- Server Performance Stats (Bash Script)
+- Dummy Systemd Service
+- OverTheWire Bandit
+- Basic Git & Version Control Mastery
+
+---
+
+## Certifications
+
+**In Progress**
+- CompTIA Network+
+- CompTIA Security+
+- ISC2 Certified in Cybersecurity (CC)
+
+**Completed**
+- Cybersecurity for General Professionals — Huawei & AIS Academy
+- Advent of Cyber 2025 — TryHackMe
+- Linux Unhatched — Cisco NetAcad
+
+---
+
+## Lab Profiles
+
+[HackTheBox](https://app.hackthebox.com/profile/#2566537) · [TryHackMe](https://tryhackme.com/p/poseidon.smash) · [CyberDefenders](https://cyberdefenders.org/p/poseidon.smash) · [LabEx](https://labex.io/users/uriel0byte-11746032) · [PicoCTF](https://play.picoctf.org/users/urielbyte) · [LetsDefend](https://app.letsdefend.io/user/urielbyte) · [BlueTeamLabs](https://blueteamlabs.online/home/user/82d77b7cbeca1bbfed8b49) · [Roadmap.sh](https://roadmap.sh/u/urielbyte)
+
+---
+
+## Tools I Use for Learning
+
+- **NotebookLM** — summaries, quizzes, and flashcard generation from course material
+- **Perplexity** — quick review of Network+ and Security+ concepts
+- **Claude / Gemini** — report review and CTF assistance
+
+---
+
+## Reference Libraries
+
+- [the-book-of-secret-knowledge](https://github.com/trimstray/the-book-of-secret-knowledge)
+- [90DaysOfCyberSecurity](https://github.com/farhanashrafdev/90DaysOfCyberSecurity/tree/main)
+- [awesome-cyber-security-university](https://github.com/brootware/awesome-cyber-security-university)
+- [awesome-security](https://github.com/sbilly/awesome-security)
+- [awesome-annual-security-reports](https://github.com/jacobdjwilson/awesome-annual-security-reports)
+- [Hacker101](https://www.hacker101.com/start-here)
+
+---
+
+*Notes are maintained in LogSeq and consolidated here. Always learning, always cataloging the next threat.*
