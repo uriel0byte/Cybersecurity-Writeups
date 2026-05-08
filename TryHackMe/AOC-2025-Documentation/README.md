@@ -7,6 +7,8 @@ This documents my full run through TryHackMe's Advent of Cyber 2025. As an ILS s
 transitioning into cybersecurity, I used this as a structured introduction to SOC
 operations. The write-ups are built for future reference, not just completion.
 
+![AOC 2025 Certificate](./09-Certificates/aoc-2025-certificate.png)
+
 **Stats at a glance**
 - 24/24 days completed
 - Days 1–10: enhanced with Key Takeaways sections
