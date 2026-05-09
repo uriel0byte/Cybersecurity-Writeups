@@ -1,4 +1,4 @@
-# Advent of Cyber 2025
+<img width="1002" height="235" alt="image" src="https://github.com/user-attachments/assets/73a042a8-d302-4b02-b3e4-f15545d1194d" /># Advent of Cyber 2025
 *uriel0byte — TryHackMe*
 
 All 24 days completed. December 1–24, 2025.
@@ -27,7 +27,7 @@ operations. The write-ups are built for future reference, not just completion.
 ├── /03-Daily-Challenges             # Core portfolio content
 │   ├── day-01-linux-cli.md
 │   ├── day-02-phishing.md
-│   ├── day-03-splunk-basics.md
+│   ├── day-03-splunk-siem.md
 │   ├── day-04-ai-security.md
 │   ├── day-05-idor.md
 │   ├── day-06-malware-analysis.md
@@ -93,7 +93,7 @@ operations. The write-ups are built for future reference, not just completion.
 
 ## Featured Write-ups
 
-**[Day 3 — Splunk SIEM Log Analysis](./03-Daily-Challenges/day-03-splunk-basics.md)**
+**[Day 3 — Splunk SIEM Log Analysis](./03-Daily-Challenges/day-03-splunk-siem.md)**
 
 Investigated a ransomware attack using Splunk. Traced the full attack chain from
 reconnaissance through SQL injection to data exfiltration, identified C2 communication,
