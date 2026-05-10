@@ -1,8 +1,8 @@
 # Day 8: Prompt Injection — Sched-yule Conflict
 
-**Date:** December 8, 2025
-**Time Spent:** 1 hour
-**Difficulty:** ★★☆☆
+**Date:** December 8, 2025  
+**Time Spent:** 1 hour  
+**Difficulty:** ★★☆☆  
 **Category:** AI Security / Prompt Injection
 **Room:** https://tryhackme.com/room/promptinjection-aoc2025-sxUMnCkvLO
 
