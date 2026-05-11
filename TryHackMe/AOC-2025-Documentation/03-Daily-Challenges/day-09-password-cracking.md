@@ -3,7 +3,7 @@
 **Date:** December 9, 2025 
 **Time Spent:** 1 hour  
 **Difficulty:** ★☆☆☆  
-**Category:** Password Security / Cryptography
+**Category:** Password Security / Cryptography 
 **Room:** https://tryhackme.com/room/attacks-on-ecrypted-files-aoc2025-asdfghj123
 
 ---
