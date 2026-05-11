@@ -1,351 +1,229 @@
-# Day 11: Cross-Site Scripting (XSS) - Merry XSSMas
+# Day 11: Cross-Site Scripting (XSS) — Merry XSSMas
 
-## 📋 Quick Facts
-- **Date Completed:** December 11, 2025
-- **Time Spent:** 1 hour
-- **Difficulty:** ★★☆☆ (Easy-Medium)
-- **Category:** Web Application Security / OWASP Top 10
-- **Room URL:** https://tryhackme.com/room/xss-aoc2025-c5j8b1m4t6
-
----
-
-## 🎯 Challenge Overview
-
-This challenge introduced Cross-Site Scripting (XSS) attacks against a secure message portal used by McSkidy. The portal had been experiencing unusual activity with suspicious search terms and script-like messages in the logs. I learned the difference between Reflected XSS and Stored XSS, practiced exploiting both vulnerabilities using JavaScript payloads, and understood prevention techniques to protect web applications from XSS attacks.
-
-**Learning Objectives:**
-- Understand how Cross-Site Scripting (XSS) works
-- Differentiate between Reflected XSS and Stored XSS
-- Practice exploiting XSS vulnerabilities with payload injection
-- Learn to prevent XSS attacks through secure coding practices
+**Date:** December 11, 2025  
+**Time Spent:** 1 hour  
+**Difficulty:** ★★☆☆  
+**Category:** Web Application Security / OWASP Top 10  
+**Room:** https://tryhackme.com/room/xss-aoc2025-c5j8b1m4t6
 
 ---
 
-## 💡 What I Learned
+## Overview
 
-### What is Cross-Site Scripting (XSS)?
+McSkidy's secure message portal was showing suspicious search terms and
+script-like messages in the logs. The task was to investigate by exploiting
+the portal's XSS vulnerabilities — first a Reflected XSS via the search
+function, then a Stored XSS via the message form. XSS definition was already
+known from Security+ theory; this was the first time seeing both variants
+work in practice and writing actual payloads.
 
-**XSS** is a web security vulnerability that allows attackers to inject malicious scripts (usually JavaScript) into web pages viewed by other users.
+---
 
-**How it works:**
-1. Attacker injects malicious code into a vulnerable web application
-2. The application doesn't properly sanitize or encode the input
-3. The malicious code is executed in victims' browsers
-4. Attacker can steal data, hijack sessions, or perform actions as the victim
+## What I Learned
 
-**Key concept from Security+:** I learned the definition of XSS in Professor Messer's Security+ course, but this was my **first time seeing what XSS actually looks like in practice**.
+### What is XSS?
+
+XSS (Cross-Site Scripting) lets an attacker inject malicious JavaScript into
+a web page that other users load in their browsers. It works because the
+application fails to sanitize or encode user input before rendering it as HTML.
+
+```
+Attacker injects JS → App stores or reflects it → Victim's browser executes it
+```
+
+What the attacker can do once code runs in the victim's browser:
+- Steal session cookies
+- Hijack the session
+- Perform actions as the victim
+- Redirect to malicious sites
+- Harvest credentials via fake login popups
 
 ### Reflected XSS (Non-Persistent)
 
-**Definition:** XSS where the injected payload is immediately reflected back in the response, not stored on the server.
-
-**How it works:**
+The payload is injected into a request and immediately reflected back in the
+response. Never stored on the server. Each victim has to be individually
+tricked into clicking a crafted URL.
 
 **Normal URL:**
 ```
 https://trygiftme.thm/search?term=gift
 ```
 
-**Malicious URL (XSS payload):**
+**Malicious URL:**
 ```
 https://trygiftme.thm/search?term=<script>alert(atob("VEhNe0V2aWxfQnVubnl9"))</script>
 ```
 
-**Attack Flow:**
-1. Attacker crafts malicious URL with JavaScript payload
-2. Attacker tricks victim into clicking the link (via phishing, social engineering)
-3. Victim clicks link → browser loads page
-4. Server reflects the payload back in the search results
-5. Browser executes the malicious JavaScript code
-6. Attacker's script runs in victim's browser context
+Attack flow:
+```
+1. Attacker crafts malicious URL
+2. Victim clicks link (via phishing)
+3. Server reflects payload back in response
+4. Browser executes the JavaScript
+```
 
-**Why it's called "Reflected":** The payload is reflected immediately in the HTTP response, not stored anywhere.
-
-**Attack Vector:** Usually exploited via **phishing** to trick users into clicking malicious links.
-
-**What attackers can do:**
-- Perform actions as the victim
-- View information the victim can access
-- Modify data the victim has permissions for
-- Steal session cookies
-- Redirect to malicious sites
+`atob()` is a built-in JavaScript function that decodes Base64 strings. Used
+here to obscure the payload from basic filters.
 
 ### Stored XSS (Persistent)
 
-**Definition:** XSS where the malicious script is **saved on the server** and executed every time a user views the affected page.
+The payload is saved to the server — database, file system, message queue —
+and executes automatically every time any user loads the affected page. No
+social engineering required per victim after the initial injection.
 
-**How it works:**
-
-**Normal Comment Submission:**
+**Malicious comment submission:**
 ```http
 POST /post/comment HTTP/1.1
 Host: tgm.review-your-gifts.thm
 
 postId=3
 name=Tony Baritone
-email=[email protected]
-comment=This gift set my carpet on fire but my kid loved it!
+email=tony@baritone.com
+comment=<script>alert(atob("VEhNe0V2aWxfU3RvcmVkX0VnZ30="))</script>
 ```
 
-**Malicious Comment Submission (Stored XSS):**
-```http
-POST /post/comment HTTP/1.1
-Host: tgm.review-your-gifts.thm
-
-postId=3
-name=Tony Baritone
-email=[email protected]
-comment=<script>alert(atob("VEhNe0V2aWxfU3RvcmVkX0VnZ30="))</script> + "This gift set my carpet on fire but my kid loved it!"
+Attack flow:
+```
+1. Attacker submits payload via form
+2. Server stores it in the database
+3. Every user who loads the page executes the script
+4. Attacker's code runs without further action
 ```
 
-**Attack Flow:**
-1. Attacker submits malicious JavaScript in a comment/message form
-2. Server stores the payload in the database
-3. Every user who visits the page loads the stored payload
-4. Browser executes the malicious script for EVERY visitor
-5. Attacker's code runs automatically without further action
+### Reflected vs. Stored
 
-**Why it's called "Stored":** The payload is permanently stored on the server (database, file system).
+| | Reflected | Stored |
+|---|---|---|
+| Persistence | Non-persistent | Stored on server |
+| Delivery | Crafted URL (phishing) | Form submission |
+| Victims | Targeted individuals | All users who view the page |
+| Requires social engineering | Yes, per victim | No, once injected |
+| Evidence on server | None | Payload in database/logs |
+| Danger level | Lower | Higher |
 
-**Why it's more dangerous than Reflected XSS:**
-- **"Set-and-forget" attack** - No need to trick individual victims
-- **Affects ALL users** who view the page, not just targeted victims
-- **Persistent impact** - Runs every time the page is loaded
-- **Higher success rate** - Doesn't require social engineering
+### Preventing XSS
 
-**What attackers can do:**
-- Steal session cookies from all users
-- Trigger fake login popups (credential harvesting)
-- Deface the website
-- Create worms (self-propagating XSS)
-- Mass account compromise
+**1. Use `textContent` instead of `innerHTML`**
 
-### Reflected vs. Stored XSS Comparison
-
-| Feature | Reflected XSS | Stored XSS |
-|---------|---------------|------------|
-| **Persistence** | Non-persistent (one-time) | Persistent (stored on server) |
-| **Attack Vector** | Malicious URL (phishing) | Malicious input in forms |
-| **Victims** | Specific targeted users | All users who view the page |
-| **Delivery** | Requires social engineering | Automatic execution |
-| **Impact Scale** | Individual victims | Mass compromise |
-| **Server Storage** | No (reflected immediately) | Yes (saved in database) |
-| **Detection Difficulty** | Harder (no evidence on server) | Easier (payload stored in logs/DB) |
-
-### Exploiting XSS - Hands-On Practice
-
-**Basic XSS Payload:**
 ```javascript
-<script>alert('Reflected Meow Meow')</script>
+element.innerHTML = userInput;    // DANGEROUS — executes HTML and JS
+element.textContent = userInput;  // SAFE — renders as plain text only
 ```
 
-**What this does:**
-- `<script>` tags tell the browser to execute JavaScript
-- `alert()` function displays a popup message
-- Used to confirm XSS vulnerability exists
+**2. Secure cookie attributes**
 
-**Exploiting Reflected XSS:**
-1. Navigate to search functionality
-2. Inject payload: `<script>alert('Reflected Meow Meow')</script>`
-3. Click "Search Messages"
-4. If alert box appears → Reflected XSS confirmed!
-
-**What happened behind the scenes:**
-- Search input was reflected directly in results **without encoding**
-- Browser interpreted HTML/JavaScript as **executable code**
-- Alert box demonstrated successful code execution
-
-**Tracking Behavior:**
-- Checked "System Logs" tab to see how the system interpreted the payload
-- Logs showed the script execution activity
-
-**Exploiting Stored XSS:**
-1. Navigate to message form
-2. Inject payload: `<script>alert('Stored Meow Meow')</script>`
-3. Click "Send Message"
-4. Payload is stored on the server
-5. **Every time the page loads or reloads** → Alert displays
-6. Affects all users, not just the attacker
-
-**Key difference observed:**
-- Reflected XSS: Alert only appears when visiting the malicious URL
-- Stored XSS: Alert appears **every time the page is loaded** by anyone
-
-### Preventing XSS Attacks
-
-**Three key defensive strategies:**
-
-**1. Disable Dangerous Rendering Paths**
-
-**Vulnerable approach:**
-```javascript
-element.innerHTML = userInput; // DANGEROUS - allows HTML/JS injection
+```
+HttpOnly   — Blocks JavaScript from reading the cookie entirely
+Secure     — Cookie only sent over HTTPS
+SameSite   — Blocks cookie from being sent in cross-site requests
 ```
 
-**Secure approach:**
-```javascript
-element.textContent = userInput; // SAFE - treats input as plain text
+Reduces damage from XSS by making session cookie theft much harder even if
+a payload executes.
+
+**3. Sanitize and encode output**
+
+Encode special characters before rendering user input as HTML:
+```
+<  →  &lt;
+>  →  &gt;
+"  →  &quot;
+'  →  &#x27;
 ```
 
-**Why this works:**
-- `innerHTML` interprets input as HTML (executes scripts)
-- `textContent` treats everything as plain text (displays literally, no execution)
-
-**2. Make Cookies Inaccessible to JavaScript**
-
-Set session cookies with security attributes:
-- **HttpOnly** - Prevents JavaScript from accessing cookies
-- **Secure** - Only sends cookies over HTTPS
-- **SameSite** - Prevents cookies from being sent in cross-site requests
-
-**Impact:** Reduces damage from XSS attacks by preventing cookie theft
-
-**3. Sanitize Input/Output and Encode**
-
-**When to use:**
-Applications that need to accept limited HTML input (e.g., formatting, safe links)
-
-**How it works:**
-- **Sanitize:** Remove or escape elements that could be executable code
-- **Encode:** Convert special characters to safe equivalents
-  - `<` becomes `&lt;`
-  - `>` becomes `&gt;`
-  - `"` becomes `&quot;`
-
-**What gets removed/escaped:**
+Strip or escape elements that should never appear in user content:
 - `<script>` tags
-- Event handlers (`onclick`, `onerror`)
-- JavaScript URLs (`javascript:`)
-
-**What stays safe:**
-- Basic formatting (bold, italic, links)
-- Plain text content
+- Event handlers: `onclick`, `onerror`, `onload`
+- JavaScript URLs: `javascript:`
 
 ---
 
-## 🛠️ Tools & Techniques Used
+## Challenges
 
-### Tools
-1. **Web Browser** - Firefox/Chrome for payload injection and testing
-2. **System Logs** - Track XSS payload execution and behavior
-3. **Developer Tools** - Inspect how browser interprets injected code
-4. **XSS Payloads** - JavaScript alert() functions for proof-of-concept
-
-### Techniques
-- **Payload injection** - Inserting malicious JavaScript into input fields
-- **XSS testing** - Using alert() to confirm vulnerability
-- **Log analysis** - Reviewing system logs to understand payload execution
-- **URL crafting** - Creating malicious URLs for Reflected XSS
-- **Form exploitation** - Submitting stored payloads via message forms
-- **Browser behavior analysis** - Observing how different XSS types execute
+No real difficulty. The room was straightforward with clear instructions and
+immediate visual feedback from alert boxes. The main value was seeing both
+XSS types work in practice after only knowing the definition from Security+
+theory — understanding why Stored is more dangerous than Reflected only
+clicked once the attack flow was visible rather than described.
 
 ---
 
-## 🤔 Challenges I Faced
+## Security+ Alignment
 
-**No Major Problems:** This room was pretty easy to follow and complete.
+**Domain 1.0 - General Security Concepts (12%):** Secure coding practices,
+input validation, vulnerability types.
 
-**Learning vs. Reviewing:**
-- **From Professor Messer's Security+:** I learned the **definition** of XSS (what it is conceptually)
-- **From This Room:** This was my **first time seeing what XSS actually looks like in practice**
-  - First time crafting XSS payloads
-  - First time seeing Reflected vs. Stored XSS in action
-  - First time understanding the difference between `innerHTML` vs. `textContent`
+**Domain 2.0 - Threats, Vulnerabilities and Mitigations (22%):** Injection
+attacks, XSS, OWASP Top 10, web application vulnerabilities.
 
-**What Made It Easy:**
-- Clear instructions on payload injection
-- Immediate visual feedback (alert boxes)
-- Simple payloads (`<script>alert()</script>`)
-- System logs showed exactly what was happening
-
-**Overall Experience:** This was a practical application of theoretical Security+ knowledge. Seeing XSS in action made the concept much clearer than just knowing the definition.
+**Domain 4.0 - Security Operations (28%):** Vulnerability assessment, security
+monitoring, web application security, incident detection.
 
 ---
 
-## ✅ How This Helps My Career
+## Evidence
 
-XSS is one of the most common web vulnerabilities and appears in almost every web security discussion:
-
-**Why XSS Matters:**
-- **#3 on OWASP Top 10** (Injection attacks, which includes XSS)
-- **40% of web applications** have at least one XSS vulnerability
-- **50% of SOC jobs** mention web application security awareness
-- Found in real-world applications (social media, forums, e-commerce)
-
-**SOC Analyst Applications (Defensive):**
-
-**Alert Triage & Detection:**
-- Recognize XSS payloads in web application logs
-- Identify suspicious `<script>` tags or JavaScript in user input
-- Detect Base64-encoded payloads (like `atob()` function in challenge)
-- Monitor for unusual alert() or eval() executions
-
-**Incident Response:**
-- Investigate XSS incidents reported by Web Application Firewalls (WAF)
-- Assess impact: Was it Reflected (limited) or Stored (widespread)?
-- Determine scope: How many users were affected?
-- Recommend remediation: Input sanitization, output encoding, CSP headers
-
-**Security Awareness:**
-- Educate developers on secure coding practices
-- Demonstrate real XSS attacks to stakeholders
-- Advocate for WAF deployment and input validation
-
-**Penetration Testing / Red Team Applications (Offensive):**
-
-**Web Application Testing:**
-- Test all user input fields for XSS vulnerabilities
-- Try both Reflected and Stored XSS vectors
-- Use XSS to demonstrate risk during security assessments
-- Chain XSS with other vulnerabilities (session hijacking, CSRF)
-
-**Real-World Attack Scenarios:**
-- Steal session cookies to hijack administrator accounts
-- Create fake login pages to harvest credentials
-- Deface websites or inject malicious content
-- Conduct phishing campaigns via Reflected XSS URLs
-
-**Career Skills Developed:**
-- **OWASP Top 10 knowledge** - Industry-standard vulnerability framework
-- **Web application security** - Understanding client-side attacks
-- **Payload crafting** - Creating effective proof-of-concept exploits
-- **Secure coding awareness** - Knowing how to prevent vulnerabilities
-- **Defensive strategies** - Input validation, output encoding, CSP
-
-**Interview Talking Point:** "I have hands-on experience identifying and exploiting Cross-Site Scripting (XSS) vulnerabilities, including both Reflected and Stored variants. I understand the difference between non-persistent attacks requiring social engineering and persistent attacks that affect all users. I can craft XSS payloads for security testing, recognize XSS patterns in logs and web application traffic, and recommend defensive measures including input sanitization, output encoding, and secure cookie configuration. I'm familiar with the OWASP Top 10 and understand how XSS fits into the broader web application threat landscape."
+![XSS System Logs](../07-Screenshots/Day11.png)
+*System logs showing XSS payload execution. Reflected XSS confirmed via alert
+box on search function. Stored XSS payload persisted in message form and
+executed on every subsequent page load.*
 
 ---
 
-## 🔗 Security+ Connection
+## Key Takeaways
 
-**Domain 1.0 - General Security Concepts (12%):** Secure coding practices, input validation, vulnerability types.
+**XSS payload quick reference:**
+```javascript
+// Basic proof-of-concept
+<script>alert('XSS')</script>
 
-**Domain 2.0 - Threats, Vulnerabilities & Mitigations (22%):** Injection attacks, XSS, OWASP Top 10, web application vulnerabilities, attack techniques.
+// With Base64 encoding (bypasses basic filters)
+<script>alert(atob("BASE64_STRING_HERE"))</script>
 
-**Domain 4.0 - Security Operations (28%):** Vulnerability assessment, security monitoring, web application security, incident detection.
+// Event handler vector (no script tags needed)
+<img src=x onerror=alert('XSS')>
 
----
+// Input field vector
+"><script>alert('XSS')</script>
+```
 
-## 📸 Evidence
+**Detection — what to look for in logs:**
+```
+<script>          in user input fields or URL parameters
+alert(            in HTTP request logs
+atob(             Base64-encoded payload indicator
+onerror=          Event handler injection attempt
+javascript:       JavaScript URL scheme in href values
+eval(             Dynamic code execution attempt
+```
 
-![Overall](../07-Screenshots/Day11.png)
-*Reviewed system logs showing XSS payload execution and browser interpretation of injected JavaScript code*
+**Reflected vs. Stored at a glance:**
+```
+Reflected: payload in URL → reflected in response → one victim at a time
+Stored:    payload in form → saved to DB → every visitor is a victim
+```
 
-*Successfully injected Reflected XSS payload via search function, alert box confirmed code execution*
+**Defensive checklist:**
+```
+textContent instead of innerHTML       (client-side rendering)
+HttpOnly + Secure + SameSite cookies   (cookie protection)
+Output encoding: < > " ' &            (HTML encoding)
+Strip <script>, onclick, javascript:   (input sanitization)
+Content Security Policy (CSP) header   (browser-level enforcement)
+WAF rules for XSS patterns             (network-level detection)
+```
 
-*Submitted Stored XSS payload through message form, script executes automatically on every page load affecting all users*
+**Key terms:**
 
----
-
-## 📝 Note on Learning Approach
-
-**Important clarification:** When I say "reviewing and learning" in previous days, I mean I learned the **definition/concept** from Professor Messer's Security+ course, but TryHackMe rooms are my **first hands-on practical experience** with these topics.
-
-**Examples:**
-- **Day 5 (IDOR):** Knew the concept from Security+ → First time exploiting it
-- **Day 9 (Password Cracking):** Knew dictionary attacks exist → First time using john/hashcat
-- **Day 11 (XSS):** Knew XSS definition → First time crafting payloads and seeing it work
-
-This combination of **theoretical foundation (Security+) + practical application (TryHackMe)** creates strong, well-rounded understanding.
-
----
+| Term | Definition |
+|---|---|
+| XSS | Injection of malicious JavaScript into pages viewed by other users |
+| Reflected XSS | Payload reflected immediately in response, not stored |
+| Stored XSS | Payload saved to server, executes for every user who loads the page |
+| `innerHTML` | DOM property that parses and renders HTML — dangerous with user input |
+| `textContent` | DOM property that renders as plain text — safe alternative |
+| `HttpOnly` | Cookie attribute blocking JavaScript access |
+| `atob()` | JavaScript function decoding Base64 strings |
+| CSP | Content Security Policy — browser-enforced header restricting script sources |
+| WAF | Web Application Firewall — filters malicious HTTP requests |
+| OWASP Top 10 | Industry standard list of critical web application security risks |
