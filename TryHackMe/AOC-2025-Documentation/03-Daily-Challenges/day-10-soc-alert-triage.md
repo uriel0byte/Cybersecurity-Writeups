@@ -1,9 +1,9 @@
 # Day 10: SOC Alert Triage — Tinsel Triage
 
-**Date:** December 10, 2025
-**Time Spent:** 3 hours
-**Difficulty:** ★★★★
-**Category:** SIEM / SOC Operations / Cloud Security
+**Date:** December 10, 2025  
+**Time Spent:** 3 hours  
+**Difficulty:** ★★★★  
+**Category:** SIEM / SOC Operations / Cloud Security  
 **Room:** https://tryhackme.com/room/azuresentinel-aoc2025-a7d3h9k0p2
 
 ---
