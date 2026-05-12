@@ -328,7 +328,7 @@ That is what someone actually registered and controls
 
 **Malicious file type quick reference:**
 ```
-.hta              → Outside browser sandbox, Windows Script Host
+.hta              → Outside browser sandbox, executed by mshta.exe
 .docm / .xlsm     → Office macros
 .js / .vbs        → Script files via Windows Script Host
 .zip / .rar       → Archive hiding any of the above
