@@ -1,4 +1,4 @@
-<img width="1002" height="235" alt="image" src="https://github.com/user-attachments/assets/73a042a8-d302-4b02-b3e4-f15545d1194d" /># Advent of Cyber 2025
+# Advent of Cyber 2025
 *uriel0byte — TryHackMe*
 
 All 24 days completed. December 1–24, 2025.
