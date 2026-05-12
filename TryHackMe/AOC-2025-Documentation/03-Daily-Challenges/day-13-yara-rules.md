@@ -1,529 +1,335 @@
-# Day 13: YARA Rules - YARA mean one!
+# Day 13: YARA Rules — YARA Mean One!
 
-## 📋 Quick Facts
-- **Date Completed:** December 13, 2025
-- **Time Spent:** 2 hours
-- **Difficulty:** ★★★☆ (Medium-Hard)
-- **Category:** Malware Detection / Threat Hunting / Digital Forensics
-- **Room URL:** https://tryhackme.com/room/yara-aoc2025-q9w1e3y5u7
-
----
-
-## 🎯 Challenge Overview
-
-This challenge introduced YARA, a powerful pattern-matching tool used to identify and classify malware. McSkidy sent encrypted images containing hidden messages that could only be decoded using YARA rules. I learned to write YARA rules with metadata, strings (text, hexadecimal, regex), and conditions to scan files and directories for malicious indicators. The mission involved creating custom YARA rules to search for the keyword `TBFC:` followed by codewords hidden in image files to decode McSkidy's message.
-
-**Learning Objectives:**
-- Understand the basic concept of YARA and its role in malware detection
-- Learn when and why defenders use YARA rules
-- Explore different types of YARA rules (strings, conditions, modifiers)
-- Practice writing YARA rules from scratch
-- Detect malicious indicators using YARA in practical scenarios
+**Date:** December 13, 2025  
+**Time Spent:** 2 hours  
+**Difficulty:** ★★★☆  
+**Category:** Malware Detection / Threat Hunting / Digital Forensics  
+**Room:** https://tryhackme.com/room/yara-aoc2025-q9w1e3y5u7
 
 ---
 
-## 💡 What I Learned
+## Overview
+
+McSkidy sent encrypted images with hidden messages that could only be decoded
+using custom YARA rules. The task was to write a rule using regex to scan
+for the pattern `TBFC:` followed by alphanumeric codewords across a directory
+of image files. YARA was completely new — no prior exposure from Security+
+or anywhere else.
+
+---
+
+## What I Learned
 
 ### What is YARA?
 
-**YARA** is a tool designed to **identify and classify malware** by searching for unique patterns—the digital fingerprints left behind by attackers.
+YARA is a pattern-matching tool used to identify and classify malware. Instead
+of relying on file names or antivirus signatures, it scans files and memory
+for specific patterns — strings, byte sequences, or regex — that indicate
+malicious behavior. Detection is based on what the file contains and does,
+not what it's called.
 
-**Analogy:** Think of YARA as a detective's notebook for cyber defenders. Instead of dusting for fingerprints, YARA scans code, files, and memory for subtle traces that reveal a threat's identity.
+**Why this matters for SOC work:** YARA lets you move from passive monitoring
+to active hunting. Once you have an IOC — a string, a hex pattern, a URL
+format — you can turn it into a rule and scan your entire environment for it
+immediately, without waiting for an AV vendor to push an update.
 
-**Key Concept:** YARA detects malware by its **behavior and patterns**, not just by name. This means:
-- You're not waiting for antivirus signature updates
-- You can detect new malware variants
-- You define what constitutes "malicious" behavior
+### When Defenders Use YARA
 
-**YARA in SOC Operations:** At TBFC, YARA serves as a silent guardian, scanning through systems and uncovering faint traces of malicious activity that others might overlook.
+**Post-incident sweeps** — Malware found on one host. Does it exist anywhere
+else on the network? Write a rule from the sample and scan everything.
 
-### Why YARA Matters - Use Cases
+**Proactive threat hunting** — Search endpoints and file shares for known
+malware family signatures before they trigger alerts.
 
-**When Defenders Use YARA:**
+**Intelligence-driven scans** — Apply YARA rules from threat intelligence
+feeds or community sources (VirusTotal, GitHub) to existing environments.
 
-**1. Post-Incident Analysis**
-- Verify whether malware traces found on one compromised host exist elsewhere
-- Example: "We found IcedID on Server A. Does it exist on Servers B, C, D?"
+**Memory analysis** — Scan RAM dumps for fileless malware that never touches
+disk and would be invisible to file-based scanning.
 
-**2. Threat Hunting**
-- Proactively search through systems and endpoints for signs of known malware families
-- Hunt for indicators of compromise (IOCs) before they cause damage
+**Large-scale file scanning** — Identify infected files across thousands of
+directories without opening each one.
 
-**3. Intelligence-Based Scans**
-- Apply shared YARA rules from security community or threat intelligence feeds
-- Detect new attack patterns based on published research
+### YARA Rule Structure
 
-**4. Memory Analysis**
-- Examine active processes in memory dumps for malicious code fragments
-- Find malware running only in RAM (fileless malware)
+Every rule has three sections:
 
-**5. Large-Scale File Scanning**
-- Scan entire directories, drives, or network shares for suspicious patterns
-- Quickly identify infected files among thousands or millions
+```
+meta      → Information about the rule (author, date, purpose)
+strings   → The patterns YARA searches for
+condition → The logic that decides when the rule fires
+```
 
-### YARA Advantages for SOC Analysts
-
-**Why YARA is Powerful:**
-
-**Speed:** Quickly scans large sets of files or systems to identify suspicious ones
-
-**Flexibility:** Detects everything from text strings to binary patterns and complex logic
-
-**Control:** Lets analysts define exactly what they consider malicious (custom detection)
-
-**Shareability:** Rules can be reused and improved by other defenders across organizations/communities
-
-**Visibility:** Helps connect scattered clues into a clear picture of the attack
-
-**Bottom Line:** YARA empowers defenders to move from **passive monitoring** to **active hunting**, turning intelligence into action before attackers strike.
-
-### YARA Rule Structure - Three Key Elements
-
-Every YARA rule consists of three main parts:
-
-**1. Metadata (meta)**
-- Information about the rule itself
-- Who created it, when, and for what purpose
-- Not required but highly recommended
-
-**2. Strings**
-- The clues YARA searches for
-- Text, byte sequences, or regular expressions marking suspicious content
-- The "signatures" of malicious activity
-
-**3. Conditions**
-- The logic deciding when the rule triggers
-- Combines multiple strings or parameters into a single decision
-- Determines true positive vs. false positive
-
-**Basic YARA Rule Example:**
-
+**Basic structure:**
 ```yara
-rule TBFC_KingMalhare_Trace
+rule RuleName
 {
     meta:
-        author = "Defender of SOC-mas"
-        description = "Detects traces of King Malhare's malware"
-        date = "2025-10-10"
-    
+        author      = "Analyst Name"
+        description = "What this detects"
+        date        = "2025-10-10"
+
     strings:
-        $s1 = "rundll32.exe" fullword ascii
-        $s2 = "msvcrt.dll" fullword wide
+        $s1   = "rundll32.exe" fullword ascii
+        $s2   = "msvcrt.dll" fullword wide
         $url1 = /http:\/\/.*malhare.*/ nocase
-    
+
     condition:
         any of them
 }
 ```
 
-**What this does:**
-- Searches for specific strings related to malware
-- Triggers if ANY of the strings are found
-- Provides metadata for rule management
+### Strings — Types and Modifiers
 
-### Metadata Section (meta)
+**Three string types:**
 
-**Purpose:** Helps you and other defenders understand the rule
-
-**Common Fields:**
-- `author` - Who created the rule
-- `description` - What the rule detects
-- `date` - When the rule was written
-- `confidence` - How reliable the detection is (low/medium/high)
-- `reference` - Link to threat intelligence or analysis
-
-**Why Metadata Matters:**
-When your YARA rule collection grows, clear metadata saves time. Without it, finding or updating the right rule becomes challenging.
-
-**Best Practice:** Always include at least `description` and `date`.
-
-### Strings Section - Types and Modifiers
-
-**Strings are the clues YARA searches for.** There are three main types:
-
-**1. Text Strings (Most Common)**
-
-**Basic text string:**
+**1. Text strings** — Readable characters. Default is ASCII, case-sensitive.
 ```yara
-strings:
-    $TBFC_string = "Christmas"
+$text = "Christmas"
 ```
 
-**By default:** ASCII, case-sensitive
-
-**Text String Modifiers (NEW CONCEPT - Like Programming):**
-
-**a) nocase - Case-Insensitive Matching**
+**2. Hexadecimal strings** — Raw bytes. Use when there are no readable strings.
 ```yara
-strings:
-    $xmas = "Christmas" nocase
-```
-Matches: "Christmas", "CHRISTMAS", "christmas", "ChRiStMaS"
-
-**Why useful:** Attackers often change casing to evade simple string searches
-
-**b) wide / ascii - Character Encoding**
-```yara
-strings:
-    $xmas = "Christmas" wide ascii
-```
-- `ascii` - Single-byte characters (standard text)
-- `wide` - Two-byte Unicode characters (common in Windows executables)
-- Both together - Search for either encoding
-
-**Why useful:** Many Windows malware uses Unicode strings
-
-**c) xor - XOR Encoding Detection**
-```yara
-strings:
-    $hidden = "Malhare" xor
-```
-Automatically checks all possible single-byte XOR variations
-
-**Why useful:** Attackers XOR-encode text to hide from scanners
-
-**d) base64 / base64wide - Base64 Encoding**
-```yara
-strings:
-    $b64 = "SOC-mas" base64
-```
-YARA decodes Base64 content and searches for original pattern
-
-**Why useful:** Malware often encodes payloads or commands in Base64
-
-**2. Hexadecimal Strings (Binary Patterns)**
-
-Used when malware doesn't leave readable words—only raw bytes.
-
-```yara
-strings:
-    $mz = { 4D 5A 90 00 }  // MZ header of Windows executable
-    $hex_string = { E3 41 ?? C8 }  // ?? = wildcard byte
+$mz  = { 4D 5A }           // MZ header — Windows PE file signature
+$hex = { 48 8B ?? ?? 48 89 } // ?? = wildcard, matches any single byte
 ```
 
-**Wildcards:**
-- `??` - Any single byte
-- `[2-4]` - 2 to 4 bytes of any value
-
-**Why useful:** Detect file headers, shellcode, or binary signatures that can't be represented as text
-
-**3. Regular Expression Strings (Flexible Patterns)**
-
-Used when malware mutates and patterns vary slightly.
-
-```yara
-strings:
-    $url = /http:\/\/.*malhare.*/ nocase
-    $cmd = /powershell.*-enc\s+[A-Za-z0-9+/=]+/ nocase
+Wildcard options:
+```
+??      any single byte
+[2-4]   any 2 to 4 bytes
 ```
 
-**Why useful:** 
-- Spot URLs with varying domains
-- Detect encoded commands
-- Match filenames sharing structure but differing slightly
-
-**Caution:** Regex is powerful but can slow down scans if written too broadly.
-
-### Conditions Section - Decision Logic
-
-**The condition decides WHEN the rule triggers.**
-
-**1. Match a Single String**
+**3. Regular expressions** — Flexible patterns for variable content.
 ```yara
-condition:
-    $xmas
+$url = /http:\/\/.*malhare.*/ nocase
+$cmd = /powershell.*-enc\s+[A-Za-z0-9+\/=]+/ nocase
 ```
-Triggers if `$xmas` string is found.
 
-**2. Match Any String**
+Regex is powerful but can slow scans if written too broadly.
+
+---
+
+**String modifiers** (append after the string value):
+
+| Modifier | What It Does |
+|---|---|
+| `nocase` | Case-insensitive matching |
+| `ascii` | Match ASCII (1-byte) encoding |
+| `wide` | Match Unicode (2-byte) encoding — common in Windows executables |
+| `fullword` | Match only if surrounded by non-alphanumeric characters |
+| `xor` | Test all 256 single-byte XOR keys 0x00–0xFF (detects XOR-obfuscated strings) |
+| `base64` | Decode Base64 content and match original pattern |
+| `base64wide` | Same as base64 but for Unicode-encoded Base64 |
+
+Modifiers can be combined: `"Christmas" wide ascii nocase`
+
+### Conditions
+
+The condition decides when the rule fires. It uses the string variables
+defined in the strings section combined with logical operators.
+
 ```yara
-condition:
-    any of them
+// Single string
+condition: $xmas
+
+// Any one of the defined strings
+condition: any of them
+
+// All defined strings must be present
+condition: all of them
+
+// Logic operators — and / or / not
+condition: ($s1 or $s2) and not $benign
+
+// File size constraint
+condition: any of them and filesize < 700KB
 ```
-Triggers if ANY defined string is found (early warning, fast detection).
 
-**3. Match All Strings**
-```yara
-condition:
-    all of them
-```
-Triggers only if ALL strings are found (reduces false positives, stricter detection).
+File size constraint is useful because malware loaders tend to be small.
+Legitimate software is usually larger, so combining a string match with
+`filesize < Xmb` reduces false positives.
 
-**4. Logical Operators: and, or, not**
-```yara
-condition:
-    ($s1 or $s2) and not $benign
-```
-- Detects if `$s1` OR `$s2` is found
-- BUT ignores if `$benign` is present (whitelisting legitimate files)
+### IcedID Rule — Practical Example
 
-**5. File Property Checks**
-
-**File Size:**
-```yara
-condition:
-    any of them and (filesize < 700KB)
-```
-Triggers only if strings match AND file is smaller than 700KB.
-
-**Why useful:** Malware loaders are often small; legitimate software is usually larger.
-
-**Other Properties:**
-- `entrypoint` - Check file's entry point location
-- `hash` - Match specific file hash values
-
-### Practical YARA Rule Example - IcedID Malware
-
-**Scenario:** Malhare's kingdom used IcedID trojan to steal credentials. Analysts discovered common signature (MZ header) in malicious executables.
-
-**YARA Rule:**
 ```yara
 rule TBFC_Simple_MZ_Detect
 {
     meta:
-        author = "TBFC SOC L2"
+        author      = "TBFC SOC L2"
         description = "IcedID Rule"
-        date = "2025-10-10"
-        confidence = "low"
-    
+        date        = "2025-10-10"
+        confidence  = "low"
+
     strings:
-        $mz = { 4D 5A }  // "MZ" header (PE file)
-        $hex1 = { 48 8B ?? ?? 48 89 }  // malicious binary fragment
-        $s1 = "malhare" nocase  // story / IOC string
-    
+        $mz   = { 4D 5A }                // MZ header (Windows PE)
+        $hex1 = { 48 8B ?? ?? 48 89 }    // Malicious binary fragment
+        $s1   = "malhare" nocase         // IOC string
+
     condition:
-        all of them and filesize < 10485760  // < 10MB size
+        all of them and filesize < 10485760  // All present + under 10MB
 }
 ```
 
-**What this detects:**
-- Files with MZ header (Windows executables)
-- Containing specific malicious hex pattern
-- Containing "malhare" string (case-insensitive)
-- Smaller than 10MB (typical loader size)
+`{ 4D 5A }` is the ASCII hex for "MZ" — the magic bytes at the start of
+every Windows executable (PE file). Finding this plus the other strings
+narrows matches to suspicious executables only.
 
-**Running YARA:**
+### Running YARA
+
 ```bash
-yara -r icedid_starter.yar C:\
+# Basic scan (single file or directory)
+yara rule.yar /path/to/scan
+
+# Recursive — scan all subdirectories
+yara -r rule.yar /path/to/scan
+
+# Recursive + show matched strings
+yara -r -s rule.yar /path/to/scan
 ```
 
-**Output:**
+**Example output:**
 ```
-icedid_starter C:\Users\WarevilleElf\AppData\Roaming\TBFC_Presents\malhare_gift_loader.exe
-```
-
-**YARA Flags (First Time Learning):**
-- `-r` - Recursively scan directories and follow symlinks
-- `-s` - Print matching strings found in files (useful for analysis)
-
-**Full Command:**
-```bash
-yara -r -s icedid_starter.yar C:\
+TBFC_Simple_MZ_Detect C:\Users\WarevilleElf\AppData\Roaming\malhare_gift_loader.exe
 ```
 
-### My Practical Task - Decoding McSkidy's Message
+### Practical Task — Decoding McSkidy's Message
 
-**Mission:** Create YARA rule to search for keyword `TBFC:` followed by alphanumeric codewords in `/home/ubuntu/Downloads/easter` directory.
+The task was to scan `/home/ubuntu/Downloads/easter` for the pattern
+`TBFC:` followed by alphanumeric codewords hidden inside image files.
 
-**Challenge:**
-- Multiple images contained hidden messages
-- Had to extract codewords in ascending order
-- Use regex to match pattern `TBFC:` + alphanumeric characters
-
-**Regex Pattern I Learned:**
+**Regex pattern used:**
 ```
-TBFC:[A-Za-z0-9]+
+/TBFC:[A-Za-z0-9]+/
 ```
-- `TBFC:` - Literal match
-- `[A-Za-z0-9]+` - One or more alphanumeric ASCII characters
 
-**What I Struggled With:**
-- Understanding regex syntax (first time writing patterns)
-- Knowing which modifiers to use (nocase? ascii? wide?)
-- Structuring the condition correctly
+Breaking it down:
+```
+TBFC:        literal string match
+[A-Za-z0-9]  character class — any uppercase letter, lowercase letter, or digit
++            one or more of the preceding character class
+```
 
-**What Clicked:**
-- YARA scans files looking for patterns (like Ctrl+F but powerful)
-- Regex allows flexible matching (not exact strings)
-- Conditions decide when to alert (logic gates)
+**Rule written for the task:**
+```yara
+rule Find_TBFC_Codewords
+{
+    meta:
+        description = "Extract TBFC codewords from image files"
+
+    strings:
+        $codeword = /TBFC:[A-Za-z0-9]+/
+
+    condition:
+        $codeword
+}
+```
+
+Run with `-s` to print the matched strings and read the codewords in order.
 
 ---
 
-## 🛠️ Tools & Techniques Used
+## Challenges
 
-### Tools
-1. **YARA** - Pattern-matching engine for malware detection
-2. **Text editor** - Writing YARA rule files (.yar)
-3. **Command line** - Running YARA scans with flags
-4. **Regex** - Creating flexible string matching patterns
-
-### Techniques
-- **YARA rule writing** - Creating custom detection signatures
-- **String definition** - Using text, hex, and regex patterns
-- **Condition logic** - Combining strings with logical operators
-- **File property analysis** - Checking file size constraints
-- **Recursive scanning** - Searching entire directory trees
-- **Pattern extraction** - Finding hidden messages in files
-- **Regex construction** - Building flexible matching expressions
+YARA was completely new. The structure feels like writing code — defining
+variables, applying modifiers, combining logic — which was uncomfortable
+without a programming background. The basic concept clicked quickly (scan
+for patterns, fire on match) but regex syntax and hex patterns required
+multiple re-reads. Knowing which modifiers to use and when (`wide`? `ascii`?
+both?) only became clearer after seeing the examples side by side. This is
+a skill that will sharpen with practice, not reading.
 
 ---
 
-## 🤔 Challenges I Faced
+## Security+ Alignment
 
-**Another New Concept:** YARA was completely new—never encountered it in Security+ or anywhere else.
+**Domain 2.0 - Threats, Vulnerabilities and Mitigations (22%):** Malware
+indicators, threat intelligence, IOC identification, signature-based detection.
 
-**It's Like Learning a Programming Language:**
-This was very challenging because YARA rules feel like writing code, and **I have no programming background**. The syntax, structure, and logic were unfamiliar.
-
-**What I Got:**
-- **Basic concept** - YARA searches for patterns in files
-- **Why it's useful** - Detect malware by behavior, not just name
-- **Three main parts** - Metadata, Strings, Conditions
-- **Use cases** - Threat hunting, post-incident analysis
-
-**What I Don't Fully Get:**
-- **Regex syntax** - Understanding `[A-Za-z0-9]+` and other patterns is confusing
-- **When to use modifiers** - Should I use `nocase`? `wide`? `ascii`? All of them?
-- **Hex patterns** - How to know which bytes to look for (e.g., `{ 48 8B ?? ?? 48 89 }`)
-- **Complex conditions** - Combining multiple logical operators gets complicated
-
-**What Took Time:**
-- Reading about all the string types and modifiers (lots to absorb)
-- Understanding the difference between text/hex/regex strings
-- Writing my first YARA rule for the practical task
-- Debugging why my rule didn't trigger initially
-
-**Overall Experience:**
-Medium-hard difficulty. The room explained concepts well, but applying them felt like learning to code. Some parts clicked (basic structure), others didn't (regex details, hex patterns). It's a skill that will take practice to master.
+**Domain 4.0 - Security Operations (28%):** Threat hunting, incident response,
+malware analysis, forensics, detection tools and techniques.
 
 ---
 
-## ✅ How This Helps My Career
-
-YARA is an **industry-standard tool** for malware analysis and threat hunting:
-
-**Why YARA Matters:**
-- **70% of SOC/threat hunting jobs** mention YARA or similar pattern-matching tools
-- Used by malware analysts, threat hunters, incident responders
-- Essential for custom malware detection beyond antivirus signatures
-- Highly valued skill in blue team operations
-
-**SOC Analyst Applications:**
-
-**Threat Hunting:**
-- Proactively search endpoints for malware indicators
-- Hunt for APT (Advanced Persistent Threat) patterns
-- Scan systems for zero-day malware using custom rules
-- Correlate YARA detections with SIEM alerts
-
-**Incident Response:**
-- After malware discovery on one host, scan all systems
-- Verify malware removal during remediation
-- Check for persistence mechanisms left behind
-- Identify lateral movement across network
-
-**Malware Analysis:**
-- Classify unknown malware samples
-- Identify malware families and variants
-- Extract IOCs (Indicators of Compromise) from samples
-- Build detection rules based on analysis findings
-
-**Intelligence Integration:**
-- Apply threat intelligence feeds as YARA rules
-- Use community-shared rules (GitHub, VirusTotal)
-- Contribute custom rules back to security community
-- Stay updated on emerging threat patterns
-
-**Forensics Investigation:**
-- Scan forensic disk images for malware traces
-- Analyze memory dumps for fileless malware
-- Find deleted or hidden malicious files
-- Reconstruct attacker activities through pattern matching
-
-**Real-World Tools Using YARA:**
-- **VirusTotal** - Scans samples against thousands of YARA rules
-- **LOKI** - Free IOC scanner using YARA rules
-- **osquery** - Queries endpoints with YARA integration
-- **TheHive/Cortex** - SOAR platforms with YARA analysis
-- **Cuckoo Sandbox** - Malware analysis with YARA signatures
-
-**Career Skills Developed:**
-- **Pattern recognition** - Identifying malware signatures
-- **Rule writing** - Creating custom detection logic
-- **Regex skills** - Building flexible matching patterns
-- **Threat intelligence** - Translating IOCs into detections
-- **Malware understanding** - Knowing what makes files suspicious
-- **Automation** - Scaling detection across large environments
-
-**Career Progression:**
-- **Entry SOC Analyst** - Run existing YARA rules
-- **Mid-Level Analyst** - Modify and improve rules
-- **Senior Analyst/Threat Hunter** - Write custom rules from scratch
-- **Malware Analyst** - Create advanced signatures for new threats
-
-**Interview Talking Point:** "I have hands-on experience writing YARA rules for malware detection and threat hunting. I understand the three main components of YARA rules—metadata, strings, and conditions—and can create custom signatures using text strings with modifiers like nocase and xor, hexadecimal patterns for binary detection, and regular expressions for flexible matching. I've practiced scanning directories recursively with YARA, extracting matching strings, and applying logical conditions to reduce false positives. I understand YARA's role in post-incident analysis, intelligence-based scans, and proactive threat hunting, which are core responsibilities in SOC operations and incident response. While I'm still building proficiency in regex and complex hex patterns, I have the foundation to learn from community-shared rules and adapt them to organizational needs."
-
----
-
-## 🔗 Security+ Connection
-
-**Domain 2.0 - Threats, Vulnerabilities & Mitigations (22%):** Malware indicators, threat intelligence, IOC identification, signature-based detection.
-
-**Domain 4.0 - Security Operations (28%):** Threat hunting, incident response, malware analysis, forensics, detection tools and techniques.
-
----
-
-## 📸 Evidence
+## Evidence
 
 ![Regex Pattern Matching](../07-Screenshots/Day13-1.png)
-*Built regex pattern /TBFC:[A-Za-z0-9]+/ to extract alphanumeric codewords from hidden messages in image files*
+*YARA rule with regex pattern `/TBFC:[A-Za-z0-9]+/` scanning image files
+for hidden codewords.*
 
 ![YARA Scan Results](../07-Screenshots/Day13-2.png)
-*Successfully ran YARA rule recursively against directory, detected alphanumeric codewords from hidden messages in image files containing TBFC: codewords*
+*Recursive YARA scan results showing matched codewords extracted from the
+easter directory.*
 
 ---
 
-## 📚 Key Takeaways for Future Reference
+## Key Takeaways
 
-**YARA Rule Quick Reference:**
-
-**Basic Structure:**
+**Rule template:**
 ```yara
 rule RuleName
 {
     meta:
         description = "What it detects"
-        author = "Your name"
-    
+        author      = "Name"
+        date        = "YYYY-MM-DD"
+
     strings:
-        $text = "suspicious string" nocase
-        $hex = { 4D 5A }
+        $text  = "suspicious string" nocase
+        $hex   = { 4D 5A }
         $regex = /pattern.*here/ nocase
-    
+
     condition:
         any of them
 }
 ```
 
-**Common String Modifiers:**
-- `nocase` - Case-insensitive
-- `wide` - Unicode (2-byte)
-- `ascii` - ASCII (1-byte)
-- `xor` - Check XOR-encoded variations
-- `base64` - Decode Base64
-
-**Common Conditions:**
-- `$string` - Single string match
-- `any of them` - At least one match
-- `all of them` - All strings match
-- `($s1 or $s2) and not $benign` - Complex logic
-- `filesize < 10MB` - File property check
-
-**Running YARA:**
-```bash
-yara rule.yar /path/to/scan           # Basic scan
-yara -r rule.yar /path/to/scan        # Recursive
-yara -r -s rule.yar /path/to/scan     # Show strings
+**String modifiers quick reference:**
+```
+nocase       case-insensitive
+ascii        1-byte encoding
+wide         2-byte Unicode encoding
+fullword     not part of a larger word
+xor          test all 256 single-byte XOR keys (0x00–0xFF)
+base64       match after Base64 decode
+base64wide   match after Base64 decode (Unicode)
 ```
 
----
+**Condition patterns:**
+```yara
+$string                          single match
+any of them                      at least one match
+all of them                      every string present
+($s1 or $s2) and not $benign     logic operators
+any of them and filesize < 1MB   with file size check
+```
+
+**CLI flags:**
+```bash
+yara rule.yar /path           basic scan
+yara -r rule.yar /path        recursive
+yara -r -s rule.yar /path     recursive + print matched strings
+```
+
+**Common hex signatures:**
+```
+4D 5A              MZ — Windows PE executable header
+50 4B 03 04        PK — ZIP archive
+25 50 44 46        %PDF — PDF file
+FF D8 FF           JPEG image header
+```
+
+**Key terms:**
+
+| Term | Definition |
+|---|---|
+| YARA | Pattern-matching tool for identifying and classifying malware |
+| IOC | Indicator of Compromise — artifact proving a system was attacked |
+| MZ header | `4D 5A` magic bytes marking the start of a Windows PE file |
+| `nocase` | Modifier making string matching case-insensitive |
+| `wide` | Modifier matching 2-byte Unicode encoding |
+| `xor` | Modifier testing all 256 single-byte XOR keys (0x00–0xFF) |
+| `fullword` | Modifier requiring string to be a standalone word |
+| Fileless malware | Malware running only in RAM, never written to disk |
+| `any of them` | Condition firing if at least one defined string matches |
+| `all of them` | Condition firing only if every defined string matches |
