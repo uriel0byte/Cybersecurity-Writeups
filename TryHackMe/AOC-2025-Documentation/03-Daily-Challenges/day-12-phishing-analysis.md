@@ -1,473 +1,350 @@
-# Day 12: Phishing Analysis - Phishmas Greetings
+# Day 12: Phishing Analysis — Phishmas Greetings
 
-## 📋 Quick Facts
-- **Date Completed:** December 12, 2025
-- **Time Spent:** 2 hours
-- **Difficulty:** ★★★☆ (Medium-Hard)
-- **Category:** Security Awareness / Phishing Analysis / Email Security
-- **Room URL:** https://tryhackme.com/room/spottingphishing-aoc2025-r2g4f6s8l0
-
----
-
-## 🎯 Challenge Overview
-
-This challenge focused on advanced phishing detection after TBFC's Email Protection Platform went offline. With email filters disabled, staff had to manually triage every suspicious message. I joined the Incident Response Task Force to identify legitimate emails versus phishing attempts from Malhare's Eggsploit Bunnies. I learned to analyze email headers, spot impersonation techniques, identify typosquatting and punycode, detect email spoofing, and recognize modern phishing trends using legitimate platforms.
-
-**Learning Objectives:**
-- Learn to spot phishing emails through detailed analysis
-- Understand trending phishing techniques used by modern attackers
-- Differentiate between spam and phishing (different intentions, different risks)
-- Analyze email headers for authentication failures and spoofing indicators
+**Date:** December 12, 2025  
+**Time Spent:** 2 hours  
+**Difficulty:** ★★★☆  
+**Category:** Security Awareness / Phishing Analysis / Email Security  
+**Room:** https://tryhackme.com/room/spottingphishing-aoc2025-r2g4f6s8l0
 
 ---
 
-## 💡 What I Learned
+## Overview
 
-### Phishing vs. Spam - Critical Difference
+TBFC's email protection platform went offline, forcing manual triage of every
+suspicious message. Joined the Incident Response Task Force to classify emails
+as spam, phishing, or legitimate — then identify three specific indicators per
+phishing attempt. Most of the techniques here were new: email header analysis,
+punycode, SPF/DKIM/DMARC, and modern legitimate-platform phishing flows. Security+
+only covered surface-level phishing definitions.
 
-**From Professor Messer's Security+:** Learned surface-level definition of phishing
+---
 
-**From This Room:** First time diving deep into phishing analysis, techniques, and practical detection
+## What I Learned
 
-**Spam (Digital Noise - Mostly Harmless):**
-- **Focus:** Quantity over precision
-- **Goal:** Push exposure or engagement, not steal data
-- **Delivery:** Bulk messages to flood inboxes
-- **Risk Level:** Low (annoying but not dangerous)
+### Spam vs. Phishing
 
-**Common Spam Intentions:**
-- Promotion (advertising products, services, events)
-- Scams (fake offers, "get rich quick" schemes)
-- Traffic generation (clickbait to boost metrics)
-- Data harvesting (collecting active email addresses)
+These are not the same threat level and should not be triaged the same way.
 
-**Phishing (Precision Strike - High Risk):**
-- **Focus:** Precision and persuasion
-- **Goal:** Deceive specific users to steal credentials/data
-- **Delivery:** Carefully crafted, targeted messages
-- **Risk Level:** High (direct security threat)
+**Spam** is bulk, untargeted, low-precision noise. The goal is volume — push
+advertising, run scams, harvest active email addresses. Low risk. Annoying.
 
-**Common Phishing Intentions:**
-- **Credential theft** - Tricking users into revealing passwords/login details
-- **Malware delivery** - Disguising malicious attachments or links as safe content
-- **Data exfiltration** - Gathering sensitive company or personal information
-- **Financial fraud** - Persuading victims to transfer money or approve fake invoices
+**Phishing** is a precision strike. Carefully crafted to deceive a specific
+target into handing over credentials, downloading malware, or transferring
+money. High risk. Actual threat.
 
-**Key Takeaway:** Not every unwanted email is a threat. Look for the **intention** behind it. Spam is noise; phishing is a targeted attack.
+The distinction matters for triage: not every unwanted email is an incident.
+The question is intention — what is this email trying to get the user to do?
 
-### Phishing Technique #1: Impersonation
+---
 
-**What it is:** Attacker pretends to be a person, department, or service to gain credibility.
+### Impersonation
 
-**Example from Challenge:**
-- Email subject: "URGENT: McSkidy access for incident response"
-- `From:` field shows McSkidy's name
-- BUT sender's email: `[email protected]` (Gmail free domain)
+Attacker uses a trusted person's name in the display field while sending from
+a completely different domain.
 
-**How to Spot It:**
-- Check if sender's email matches **internal company domain**
-- Look for **free email domains** (gmail.com, yahoo.com, outlook.com)
-- Verify against company's **standard email structure**
-
-**Red Flag:** TBFC employee using Gmail instead of @tbfc.com domain = clear impersonation
-
-### Phishing Technique #2: Social Engineering
-
-**What it is:** Manipulating people's emotions rather than breaking technology.
-
-**Common Emotional Triggers:**
-- **Fear** - "Your account will be locked!"
-- **Helpfulness** - "Please help urgently needed"
-- **Curiosity** - "You won't believe this..."
-- **Urgency** - "Immediate action required"
-
-**Social Engineering Indicators in McSkidy Email:**
-
-**1. Impersonation:**
-- Pretending to be McSkidy (trusted authority figure)
-
-**2. Sense of Urgency:**
-- Words like "URGENT" and "immediately" to pressure recipient
-- Creates panic to bypass critical thinking
-
-**3. Side Channel:**
-- Discourages using standard communication channels (phone, email)
-- "Don't contact me through normal means, use this sketchy link instead"
-
-**4. Malicious Intention:**
-- Asking for VPN credentials (massive red flag!)
-- Could also request: payment approval, opening attachments, sharing sensitive data
-
-**Key Learning:** Legitimate urgent requests from IT/management will ALWAYS allow verification through official channels.
-
-### Phishing Technique #3: Typosquatting and Punycode
-
-**First Time Learning:** This was completely new to me - never covered in Security+ at this depth.
-
-**Typosquatting:**
-- Attacker registers common **misspelling** of organization's domain
-- Example: `glthub.com` instead of `github.com` (L instead of i)
-- Relies on user's lack of attention or typing mistakes
-
-**Punycode:**
-- Special encoding system converting **Unicode characters** to ASCII
-- Allows attackers to use visually identical characters from different alphabets
-- Example: `tryhackme.com` vs. `тrуhackme.com` (Cyrillic т, г, у)
-
-**Challenge Example:**
-- Email subject: "TBFC-IT shared 'Christmas Laptop Upgrade Agreement' with you"
-- Sender domain contains Latin `ƒ` instead of normal `f`
-- **Looks legitimate to human eye but different to computers**
-
-**How to Detect Punycode:**
-Check email headers for `Return-Path` field:
-- Legitimate domain: `example.com`
-- Punycode domain: `xn--exmple-cua.com` (ACE prefix + encoded characters)
-
-**Why It's Dangerous:** 
-- Users won't notice the difference in email preview
-- Domain looks identical or nearly identical
-- Passes casual inspection
-
-### Phishing Technique #4: Email Spoofing
-
-**What it is:** Making an email **look** like it came from a legitimate domain, but headers reveal the truth.
-
-**Challenge Example:**
-- Email subject: "New Audio Message from McSkidy"
-- `From:` field shows `[email protected]` (looks legitimate!)
-- BUT email headers tell different story
-
-**Email Header Analysis (First Time Learning This):**
-
-**Key Headers to Check:**
-
-**1. Authentication-Results:**
-Shows if email passed security checks:
-- **SPF (Sender Policy Framework)** - Which servers are allowed to send for this domain
-- **DKIM (DomainKeys Identified Mail)** - Digital signature proving email wasn't changed
-- **DMARC (Domain-based Message Authentication)** - Uses SPF + DKIM to decide what to do with suspicious emails
-
-**In spoofed email:**
-- SPF: FAIL
-- DKIM: FAIL
-- DMARC: FAIL
-
-**If both SPF and DKIM fail = strong sign of spoofing**
-
-**2. Return-Path:**
-Shows the **real sender's email address**
-- Display shows: `[email protected]`
-- Return-Path shows: `[email protected]`
-
-**Confirms spoofing!**
-
-**Why Modern Email Clients Usually Block This:**
-- Email authentication (SPF/DKIM/DMARC) is standard
-- But with TBFC's email protection down, spoofed emails can pass!
-
-### Phishing Technique #5: Malicious Attachments
-
-**Classic Phishing Vector:** Attaching malicious files disguised as legitimate documents.
-
-**Challenge Example:**
-- Email claims to contain "voice message from McSkidy"
-- Attachment appears to be an audio file
-- **Actually:** `.html` file (dangerous!)
-
-**Why HTML/HTA Files Are Dangerous:**
-- Run **without browser sandboxing**
-- Scripts have **full access to the endpoint**
-- Can install malware, steal passwords, give attackers network access
-
-**Common Malicious File Types:**
-- `.html` / `.hta` - Run scripts with full system access
-- `.exe` / `.bat` - Executable programs
-- `.zip` / `.rar` - Compressed files hiding malware
-- `.js` / `.vbs` - Script files
-- Office docs with macros (.docm, .xlsm)
-
-**Red Flag:** Unexpected attachments, especially with urgent/emotional messaging in email body
-
-### Modern Phishing Trends (2025)
-
-**Why Attackers Changed Tactics:**
-- Email platforms got better at blocking malicious attachments
-- Security tools detect suspicious files easily
-- Attackers shifted to **social engineering + legitimate tools**
-
-**New Strategy:**
-1. **Don't send malware directly** - Too easily caught
-2. **Trick users into leaving secure environment** - Company can't protect them on external sites
-3. **Use legitimate platforms** - Links look trustworthy, pass email filters
-4. **Make users download malware themselves** - User action = bypasses some defenses
-
-**Modern Phishing Flow:**
-
+**Example:**
 ```
-Phishing Email
-     ↓
-Legitimate Platform Link (Dropbox, Google Drive, OneDrive)
-     ↓
-Fake Shared Document (attractive proposal)
-     ↓
-Fake Login Page OR Malicious Download
-     ↓
-Credential Theft OR Malware Installation
+Display name: McSkidy
+Sender email: mcskidy@gmail.com    ← free domain, not internal
 ```
 
-**Technique 1: Legitimate Applications Abuse**
+A legitimate TBFC employee sends from `@tbfc.com`, not a Gmail address. Any
+mismatch between display name and sender domain is an immediate red flag.
 
-**Attackers hide behind trusted services:**
-- Dropbox
-- Google Drive / Google Docs
-- OneDrive
-- SharePoint
-
-**Attack Scenario:**
-1. Email: "HR shared 'Salary Raise Document' with you"
-2. Link goes to real OneDrive/Google Drive
-3. Shared document contains fake content
-4. Redirects to fake login page (steal credentials) OR malicious file download
-
-**Example from Challenge:**
-- Subject: "TBFC-IT shared 'Christmas Laptop Upgrade Agreement' with you"
-- **Combines:**
-  - Fake domain with punycode (trust manipulation)
-  - Legitimate tool (OneDrive - passes filters)
-  - Attractive proposal (laptop upgrade - social engineering)
-
-**Technique 2: Fake Login Pages**
-
-**Most Common Goal:** Steal credentials through fake authentication pages
-
-**Typical Targets:**
-- Email platforms (Gmail, Outlook)
-- Microsoft Office 365 login
-- Google Workspace login
-- VPN portals
-- Internal company portals
-
-**Example Fake Login Page:**
-- Looks identical to Microsoft login
-- Fake domain: `microsoftonline.login444123.com/signin`
-- Real domain: `login.microsoftonline.com`
-
-**How to Spot:**
-- Check URL carefully (domain name before first `/`)
-- Look for HTTPS (but don't rely on it alone - attackers use HTTPS too)
-- Verify domain matches official company/service domain
-
-**Technique 3: Side Channel Communications**
-
-**What it is:** Moving conversation off email to platforms without company security controls
-
-**Channels Attackers Use:**
-- SMS / Text messages
-- WhatsApp / Telegram
-- Phone calls / Video calls
-- Shared document platforms
-- Personal email
-
-**Why It's Effective:**
-- Company email filters can't monitor these channels
-- IT security can't detect suspicious messages
-- Users are more trusting on personal platforms
-- Harder to verify sender identity
-
-**Red Flag:** "Don't email me back, text me at this number instead"
-
-### Phishing Analysis Workflow (What I Practiced)
-
-**Step 1: Check Sender Information**
-- Does email domain match company domain?
-- Is it a free email service (Gmail, Yahoo)?
-- Does name match email address?
-
-**Step 2: Analyze Email Headers**
-- Check `Authentication-Results` (SPF, DKIM, DMARC)
-- Verify `Return-Path` matches `From:` address
-- Look for punycode (ACE prefix in Return-Path)
-
-**Step 3: Examine Email Body**
-- Look for urgency language ("immediate", "urgent", "now")
-- Check for emotional manipulation (fear, curiosity)
-- Verify any claims through official channels
-
-**Step 4: Inspect Links and Attachments**
-- Hover over links (don't click!) to see real destination
-- Check file extensions on attachments
-- Verify legitimacy of shared document platforms
-
-**Step 5: Identify Three Clear Signals**
-- For each phishing email, identify 3 indicators:
-  - Example: Spoofing + Impersonation + Malicious Attachment
-  - Example: Typosquatting + Social Engineering + Fake Login Page
-
-**Mission Completed:** Triaged all emails, separated spam from phishing, identified signals for each phishing attempt, collected flags!
+**What to check:**
+- Does the sender domain match the company domain?
+- Is it a free email service (gmail.com, yahoo.com, outlook.com)?
+- Does the email structure match the company's standard format?
 
 ---
 
-## 🛠️ Tools & Techniques Used
+### Social Engineering
 
-### Tools
-1. **Wareville Email Threat Inspector** - Email analysis platform
-2. **Email Header Analyzer** - Examining SPF/DKIM/DMARC authentication
-3. **Return-Path Inspector** - Identifying real sender addresses
-4. **Visual Inspection** - Spotting typosquatting and punycode
+Manipulation of emotion rather than exploitation of a technical vulnerability.
+The goal is to make the target act before they think.
 
-### Techniques
-- **Email header analysis** - First time examining authentication results
-- **Domain verification** - Checking sender domains against company domains
-- **Punycode detection** - Identifying Unicode-to-ASCII encoding tricks
-- **Spoofing identification** - Comparing display names with Return-Path
-- **Social engineering recognition** - Spotting emotional manipulation
-- **Malicious attachment detection** - Identifying dangerous file types
-- **Link analysis** - Examining URLs for fake login pages
-- **Triage methodology** - Classifying emails as spam, phishing, or legitimate
+**Common triggers:**
+```
+Fear      → "Your account will be suspended immediately"
+Urgency   → "URGENT: Action required now"
+Authority → Impersonating IT, management, or HR
+Curiosity → "You won't believe this document"
+```
 
----
+**Indicators found in the McSkidy phishing email:**
+- `URGENT` in subject line — pressure tactic
+- Request for VPN credentials — no legitimate IT request asks for this
+- Side channel redirect — "don't reply here, use this link instead"
 
-## 🤔 Challenges I Faced
+Side channel redirect is a major red flag: any email that discourages using
+standard communication channels is trying to move the conversation somewhere
+your security team cannot monitor.
 
-**No Major Problems:** The room was well-structured and guided me through each technique.
-
-**What Took Time:**
-- **Lots of reading** - 2 hours spent reading and trying to understand concepts
-- **First time diving deep into phishing** - Security+ only covered surface-level definition
-- **New concepts:** Typosquatting, punycode, email header analysis (SPF/DKIM/DMARC)
-- **Email headers** - First time actually looking at email authentication results
-
-**Medium Difficulty Because:**
-- **Volume of information** - Many different phishing techniques to learn
-- **Practical application** - Had to actually classify emails, not just read theory
-- **Got stuck identifying types** - When doing tasks, sometimes uncertain which phishing technique was primary
-
-**What Was New:**
-- **Spam vs. Phishing distinction** - Understanding different intentions and risks
-- **Email authentication** - SPF, DKIM, DMARC (never learned this before)
-- **Punycode** - Completely new concept, visually identical characters from different alphabets
-- **Return-Path header** - Didn't know about this field before
-- **Modern phishing trends** - Legitimate platform abuse, fake login pages, side channels
-
-**Overall Experience:** Medium difficulty with a lot to learn. The room did excellent job explaining each technique with real examples. Took time to absorb everything, but now have solid foundation in phishing analysis.
+**Rule:** Legitimate urgent IT requests always allow verification through
+official channels. If an email says "don't verify through normal means," it's
+social engineering.
 
 ---
 
-## ✅ How This Helps My Career
+### Typosquatting and Punycode
 
-Phishing analysis is a **core daily responsibility** for SOC analysts and one of the most critical security awareness skills:
+Both techniques create domains that look legitimate to a human but are
+completely different to a computer.
 
-**Why Phishing Analysis Matters:**
-- **85% of SOC analyst job postings** mention phishing detection/awareness
-- **90% of successful breaches** start with phishing emails
-- **#1 attack vector** for initial access to corporate networks
-- Phishing is the gateway to ransomware, data breaches, and financial fraud
+**Typosquatting:** Register a misspelled version of a legitimate domain.
+```
+github.com  →  glthub.com   (lowercase L replacing i)
+tbfc.com    →  tbcc.com
+```
+Relies on users not reading carefully or making typing mistakes.
 
-**SOC Analyst Applications (Defensive):**
+**Punycode:** An encoding system that converts Unicode (international)
+characters to ASCII for use in domain names. Attackers use characters from
+non-Latin alphabets that are visually identical to Latin letters.
 
-**Alert Triage & Investigation:**
-- Review phishing alerts from email security platforms
-- Analyze reported suspicious emails from users
-- Determine if email is spam, phishing, or legitimate
-- Identify phishing technique used (spoofing, typosquatting, etc.)
+```
+tryhackme.com   ← legitimate (Latin characters)
+тryhackme.com   ← fake (Cyrillic т replacing Latin t)
+```
 
-**Incident Response:**
-- Investigate phishing incidents after users click malicious links
-- Check email headers for authentication failures (SPF/DKIM/DMARC)
-- Track down all recipients of phishing campaign
-- Contain damage (reset credentials, block malicious domains)
+These look identical in email previews. The computer sees two completely
+different domains.
 
-**Threat Intelligence:**
-- Extract IOCs (indicators of compromise) from phishing emails:
-  - Sender domains
-  - Malicious URLs
-  - Attachment hashes
-  - Email subject patterns
-- Share IOCs with security community
-- Update email filters and detection rules
+**How to detect punycode in email headers:**
 
-**Security Awareness Training:**
-- Educate users on phishing indicators
-- Create phishing simulation campaigns
-- Demonstrate real phishing examples to staff
-- Build culture of "verify before you click"
+Check the `Return-Path` field. Punycode domains use the ACE prefix `xn--`:
+```
+Legitimate:  return-path: user@tbfc.com
+Punycode:    return-path: user@xn--tbfc-xqa.com
+```
 
-**Email Security Improvement:**
-- Recommend SPF/DKIM/DMARC implementation
-- Configure email authentication policies
-- Fine-tune email filters to reduce false positives
-- Implement URL rewriting and attachment sandboxing
-
-**Security Operations Center Applications:**
-
-**Daily Monitoring:**
-- Monitor email security platform alerts
-- Triage user-reported suspicious emails
-- Track phishing trends and campaigns
-- Correlate phishing attempts with other security events
-
-**Proactive Threat Hunting:**
-- Search for emails with failed authentication (SPF/DKIM fail)
-- Hunt for punycode domains in email logs
-- Identify patterns in phishing campaigns
-- Find emails with malicious attachment types
-
-**Career Skills Developed:**
-- **Email header analysis** - Understanding authentication mechanisms
-- **Phishing technique recognition** - Spoofing, typosquatting, social engineering
-- **Triage skills** - Quickly classifying email threats
-- **Attention to detail** - Spotting subtle domain differences
-- **Critical thinking** - Identifying intention behind messages
-- **Communication** - Explaining phishing risks to non-technical users
-
-**Real-World Impact:**
-- Preventing credential compromise
-- Stopping ransomware before it deploys
-- Protecting company finances from wire fraud
-- Maintaining trust in company communications
-
-**Interview Talking Point:** "I have hands-on experience with phishing analysis, including email header examination for SPF/DKIM/DMARC authentication failures, identifying spoofing and typosquatting techniques, and detecting social engineering tactics. I can analyze email headers to identify the real sender through Return-Path analysis, recognize punycode domain abuse, and differentiate between spam and targeted phishing attacks. I understand modern phishing trends including legitimate platform abuse, fake login pages, and side-channel communication tactics. I've practiced triaging phishing emails by identifying three clear technical indicators per suspicious message, which directly applies to SOC analyst responsibilities in monitoring email security platforms and responding to user-reported phishing attempts."
+**Challenge example:** Sender domain contained Latin `ƒ` (f with hook)
+instead of a standard `f`. Looked legitimate in preview, different domain
+entirely.
 
 ---
 
-## 🔗 Security+ Connection
+### Email Spoofing and Header Analysis
 
-**Domain 1.0 - General Security Concepts (12%):** Security awareness training, phishing prevention, social engineering defense.
+Spoofing makes an email appear to come from a legitimate domain while actually
+originating elsewhere. The display name and `From:` field look real — headers
+expose the truth.
 
-**Domain 2.0 - Threats, Vulnerabilities & Mitigations (22%):** Phishing attacks, social engineering techniques, email-based threats, impersonation, typosquatting, spoofing, malicious attachments.
+**Key headers to check:**
 
-**Domain 4.0 - Security Operations (28%):** Email security monitoring, incident detection, threat intelligence, user awareness, security controls (SPF/DKIM/DMARC).
+**Authentication-Results** — Added by the receiving mail server. Shows
+whether the email passed SPF, DKIM, and DMARC checks.
+
+```
+spf=fail      → Sending server not authorized for this domain
+dkim=fail     → Signature missing or invalid
+dmarc=fail    → Failed policy check based on SPF/DKIM results
+```
+
+SPF fail + DKIM fail = strong indicator of spoofing.
+
+**What each protocol does:**
+
+| Protocol | What It Checks |
+|---|---|
+| SPF | Whether the sending server is authorized to send for that domain (DNS record) |
+| DKIM | Cryptographic signature proving the email wasn't altered in transit |
+| DMARC | Policy layer — uses SPF + DKIM results to accept, quarantine, or reject |
+
+**Return-Path** — Contains the actual envelope sender address used for
+bounces. Set by the sending mail server, not the sender. If this differs
+from the `From:` address, the `From:` was forged.
+
+```
+From:         mcskidy@tbfc.com       ← what user sees
+Return-Path:  attacker@hopsec.thm    ← where bounces actually go
+```
+
+This mismatch confirms spoofing.
 
 ---
 
-## 📸 Evidence
+### Malicious Attachments
+
+Classic phishing vector: attach a malicious file disguised as something
+expected (invoice, voice message, document).
+
+**Challenge example:** Email claimed to contain a voice message from McSkidy.
+Attachment appeared to be audio. Actual file type: `.hta`.
+
+**Why `.hta` files are dangerous:**
+HTA (HTML Application) files are executed by `mshta.exe` (Microsoft HTML
+Application Host), completely outside the browser sandbox. They have direct
+access to the file system, registry, and network — effectively the same
+privileges as the current user. Executing one hands the attacker a foothold.
+
+**Malicious file types to know:**
+
+| Type | Risk |
+|---|---|
+| `.hta` | Runs outside browser sandbox, full system access |
+| `.html` | Can execute JavaScript, redirect, harvest credentials |
+| `.exe` / `.bat` | Direct execution |
+| `.js` / `.vbs` | Script execution via Windows Script Host |
+| `.zip` / `.rar` | Archive concealing any of the above |
+| `.docm` / `.xlsm` | Office documents with enabled macros |
+
+Red flag combination: unexpected attachment + urgent/emotional subject line.
+
+---
+
+### Modern Phishing Trends
+
+Email security improved enough that sending malware directly became
+unreliable. Attackers adapted by using legitimate platforms as delivery
+infrastructure — the link passes email filters because it points to a real
+service.
+
+**Modern phishing flow:**
+```
+Phishing email
+      ↓
+Link to legitimate platform (Dropbox, Google Drive, OneDrive, SharePoint)
+      ↓
+Fake shared document
+      ↓
+Fake login page (credential theft) OR malicious file download (malware)
+```
+
+**Why it works:**
+- The email link points to a real, trusted domain — filters pass it
+- User is now outside company security controls
+- Familiar platform reduces suspicion
+
+**Challenge example:**
+```
+Subject: "TBFC-IT shared 'Christmas Laptop Upgrade Agreement' with you"
+```
+Combined three techniques simultaneously:
+- Punycode domain (trust manipulation)
+- OneDrive link (legitimate platform, bypasses filters)
+- Attractive proposal (laptop upgrade — social engineering)
+
+**Fake login page identification:**
+
+The attacker puts the legitimate brand name as a subdomain of their own
+malicious domain:
+```
+Fake:  microsoftonline.login444123.com/signin
+Real:  login.microsoftonline.com
+```
+
+Rule: the registered domain is the last two labels of the hostname — that
+is what the attacker actually owns. Everything to the left of it is a
+subdomain they control and can name anything.
+
+```
+https://microsoftonline.login444123.com/signin
+        ^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^
+        subdomain        registered domain
+        (attacker named  (attacker owns this)
+        this anything)
+```
+
+---
+
+## Challenges
+
+Most content here was new — Security+ covers phishing definitions but not
+analysis methodology. Email headers, SPF/DKIM/DMARC mechanics, punycode
+detection, and the modern legitimate-platform attack flow were all first
+exposure. The volume took two hours to absorb properly. Getting stuck on
+which technique to classify as primary during triage was the main friction —
+some emails combined three techniques at once and the overlap was ambiguous.
+
+---
+
+## Security+ Alignment
+
+**Domain 1.0 - General Security Concepts (12%):** Security awareness,
+phishing prevention, social engineering defense.
+
+**Domain 2.0 - Threats, Vulnerabilities and Mitigations (22%):** Phishing,
+social engineering, email-based threats, impersonation, typosquatting,
+spoofing, malicious attachments.
+
+**Domain 4.0 - Security Operations (28%):** Email security monitoring,
+incident detection, threat intelligence, security controls (SPF/DKIM/DMARC).
+
+---
+
+## Evidence
 
 ![Email Header Analysis - Spoofing Detection](../07-Screenshots/Day12-1.png)
-*Analyzed email headers showing SPF/DKIM/DMARC failures and Return-Path mismatch, confirming email spoofing attempt from Eggsploit Bunnies*
+*Email headers showing SPF/DKIM/DMARC failures and Return-Path mismatch,
+confirming spoofed sender address.*
 
 ![Phishing Email Triage Dashboard](../07-Screenshots/Day12-2.png)
-*Successfully triaged 6+ phishing emails by identifying three clear signals per message*
+*Triage dashboard showing classification of phishing emails with three
+identified indicators per message.*
 
 ---
 
-## 📚 Key Takeaways for Future Reference
+## Key Takeaways
 
-**Phishing Detection Checklist:**
-- ✅ Check sender domain vs. company domain
-- ✅ Analyze email headers (SPF/DKIM/DMARC)
-- ✅ Verify Return-Path matches From address
-- ✅ Look for urgency/fear language
-- ✅ Check for punycode (ACE prefix in headers)
-- ✅ Hover links to verify destinations
-- ✅ Examine attachment file extensions
-- ✅ Question attractive proposals (salary raises, upgrades)
-- ✅ Verify requests through official channels
+**Phishing analysis workflow:**
+```
+1. Check sender domain — matches company domain? Free email service?
+2. Read headers — Authentication-Results (SPF/DKIM/DMARC), Return-Path
+3. Scan body — urgency language, authority claims, side channel redirect
+4. Inspect links — hover to check real destination, verify domain
+5. Check attachments — file extension, unexpected or disguised type
+6. Identify 3 indicators — confirm classification
+```
 
-**Email Authentication:**
-- **SPF Fail + DKIM Fail** = High probability of spoofing
-- **Return-Path ≠ From** = Definite spoofing
-- **Free domain from internal user** = Impersonation
-- **Punycode (xn-- prefix)** = Typosquatting attempt
+**Email authentication quick reference:**
 
----
+| Result | Meaning |
+|---|---|
+| SPF pass | Sending server authorized for this domain |
+| SPF fail | Sending server NOT authorized — spoofing likely |
+| DKIM pass | Email signature valid, not tampered |
+| DKIM fail | Signature invalid or missing |
+| DMARC fail | Failed combined SPF + DKIM policy check |
+| Return-Path ≠ From | `From:` address was forged |
+
+**Punycode detection:**
+```
+Look for xn-- prefix in Return-Path header
+xn--tbfc-xqa.com = punycode-encoded domain
+tbfc.com = legitimate domain
+```
+
+**Fake login page domain rule:**
+```
+https://microsoftonline.login444123.com/signin
+
+Registered domain = login444123.com   (attacker owns this)
+microsoftonline   = subdomain         (attacker named it anything they want)
+
+Check the last two labels of the hostname before the /
+That is what someone actually registered and controls
+```
+
+**Malicious file type quick reference:**
+```
+.hta              → Outside browser sandbox, Windows Script Host
+.docm / .xlsm     → Office macros
+.js / .vbs        → Script files via Windows Script Host
+.zip / .rar       → Archive hiding any of the above
+```
+
+**Key terms:**
+
+| Term | Definition |
+|---|---|
+| Phishing | Targeted deception to steal credentials, deliver malware, or commit fraud |
+| Spam | Bulk untargeted email; low risk, not a precision attack |
+| SPF | DNS record defining authorized sending servers for a domain |
+| DKIM | Cryptographic email signature proving message integrity and sender |
+| DMARC | Policy using SPF + DKIM to accept, quarantine, or reject suspicious email |
+| Return-Path | Actual envelope sender address — differs from From if spoofed |
+| Typosquatting | Registering misspelled version of a legitimate domain |
+| Punycode | ASCII encoding of Unicode characters; ACE prefix `xn--` |
+| HTA | HTML Application — runs outside browser sandbox with system access |
+| Side channel | Moving communication off monitored platforms to evade detection |
