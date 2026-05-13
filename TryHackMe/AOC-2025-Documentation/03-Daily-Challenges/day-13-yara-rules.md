@@ -2,7 +2,7 @@
 
 **Date:** December 13, 2025  
 **Time Spent:** 2 hours  
-**Difficulty:** ★★★☆  
+**Difficulty:** ★★★☆ *(Official rating: Easy — rated higher due to zero prior YARA exposure)*  
 **Category:** Malware Detection / Threat Hunting / Digital Forensics  
 **Room:** https://tryhackme.com/room/yara-aoc2025-q9w1e3y5u7
 
@@ -190,7 +190,7 @@ yara -r -s rule.yar /path/to/scan
 
 **Example output:**
 ```
-TBFC_Simple_MZ_Detect C:\Users\WarevilleElf\AppData\Roaming\malhare_gift_loader.exe
+TBFC_Simple_MZ_Detect C:\Users\WarevilleElf\AppData\Roaming\TBFC_Presents\malhare_gift_loader.exe
 ```
 
 ### Practical Task — Decoding McSkidy's Message
@@ -238,6 +238,10 @@ for patterns, fire on match) but regex syntax and hex patterns required
 multiple re-reads. Knowing which modifiers to use and when (`wide`? `ascii`?
 both?) only became clearer after seeing the examples side by side. This is
 a skill that will sharpen with practice, not reading.
+
+The room is officially rated Easy. That rating makes sense once the structure
+clicks, but going in with zero YARA exposure made it harder than the label
+suggests.
 
 ---
 
