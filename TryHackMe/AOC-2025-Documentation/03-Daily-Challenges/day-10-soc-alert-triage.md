@@ -150,7 +150,7 @@ External SSH → Root access gained
       ↓
 SUID discovery → Enumerating escalation paths
       ↓
-User added to sudoers → Backup admin account created (Alice)
+Users added to sudoers → Alice granted admin rights, backupuser account created
       ↓
 Shadow file copied → Credential harvesting staged
       ↓
