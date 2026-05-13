@@ -2,7 +2,7 @@
 
 **Date:** December 10, 2025  
 **Time Spent:** 3 hours  
-**Difficulty:** ★★★★  
+**Difficulty:** ★★★★ *(Official rating: Medium — rated higher; Sentinel, Azure, and KQL were all new simultaneously)*  
 **Category:** SIEM / SOC Operations / Cloud Security  
 **Room:** https://tryhackme.com/room/azuresentinel-aoc2025-a7d3h9k0p2
 
@@ -174,7 +174,7 @@ Attacker survives reboots, maintains access
 | Alert | MITRE Tactic | What It Reveals |
 |---|---|---|
 | Root SSH Login from External IP | Initial Access | Attacker gained remote access |
-| SUID Discovery | Privilege Escalation (Recon) | Searching for escalation paths |
+| SUID Discovery | Privilege Escalation | Searching for escalation paths |
 | Kernel Module Insertion | Persistence | Survival across reboots confirmed |
 
 **High-severity alerts triaged:**
@@ -199,6 +199,10 @@ not obvious until the attack chain started taking shape from the evidence.
 ProcMon from Day 6 captured too many events — Sentinel had the opposite problem:
 correlating across sparse, high-level alerts required more inference. Both extremes
 are real SOC challenges. Lab credentials expired before screenshots could be captured.
+
+The room is officially rated Medium. That label makes sense in isolation, but hitting
+Sentinel, Azure navigation, and KQL simultaneously with no prior exposure to any of
+them pushed the actual difficulty higher.
 
 ---
 
