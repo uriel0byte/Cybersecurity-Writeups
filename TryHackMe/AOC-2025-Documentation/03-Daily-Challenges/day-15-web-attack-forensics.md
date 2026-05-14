@@ -1,601 +1,316 @@
-# Day 15: Web Attack Forensics - Drone Alone
+# Day 15: Web Attack Forensics — Drone Alone
 
-## 📋 Quick Facts
-- **Date Completed:** December 15, 2025
-- **Time Spent:** 1.5 hours
-- **Difficulty:** ★★★★ (Hard)
-- **Category:** SIEM / Incident Response / Web Attack Forensics / Blue Team
-- **Room URL:** https://tryhackme.com/room/webattackforensics-aoc2025-b4t7c1d5f8
-
----
-
-## 🎯 Challenge Overview
-
-This challenge focused on investigating a web attack against TBFC's drone scheduler web UI. The SOC detected strange, long HTTP requests containing Base64-encoded chunks, and Sysmon raised alerts about Apache spawning unusual processes. As a Blue Team analyst, I triaged the incident using Splunk to correlate web access logs, Apache error logs, and Sysmon telemetry. I identified command injection attacks, decoded obfuscated PowerShell payloads, traced process execution chains, confirmed attacker reconnaissance activities, and reconstructed the full attack timeline.
-
-**Learning Objectives:**
-- Detect and analyze malicious web activity through access and error logs
-- Investigate host-level attacker actions using Sysmon data
-- Identify and decode suspicious or obfuscated attacker payloads (Base64)
-- Reconstruct the full attack chain using Splunk for investigation
-- Practice real SOC analyst incident response workflow
+**Date:** December 15, 2025  
+**Time Spent:** 1.5 hours  
+**Difficulty:** ★★★★  
+**Category:** SIEM / Web Attack Forensics / Blue Team  
+**Room:** https://tryhackme.com/room/webattackforensics-aoc2025-b4t7c1d5f8
 
 ---
 
-## 💡 What I Learned
+## Overview
 
-### Web Attack Forensics Investigation Workflow
+TBFC's drone scheduler web UI was sending strange, long HTTP requests
+containing Base64 chunks. Splunk raised an alert: Apache spawned an unusual
+process. The task was to triage the incident using Splunk by pivoting between
+Apache access logs, Apache error logs, and Sysmon telemetry — identify the
+attack vector, confirm exploitation, trace post-exploitation activity, decode
+obfuscated payloads, and reconstruct the full chain. This is the type of
+Blue Team investigation work the rest of the learning has been building
+toward.
 
-**This is MY FAVORITE type of room!** SIEM/SOC/Forensic work is what I enjoy most - pure Blue Team defensive operations.
+**Splunk login:** `Blue` / `Pass1234`. Set time range to All Time before
+running any query or results will come back empty.
 
-**Investigation Scenario:**
-- **Alert:** Apache web server (`httpd.exe`) spawned unusual processes
-- **Indicators:** Long HTTP requests with Base64-encoded payloads
-- **Attack Type:** Command Injection via vulnerable CGI script (`hello.bat`)
-- **Goal:** Triage incident, identify compromised hosts, decode payloads, determine scope
+---
 
-**Investigation Strategy:**
-1. Start with web access logs (detect initial attack vector)
-2. Check error logs (confirm exploitation attempts)
-3. Examine process creation (verify command execution)
-4. Track reconnaissance activity (understand attacker actions)
-5. Decode obfuscated payloads (reveal true intent)
+## What I Learned
 
-**This mirrors REAL SOC analyst workflow!**
+### Investigation Strategy
 
-### Step 1: Detect Suspicious Web Commands (Access Logs)
+The investigation follows a logical pivot chain across three log sources:
 
-**Objective:** Search web access logs for command execution attempts
+```
+windows_apache_access  → detect the attack coming in
+windows_apache_error   → confirm it reached the backend
+windows_sysmon         → prove it executed at OS level
+```
 
-**Splunk Query:**
+Each step answers a specific question before moving to the next. This is the
+core SOC analyst workflow: detect → confirm → validate → investigate →
+analyze.
+
+---
+
+### Step 1: Detect Suspicious Web Requests (Access Logs)
+
+**Question:** Are there HTTP requests showing command execution attempts?
+
 ```spl
-index=windows_apache_access (cmd.exe OR powershell OR "powershell.exe" OR "Invoke-Expression") 
+index=windows_apache_access (cmd.exe OR powershell OR "powershell.exe" OR "Invoke-Expression")
 | table _time host clientip uri_path uri_query status
 ```
 
-**What This Query Does:**
-- Searches Apache access logs (`windows_apache_access`)
-- Looks for indicators of command execution:
-  - `cmd.exe` - Windows command prompt
-  - `powershell` / `powershell.exe` - PowerShell execution
-  - `Invoke-Expression` - PowerShell cmdlet for running commands
-- Displays key fields in table format:
-  - `_time` - When request occurred
-  - `host` - Target server
-  - `clientip` - Attacker's IP address
-  - `uri_path` - URL path requested
-  - `uri_query` - Query parameters (where payload hides)
-  - `status` - HTTP response code
+**What this finds:** Apache access logs filtered for strings associated with
+command execution. The table shows timestamp, target host, attacker IP,
+requested path, query parameters, and HTTP status.
 
-**What I Found:**
-- HTTP requests to `/cgi-bin/hello.bat?cmd=powershell`
-- Query parameters containing **Base64-encoded strings**
-- Example encoded payload: `VABoAGkAcwAgAGkAcwAgAG4AbwB3ACAATQBpAG4AZQAhACAATQBVAEEASABBAEEASABBAEEA`
+**What was found:**
+- Requests hitting `/cgi-bin/hello.bat?cmd=powershell`
+- Query parameters containing long Base64-encoded strings
 
-**Attack Vector Identified:** Command Injection through vulnerable CGI script
-
-**Base64 Decoding (First Time Practicing This in Incident Response):**
-
-**Encoded String:**
+**Example payload in uri_query:**
 ```
 VABoAGkAcwAgAGkAcwAgAG4AbwB3ACAATQBpAG4AZQAhACAATQBVAEEASABBAEEASABBAEEA
 ```
 
-**Decoded Result:**
-```
-This is now Mine! MUAHAHAA
-```
+**Decoded result:** `This is now Mine! MUAHAHAA`
 
-**Tools Used:** https://www.base64decode.org/
+**Encoding note:** PowerShell's `-EncodedCommand` parameter uses Base64-encoded
+**UTF-16LE** (Unicode), not plain ASCII. `base64decode.org` handles the
+conversion automatically. This is why raw base64 output for this string shows
+wide characters — every ASCII character is two bytes in UTF-16LE.
 
-**What I Learned:**
-- Attackers encode payloads to **evade signature-based detection**
-- Base64 encoding makes malicious commands look like random strings
-- Blue Team must **decode suspicious strings** during investigation
-- Encoded payloads are common in web attacks and post-exploitation
+**Attack vector confirmed:** Command injection through the vulnerable CGI
+script `hello.bat`.
 
-### Step 2: Looking for Server-Side Errors (Error Logs)
+---
 
-**Objective:** Inspect Apache error logs to confirm malicious activity reached backend
+### Step 2: Confirm Backend Execution (Error Logs)
 
-**Splunk Query:**
+**Question:** Did the malicious request reach the backend and get processed?
+
 ```spl
 index=windows_apache_error ("cmd.exe" OR "powershell" OR "Internal Server Error")
 ```
 
-**What This Query Does:**
-- Searches Apache error logs (`windows_apache_error`)
-- Looks for:
-  - `cmd.exe` - Command execution attempts
-  - `powershell` - PowerShell execution attempts
-  - `Internal Server Error` - HTTP 500 errors (backend failures)
+**Important:** Set display to `View: Raw` to see full error content.
 
-**Important Setting:** Select `View: Raw` from dropdown above Event display field
+**What to look for:** HTTP 500 Internal Server Error on CGI endpoints.
 
-**Why Error Logs Matter:**
+A 500 on `/cgi-bin/hello.bat?cmd=powershell` means:
+- The server passed the input to the backend
+- The backend attempted to execute it
+- Something failed during execution
 
-**HTTP 500 "Internal Server Error" Significance:**
-- Request like `/cgi-bin/hello.bat?cmd=powershell` triggers 500 error
-- Means: Attacker's input was **processed by server** but **failed during execution**
-- **Key indicator:** Attack penetrated beyond web layer, reached backend
+This is the key distinction between an **attempt** (blocked at the web layer)
+and **exploitation** (input processed by the server). A 500 here confirms
+the attack penetrated beyond the web layer.
 
-**What This Confirms:**
-- ✅ Attack **reached the backend** (not blocked at web layer)
-- ✅ Server **attempted to execute** malicious command
-- ✅ Exploitation was **partially successful**
+---
 
-**Blue Team Value:**
-- Differentiates between **blocked attacks** (web layer) and **successful exploitation** (backend)
-- Helps determine incident severity and scope
-- Guides response priorities
+### Step 3: Trace Process Creation (Sysmon)
 
-### Step 3: Trace Suspicious Process Creation (Sysmon Logs)
+**Question:** Did Apache actually spawn system processes?
 
-**Objective:** Identify malicious processes spawned by Apache web server
-
-**Splunk Query:**
 ```spl
 index=windows_sysmon ParentImage="*httpd.exe"
 ```
 
-**What This Query Does:**
-- Searches Sysmon logs for process creation events
-- Filters for processes where **parent is Apache** (`httpd.exe`)
-- Reveals what Apache spawned (should only be worker threads!)
+**Important:** Set display to `View: Table` to see process relationships
+clearly.
 
-**Important Setting:** Select `View: Table` from dropdown
+**Normal Apache behaviour:** `httpd.exe` spawns only its own worker threads.
 
-**Normal Behavior:**
-Apache (`httpd.exe`) should **ONLY** spawn worker threads, NOT system processes.
-
-**Malicious Behavior Found:**
+**What was found:**
 ```
 ParentImage: C:\Apache24\bin\httpd.exe
-Image: C:\Windows\System32\cmd.exe
+Image:       C:\Windows\System32\cmd.exe
 ```
 
-**What This Means:**
-- ✅ **Command injection was SUCCESSFUL**
-- ✅ Apache executed system command (`cmd.exe`)
-- ✅ Attack **penetrated the operating system**
-- ✅ **Strongest indicator** of successful exploitation
+Apache spawning `cmd.exe` is the strongest single indicator of successful
+command injection. The attack has now moved from the web layer into the
+operating system. Incident severity: **Critical**.
 
-**Why This is Critical:**
+---
 
-**Process Relationships Matter:**
-- Normal: `httpd.exe` → worker threads
-- Malicious: `httpd.exe` → `cmd.exe` / `powershell.exe`
+### Step 4: Confirm Reconnaissance (Sysmon)
 
-**This proves:**
-1. Attack bypassed web layer defenses
-2. Malicious code executed on host operating system
-3. Attacker gained **code execution** capability
-4. Incident severity = **HIGH/CRITICAL**
+**Question:** What did the attacker do after gaining execution?
 
-**Sysmon Value for Blue Team:**
-- Tracks **parent-child process relationships**
-- Detects **anomalous process creation**
-- Provides **proof of exploitation** (not just attempts)
-- Essential for incident response and forensics
-
-### Step 4: Confirm Attacker Enumeration Activity (Reconnaissance)
-
-**Objective:** Discover what specific commands attacker executed post-exploitation
-
-**Splunk Query:**
 ```spl
 index=windows_sysmon *cmd.exe* *whoami*
 ```
 
-**What This Query Does:**
-- Searches Sysmon logs for command execution
-- Looks for `cmd.exe` running `whoami` command
+**What was found:** `whoami.exe` executed via `cmd.exe`.
 
-**Why Attackers Use `whoami`:**
+`whoami` is almost always the first command an attacker runs after gaining
+code execution. It tells them which user account the injected process is
+running as, which determines their privilege level and next steps.
 
-**Post-Exploitation Reconnaissance:**
-- **First command** attackers run after gaining code execution
-- Determines **which user account** malicious process is running as
-- Helps attacker understand **privilege level**:
-  - `NT AUTHORITY\SYSTEM` = Highest privilege (jackpot!)
-  - `IIS APPPOOL\DefaultAppPool` = Web server service account
-  - Regular user = Limited privileges
+Finding `whoami.exe` in Sysmon confirms:
+- Code execution was fully successful
+- The attacker is actively performing post-exploitation reconnaissance
+- The attack chain is: **web injection → OS shell → recon**
 
-**What Finding `whoami` Confirms:**
-- ✅ Attacker achieved **code execution**
-- ✅ Attacker performed **post-exploitation reconnaissance**
-- ✅ Injected command was **successfully executed** on host
-- ✅ Attack progressed beyond initial exploitation
+---
 
-**Attack Chain Progression:**
-```
-1. Command Injection (web layer)
-   ↓
-2. Code Execution (OS level)
-   ↓
-3. Reconnaissance (whoami)
-   ↓
-4. Next steps: Privilege escalation, lateral movement, persistence
-```
+### Step 5: Check for Encoded PowerShell Execution (Sysmon)
 
-**Blue Team Significance:**
-- Confirms attack **fully successful** (not just attempted)
-- Indicates attacker is **actively exploring** environment
-- Suggests more malicious activity likely occurred
-- Requires immediate incident response escalation
+**Question:** Did any Base64-encoded PowerShell payloads actually execute?
 
-### Step 5: Identify Base64-Encoded PowerShell Payloads
-
-**Objective:** Search for all successfully encoded PowerShell commands
-
-**Splunk Query:**
 ```spl
 index=windows_sysmon Image="*powershell.exe" (CommandLine="*enc*" OR CommandLine="*-EncodedCommand*" OR CommandLine="*Base64*")
 ```
 
-**What This Query Does:**
-- Searches Sysmon for PowerShell execution events
-- Filters for **Base64-encoded commands**
-- Looks for common encoding flags:
-  - `-enc` - Short form of `-EncodedCommand`
-  - `-EncodedCommand` - PowerShell parameter for Base64 payloads
-  - `Base64` - Literal string in command line
+**Result: No results returned.**
 
-**Why Attackers Encode PowerShell Commands:**
+The attacker injected PowerShell via the web request, but the encoded payload
+never successfully executed at the OS level. `cmd.exe` and `whoami.exe`
+ran — but `powershell.exe` with encoded commands did not complete. This means
+some defensive layer stopped the PowerShell stage specifically.
 
-**Obfuscation Techniques:**
-- **Evade signature-based detection** - Encoded commands don't match known malicious patterns
-- **Hide malicious intent** - Analysts can't read payload at first glance
-- **Bypass security controls** - Some tools only scan plaintext
-- **Fileless malware** - Execute entirely in memory without touching disk
-
-**Expected Results:**
-
-**If Defenses Work (Good):**
-- Query returns **NO results**
-- Encoded payload never executed
-- Attack was **blocked** before execution
-
-**If Defenses Failed (Bad):**
-- Query returns PowerShell events
-- Encoded commands were executed
-- Must **decode Base64** to reveal true intent
-
-**Example Encoded Command Analysis:**
-
-**Command Line:**
-```powershell
-powershell.exe -enc VABoAGkAcwAgAGkAcwAgAG4AbwB3ACAATQBpAG4AZQAhACAATQBVAEEASABBAEEASABBAEEA
-```
-
-**Decoded:**
-```
-This is now Mine! MUAHAHAA
-```
-
-**In Real Attacks, Could Be:**
-- Reverse shell payload
-- Credential dumping command
-- Persistence mechanism
-- Lateral movement script
-- Ransomware dropper
-
-**Blue Team Actions:**
-1. Extract all encoded strings from Splunk results
-2. Decode using Base64 decoder
-3. Analyze decoded commands for malicious intent
-4. Document findings in incident report
-5. Update detection rules to catch similar attacks
-
-### Command Injection Attack Explained
-
-**What is Command Injection?**
-
-Vulnerability where attacker can execute arbitrary system commands on the server through vulnerable application input.
-
-**How It Works:**
-
-**Vulnerable CGI Script:**
-```
-/cgi-bin/hello.bat?name=user
-```
-
-**Normal Use:**
-```
-hello.bat processes "name=user"
-Outputs: "Hello, user!"
-```
-
-**Malicious Use:**
-```
-/cgi-bin/hello.bat?cmd=powershell -enc <BASE64>
-```
-
-**What Happens:**
-1. Application passes `cmd` parameter to system shell
-2. Server executes: `powershell -enc <BASE64>`
-3. Attacker gains code execution on server
-4. Can run any command (whoami, download malware, etc.)
-
-**Why Vulnerable:**
-- Application doesn't **validate/sanitize** user input
-- Directly passes input to system shell
-- No input filtering or command whitelisting
-
-### Splunk Investigation Skills Developed
-
-**What I Practiced:**
-
-**Query Construction:**
-- Searching multiple indexes (`windows_apache_access`, `windows_apache_error`, `windows_sysmon`)
-- Using boolean operators (`OR`, `AND`)
-- Wildcard searching (`*httpd.exe`, `*cmd.exe*`)
-- Field filtering (`Image="*powershell.exe"`, `CommandLine="*enc*"`)
-
-**Data Correlation:**
-- Linking web logs → error logs → process logs
-- Building timeline of attack progression
-- Connecting different log sources to tell complete story
-
-**Incident Response Workflow:**
-1. Detect (access logs show suspicious requests)
-2. Confirm (error logs show backend execution)
-3. Validate (Sysmon shows process creation)
-4. Investigate (track reconnaissance commands)
-5. Analyze (decode obfuscated payloads)
-
-**What Made This Hard:**
-
-**Query Crafting Challenge:**
-- Room **provided queries** to use (guided investigation)
-- But in **real-world**, I'd need to craft these myself
-- Don't know if I could create these queries independently yet
-- **Takes time to get used to** - need more practice
-- Need to **remember field names**, index names, search syntax
-
-**What I Need to Improve:**
-- Memorizing common Splunk field names (Image, ParentImage, CommandLine, etc.)
-- Understanding which indexes contain which log types
-- Building queries from scratch without templates
-- Faster Base64 decoding workflow
-- Connecting dots between different log sources independently
+This is a critical distinction for the incident report: command injection
+succeeded, recon ran, but the more dangerous encoded payload was blocked.
 
 ---
 
-## 🛠️ Tools & Techniques Used
+### Command Injection Explained
 
-### Tools
-1. **Splunk** - SIEM platform for log analysis and correlation
-2. **Base64 Decoder** - https://www.base64decode.org/
-3. **Sysmon Logs** - Process creation and execution tracking
-4. **Apache Access Logs** - HTTP request monitoring
-5. **Apache Error Logs** - Server-side error tracking
+The vulnerability is in `hello.bat` — a CGI script that passes user input
+directly to the system shell without validation.
 
-### Techniques
-- **Web attack forensics** - Analyzing HTTP logs for injection attempts
-- **Log correlation** - Linking access logs → error logs → process logs
-- **Base64 decoding** - Revealing obfuscated attacker payloads
-- **Process tree analysis** - Tracking parent-child relationships (httpd.exe → cmd.exe)
-- **Reconnaissance detection** - Identifying post-exploitation enumeration (whoami)
-- **Timeline reconstruction** - Building complete attack narrative
-- **Splunk query writing** - SPL syntax for multi-index searches
-- **Incident triage** - Determining attack scope and severity
+```
+Normal:    /cgi-bin/hello.bat?name=user
+           → hello.bat processes "name" → outputs "Hello, user!"
 
----
+Malicious: /cgi-bin/hello.bat?cmd=powershell -enc <BASE64>
+           → hello.bat passes cmd parameter to shell
+           → server executes: powershell -enc <BASE64>
+           → attacker has code execution
+```
 
-## 🤔 Challenges I Faced
-
-**ANOTHER FAVORITE ROOM!** This is exactly the type of work I love - SIEM/SOC/Forensic investigations. Pure Blue Team defensive operations!
-
-**Connection to Day 3:**
-I tried Splunk on **Day 3** (first SIEM experience), but this room was **much more advanced**.
-
-**What Made This Hard (★★★★):**
-
-**Query Crafting is the Main Challenge:**
-- Room **provided queries** for me to run (guided investigation)
-- I could follow instructions and understand results
-- BUT in **real-world SOC work**, I'd need to craft queries myself
-- **Don't know if I can do this independently yet**
-
-**Specific Concerns:**
-- Remembering field names (`Image`, `ParentImage`, `CommandLine`, `uri_query`)
-- Knowing which index contains which logs (`windows_sysmon` vs. `windows_apache_access`)
-- Understanding SPL syntax nuances (wildcards, boolean operators, field filters)
-- Building complex queries from scratch without templates
-
-**What Takes Time:**
-- **"These things take time to get used to"** - need repeated practice
-- Memorizing common patterns and search techniques
-- Developing intuition for where to look in logs
-- Building muscle memory for query syntax
-
-**What I'm Good At:**
-- ✅ Understanding the investigation **workflow**
-- ✅ Following logical progression (access → error → process → recon)
-- ✅ Interpreting query results (what findings mean)
-- ✅ Connecting evidence across log sources
-- ✅ Decoding Base64 payloads
-- ✅ Understanding **WHY** we search for specific indicators
-
-**What I Need to Improve:**
-- ❌ Creating queries independently (without templates)
-- ❌ Remembering all field names and index names
-- ❌ Faster query iteration during investigations
-- ❌ Advanced SPL techniques (subsearches, statistics, regex)
-
-**Overall Experience:**
-Hard difficulty but **extremely valuable**. This is the job I want to do - investigating web attacks, correlating logs, decoding payloads, reconstructing attack chains. Even though query crafting is challenging, the investigation methodology and Blue Team mindset clicked perfectly for me. I just need more practice to build independent query-writing skills.
+**Root cause:** No input validation or sanitisation on the `cmd` parameter.
+The script treats attacker-controlled input as a trusted system command.
 
 ---
 
-## ✅ How This Helps My Career
+### Base64 as Obfuscation
 
-This room directly simulates **actual SOC analyst daily work**:
+Base64 is not encryption. It is encoding — reversible by anyone with a
+decoder. Attackers use it because:
+- Encoded strings do not match plaintext signature rules
+- Tools scanning for `powershell`, `whoami`, `net user` in HTTP traffic will
+  miss Base64-wrapped versions
+- It buys time against signature-based detection
 
-**Why Web Attack Forensics Matters:**
-- **75% of SOC analyst jobs** require log analysis and SIEM skills
-- Web attacks are **#1 entry point** for breaches (OWASP Top 10)
-- Command injection is common vulnerability in web applications
-- Splunk is industry-standard SIEM platform
+The moment you see a long Base64 string in `uri_query` or a PowerShell
+`-EncodedCommand` / `-enc` flag in Sysmon logs, decode it immediately.
 
-**Direct SOC Analyst Applications:**
-
-**Incident Response (My Future Job):**
-- Triage web attack alerts from SIEM
-- Investigate suspicious HTTP requests
-- Correlate web logs with host-level telemetry (Sysmon)
-- Decode obfuscated payloads (Base64, PowerShell encoding)
-- Reconstruct attack timelines
-- Document findings in incident reports
-
-**Alert Investigation Workflow:**
-1. **Detect** - SIEM alert on suspicious web request
-2. **Validate** - Check error logs for backend execution
-3. **Confirm** - Verify process creation via Sysmon
-4. **Investigate** - Track post-exploitation activity
-5. **Analyze** - Decode payloads to understand intent
-6. **Report** - Document scope and recommend remediation
-
-**Threat Hunting:**
-- Proactively search for command injection indicators
-- Hunt for Base64-encoded PowerShell payloads
-- Identify anomalous parent-child process relationships
-- Discover undetected web shells or backdoors
-
-**Security Monitoring:**
-- Monitor Apache/IIS/Nginx access logs for injection attempts
-- Alert on suspicious process creation (web server spawning cmd.exe)
-- Detect reconnaissance commands (whoami, ipconfig, net user)
-- Track encoded command execution
-
-**Forensic Analysis:**
-- Investigate compromise after breach detected
-- Determine initial access vector (command injection)
-- Map attacker progression (injection → execution → recon)
-- Extract IOCs (attacker IPs, payloads, commands)
-
-**Real-World Skills Practiced:**
-
-**Technical Skills:**
-- ✅ Splunk SPL query writing
-- ✅ Multi-index log correlation
-- ✅ Base64 decoding
-- ✅ Sysmon event analysis
-- ✅ Web server log interpretation
-- ✅ Process tree investigation
-
-**Analytical Skills:**
-- ✅ Attack chain reconstruction
-- ✅ Evidence correlation across log sources
-- ✅ Determining attack success vs. attempt
-- ✅ Prioritizing investigation based on severity
-- ✅ Payload deobfuscation and analysis
-
-**Career Progression:**
-
-**Entry SOC Analyst:**
-- Run provided Splunk queries (like this room)
-- Interpret results and escalate
-- Follow investigation playbooks
-
-**Mid-Level SOC Analyst:**
-- Create custom Splunk queries independently
-- Lead investigations without templates
-- Develop detection rules
-
-**Senior SOC Analyst / Threat Hunter:**
-- Design investigation workflows
-- Mentor junior analysts on query techniques
-- Proactive threat hunting using advanced SPL
-
-**Interview Talking Point:** "I have hands-on experience investigating web attacks using Splunk SIEM by correlating Apache access logs, error logs, and Sysmon telemetry. I can detect command injection attacks through suspicious HTTP requests, confirm exploitation by analyzing server-side errors and process creation events, track post-exploitation reconnaissance activity like whoami commands, and decode Base64-encoded PowerShell payloads to reveal attacker intent. I understand the complete incident response workflow from initial detection through timeline reconstruction and evidence documentation. While I'm still building proficiency in independent Splunk query creation, I have strong investigation methodology skills and understand how to correlate multiple log sources to reconstruct attack chains. This directly applies to SOC analyst responsibilities in alert triage, incident investigation, and threat hunting."
+**Decode tool:** https://www.base64decode.org
 
 ---
 
-## 🔗 Security+ Connection
+## Challenges
 
-**Domain 2.0 - Threats, Vulnerabilities & Mitigations (22%):** Command injection, web application attacks, obfuscation techniques, reconnaissance activities.
-
-**Domain 4.0 - Security Operations (28%):** SIEM operations, log analysis, incident response, forensic investigation, threat hunting, security monitoring, alert triage.
+This type of investigation — SIEM, log correlation, decoding payloads,
+reconstructing the chain — is the work I want to do. The methodology and
+reasoning clicked immediately. The hard part is independent query crafting.
+The room provided the queries, and following them was straightforward.
+Writing them from scratch without a template, remembering field names like
+`ParentImage`, `CommandLine`, `uri_query`, and knowing which index holds which
+log type — that takes repeated practice to internalise. This is the gap to
+close in future labs.
 
 ---
 
-## 📸 Evidence
+## Security+ Alignment
+
+**Domain 2.0 - Threats, Vulnerabilities and Mitigations (22%):** Command
+injection, web application attacks, obfuscation techniques, reconnaissance.
+
+**Domain 4.0 - Security Operations (28%):** SIEM operations, log analysis,
+incident response, forensic investigation, threat hunting, alert triage.
+
+---
+
+## Evidence
 
 ![Splunk Command Injection Detection](../07-Screenshots/Day15-1.png)
-*Detected command injection attempts in Apache access logs using Splunk query, identified Base64-encoded payloads in uri_query parameters*
+*Apache access logs showing command injection attempts with Base64-encoded
+payloads in uri_query parameters targeting /cgi-bin/hello.bat.*
 
 ![Sysmon Process Tree Analysis](../07-Screenshots/Day15-2.png)
-*Traced suspicious process creation showing httpd.exe spawning cmd.exe, confirming successful command injection exploitation*
+*Sysmon confirming httpd.exe spawned cmd.exe — successful command injection
+at OS level.*
 
 ![Base64 Payload Decoding](../07-Screenshots/Day15-3.png)
-*Decoded Base64-encoded PowerShell payload revealing attacker message "This is now Mine! MUAHAHAA", demonstrating payload analysis technique*
+*Base64 payload decoded to "This is now Mine! MUAHAHAA" via base64decode.org.*
 
 ---
 
-## 📚 Key Takeaways for Future Reference
+## Key Takeaways
 
-**Web Attack Investigation Workflow:**
+**Investigation workflow:**
+```
+1. Access logs  → suspicious HTTP requests, Base64 in uri_query
+2. Error logs   → HTTP 500 on CGI endpoint = reached backend
+3. Sysmon       → httpd.exe → cmd.exe = OS-level execution confirmed
+4. Sysmon       → cmd.exe → whoami.exe = post-exploitation recon
+5. Sysmon       → powershell.exe -enc = check if payload executed
+```
 
-**Step-by-Step Process:**
-1. **Web Access Logs** → Detect injection attempts
-2. **Error Logs** → Confirm backend execution
-3. **Process Logs (Sysmon)** → Verify code execution
-4. **Command History** → Track post-exploitation activity
-5. **Payload Decoding** → Reveal true intent
+**Splunk queries:**
 
-**Splunk Query Templates (For Review):**
-
-**Detect Web Command Injection:**
+Step 1 — Detect web command injection:
 ```spl
-index=windows_apache_access (cmd.exe OR powershell OR "Invoke-Expression")
+index=windows_apache_access (cmd.exe OR powershell OR "powershell.exe" OR "Invoke-Expression")
 | table _time host clientip uri_path uri_query status
 ```
 
-**Check Error Logs:**
+Step 2 — Confirm backend execution:
 ```spl
 index=windows_apache_error ("cmd.exe" OR "powershell" OR "Internal Server Error")
 ```
 
-**Trace Process Creation:**
+Step 3 — Trace process creation:
 ```spl
 index=windows_sysmon ParentImage="*httpd.exe"
 ```
 
-**Find Reconnaissance:**
+Step 4 — Find reconnaissance:
 ```spl
 index=windows_sysmon *cmd.exe* *whoami*
 ```
 
-**Detect Encoded PowerShell:**
+Step 5 — Detect encoded PowerShell:
 ```spl
-index=windows_sysmon Image="*powershell.exe" (CommandLine="*enc*" OR CommandLine="*-EncodedCommand*")
+index=windows_sysmon Image="*powershell.exe" (CommandLine="*enc*" OR CommandLine="*-EncodedCommand*" OR CommandLine="*Base64*")
 ```
 
-**Key Indicators of Compromise (IOCs):**
+**Attack chain confirmed:**
+```
+/cgi-bin/hello.bat?cmd=powershell -enc <BASE64>
+        ↓
+HTTP 500 (backend processed input)
+        ↓
+httpd.exe → cmd.exe (OS execution)
+        ↓
+cmd.exe → whoami.exe (recon)
+        ↓
+powershell -enc → BLOCKED (no Sysmon events)
+```
 
-✅ **Web Layer:**
-- Long HTTP requests with Base64 strings
-- `/cgi-bin/` requests with `cmd=` parameters
-- HTTP 500 errors on CGI endpoints
+**IOCs to extract:**
 
-✅ **Process Layer:**
-- Web server spawning system processes
-- `httpd.exe` → `cmd.exe` parent-child relationship
-- `httpd.exe` → `powershell.exe` execution
+| Layer | Indicator |
+|---|---|
+| Web | Long Base64 strings in uri_query |
+| Web | `/cgi-bin/` requests with `cmd=` parameter |
+| Web | HTTP 500 on CGI endpoints |
+| Process | `httpd.exe` spawning `cmd.exe` or `powershell.exe` |
+| Process | `whoami.exe` spawned by web server process tree |
+| Command | `-enc` or `-EncodedCommand` in PowerShell arguments |
 
-✅ **Post-Exploitation:**
-- `whoami` command execution
-- `ipconfig`, `net user`, system enumeration
-- Base64-encoded PowerShell commands
+**Key terms:**
 
-**Blue Team Recommendations:**
-- Input validation on all CGI scripts
-- Disable unnecessary CGI handlers
-- Monitor web server process creation
-- Alert on Base64-encoded HTTP parameters
-- Implement WAF (Web Application Firewall)
-- Regular vulnerability scanning
-
----
+| Term | Definition |
+|---|---|
+| Command injection | Vulnerability allowing attacker to execute OS commands through app input |
+| CGI | Common Gateway Interface — runs server-side scripts via web requests |
+| `ParentImage` | Sysmon field showing which process spawned the current process |
+| `CommandLine` | Sysmon field showing the full command used to launch a process |
+| `-EncodedCommand` / `-enc` | PowerShell flag accepting Base64-encoded UTF-16LE commands |
+| UTF-16LE | Character encoding used by PowerShell encoded commands (2 bytes per char) |
+| `whoami.exe` | Windows binary returning current user context — first recon step |
+| HTTP 500 | Internal Server Error — server processed input but execution failed |
