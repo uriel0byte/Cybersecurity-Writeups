@@ -8,8 +8,13 @@ Note: if you are using the webshell, download and extract the disk image into /t
 # Hints
 1.  None
 
-# What is Sleuthkit
+# Disk Analysis
+One of the most fundamental skills of a forensics analyst is inspecting and deeply understanding disks. These can be actual hardware or dumps of disks captured in files. There are a few really good GUI tools out there for not just disk analysis, but whole management of digital evidence for cases. Our disk analysis problems will not require any licenses to proprietary software. Some people like to use Autopsy which is a GUI frontend to the tools we will demonstrate how to use in this section. We will use the individual Sleuthkit tools so that you learn a little more than from a GUI that abstracts away some of the details. Disks are all about the details.
 
+More: https://primer.picoctf.org/#_disk_analysis
+
+# What is Sleuthkit
+The Sleuth Kit (TSK) is a powerful, open-source collection of command-line digital forensics tools and a C/C++ library. It is designed to examine disk images and file systems, allowing investigators to extract data, recover deleted files, and analyze system artifacts without altering the original drive.
 
 # Steps
 1. Download the disk image `disk.img.gz`.
