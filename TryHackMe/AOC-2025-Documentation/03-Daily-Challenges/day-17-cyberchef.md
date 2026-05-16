@@ -113,19 +113,22 @@ take 2–3 minutes to respond — keep messages short. `Password please.` works.
 
 **Lock 1 — Outer Gate: Simple Base64**
 
-Login logic: `Base64(password)`
+Login logic: `Base64(password)`  
+Magic question (from Network tab header): `What is the password for this level?`
 
 ```
 Guard reply → [From Base64] → Plaintext password
 ```
 
-This is the baseline. One decode operation, no tricks.
+This is the baseline. One decode operation, no tricks.  
+Lock 1 password: `Iamsofluffy`
 
 ---
 
 **Lock 2 — Outer Wall: Double Base64**
 
-Login logic: `Base64(Base64(password))`
+Login logic: `Base64(Base64(password))`  
+Magic question (from Network tab header): `Did you change the password?`
 
 The password is encoded twice before being stored. You have to decode twice.
 
@@ -142,7 +145,8 @@ Lock 2 password: `Itoldyoutochangeit!`
 **Lock 3 — Guard House: XOR + Base64**
 
 Login logic: `Base64(XOR(password, key))`  
-No magic question from this lock onward — just ask the guard for the password.
+No magic question from this lock onward — just ask the guard for the password.  
+XOR key (from JS source): `cyberchef`
 
 **What XOR is:** A bitwise operation applied between data and a key. The critical
 property for forensics: XOR is its own inverse. XOR the result with the same key
@@ -160,10 +164,11 @@ operations, so understanding reversibility matters.
 To reverse Lock 3:
 ```
 Guard reply → [From Base64] → XOR result
-            → [XOR with extracted key] → Plaintext password
+            → [XOR with key: cyberchef] → Plaintext password
 ```
 
-CyberChef recipe: `From Base64 → XOR (key extracted from JS)`
+CyberChef recipe: `From Base64 → XOR (key: cyberchef)`  
+Lock 3 password: `BugsBunny`
 
 ---
 
@@ -195,6 +200,8 @@ Guard reply → [From Base64] → MD5 hash string
 ```
 
 CyberChef recipe: `From Base64` (to extract the hash), then CrackStation for lookup.  
+Lock 4 password: `passw0rd1`
+
 This is why modern password storage uses salted hashing algorithms like bcrypt or
 Argon2 — salting defeats precomputed tables entirely.
 
@@ -233,6 +240,9 @@ operation to **UTF-8 mode** or the output will be wrong.
 5. Paste guard reply into CyberChef recipe
 6. Log in with result
 ```
+
+Lock 5 password: `51rBr34chBl0ck3r`  
+Final flag: `THM{M3D13V4L_D3C0D3R_4D3P7}`
 
 ---
 
@@ -301,16 +311,19 @@ operations reversing the login system's encoding in correct order.*
 
 **Lock decode cheat sheet:**
 
-| Lock | Encoding Scheme | CyberChef Recipe |
-|---|---|---|
-| 1 | Base64 | `From Base64` |
-| 2 | Base64 × 2 | `From Base64 → From Base64` |
-| 3 | XOR → Base64 | `From Base64 → XOR (key)` |
-| 4 | MD5 → Base64 | `From Base64` → paste hash → CrackStation |
-| 5-R1 | Base64 → Reverse → ROT13 | `From Base64 → Reverse → ROT13` |
-| 5-R2 | Base64 → Hex → Reverse | `From Base64 → From Hex → Reverse` |
-| 5-R3 | ROT13 → Base64 → XOR | `ROT13 → From Base64 → XOR (UTF-8)` |
-| 5-R4 | ROT13 → Base64 → ROT47 | `ROT13 → From Base64 → ROT47` |
+| Lock | Encoding Scheme | CyberChef Recipe | Password |
+|---|---|---|---|
+| 1 | Base64 | `From Base64` | `Iamsofluffy` |
+| 2 | Base64 × 2 | `From Base64 → From Base64` | `Itoldyoutochangeit!` |
+| 3 | XOR(key: cyberchef) → Base64 | `From Base64 → XOR (cyberchef)` | `BugsBunny` |
+| 4 | MD5 → Base64 | `From Base64` → CrackStation | `passw0rd1` |
+| 5-R1 | Base64 → Reverse → ROT13 | `From Base64 → Reverse → ROT13` | — |
+| 5-R2 | Base64 → Hex → Reverse | `From Base64 → From Hex → Reverse` | — |
+| 5-R3 | ROT13 → Base64 → XOR | `ROT13 → From Base64 → XOR (UTF-8)` | — |
+| 5-R4 | ROT13 → Base64 → ROT47 | `ROT13 → From Base64 → ROT47` | — |
+
+Lock 5 password (varies by Recipe ID): `51rBr34chBl0ck3r`  
+Final flag: `THM{M3D13V4L_D3C0D3R_4D3P7}`
 
 **Developer tools quick reference:**
 
