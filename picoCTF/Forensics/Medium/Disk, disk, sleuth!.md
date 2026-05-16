@@ -36,4 +36,4 @@ ffffffff820adb46 t pico_router_probe
 **Note:** Both `srch_strings` and `strings` are command-line utilities used to extract and display printable sequences of characters from binary files, but they serve different user bases and have different feature sets.
 If you are just doing basic reverse engineering or checking a compiled binary, `strings` is the tool for the job. If you are doing advanced digital forensics and incident response (DFIR) across disk images, you will likely use `srch_strings`.
 
-Answer: picoCTF{mm15_f7w!}
+Answer: picoCTF{f0r3ns1c4t0r_n30phyt3_5e56e786}
