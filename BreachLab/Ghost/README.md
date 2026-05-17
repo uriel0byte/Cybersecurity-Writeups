@@ -34,3 +34,5 @@ This directory contains my technical documentation and command references for ea
 - [ ] Level 19: Your First Script
 - [ ] Level 20: Cron Discovery
 - [ ] Level 21: Git Archaeology
+
+**Direct Link:** [Link](https://breachlab.org/tracks/ghost)
