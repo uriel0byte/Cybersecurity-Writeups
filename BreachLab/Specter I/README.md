@@ -38,3 +38,5 @@ The Specter environment includes pre-installed OSINT utilities required for medi
 - [ ] Level 11: Telegram & Encrypted-Channel Intel
 - [ ] Level 12: Adversarial OSINT
 - [ ] Level 13: FULL Engagement - Berkeley Protocol Report
+
+**Direct Link:** [Link](https://breachlab.org/tracks/specter/i)
