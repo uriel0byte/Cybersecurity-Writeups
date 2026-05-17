@@ -57,34 +57,6 @@ A real failure I had to diagnose and recover from myself. The exercise forced me
 
 ---
 
-## Completed Projects
-
-- Windows 11 Filesystem & Boot Configuration Recovery + IR Report
-- Home WiFi Security Audit and Hardening + Report
-- Sanitized People OSINT (SOCMINT) Investigation Report
-- Advent of Cyber 2025 (TryHackMe) + Full Documentation
-- Windows 11 Migration Project + Report
-- Server Performance Stats (Bash Script)
-- Dummy Systemd Service
-- OverTheWire Bandit
-- Basic Git & Version Control Mastery
-
----
-
-## Certifications
-
-**In Progress**
-- CompTIA Network+
-- CompTIA Security+
-- ISC2 Certified in Cybersecurity (CC)
-
-**Completed**
-- Cybersecurity for General Professionals — Huawei & AIS Academy
-- Advent of Cyber 2025 — TryHackMe
-- Linux Unhatched — Cisco NetAcad
-
----
-
 ## Lab Profiles
 
 [HackTheBox](https://app.hackthebox.com/profile/#2566537) · [TryHackMe](https://tryhackme.com/p/poseidon.smash) · [CyberDefenders](https://cyberdefenders.org/p/poseidon.smash) · [LabEx](https://labex.io/users/uriel0byte-11746032) · [PicoCTF/CyLab](https://learn.cylabacademy.org/users/urielbyte) ·  [LetsDefend](https://app.letsdefend.io/user/urielbyte) · [SecurityBlueTeamLabs](https://blueteamlabs.online/home/user/82d77b7cbeca1bbfed8b49)
