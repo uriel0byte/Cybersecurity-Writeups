@@ -297,10 +297,6 @@ network forensics, log correlation, proactive defense.
 
 ## Evidence
 
-![RITA Results Pane](../07-Screenshots/Day22-1.png)
-*RITA results showing suspicious connections to malhare.net — beacon scores,
-connection counts, and threat modifiers visible in the Results Pane.*
-
 ![RITA Filter Application](../07-Screenshots/Day22-2.png)
 *Filter applied: `dst:rabbithole.malhare.net beacon:>=70 sort:duration-desc` —
 targeted hunt for long-duration high-confidence C2 sessions.*
