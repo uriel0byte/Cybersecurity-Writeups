@@ -13,8 +13,8 @@ This directory contains my technical documentation and command references for ea
 
 ## Investigation Reports
 - [x] Level 00: First Contact
-- [ ] Level 01: Name Game
-- [ ] Level 02: In The Shadows
+- [x] Level 01: Name Game
+- [x] Level 02: In The Shadows
 - [ ] Level 03: Access Denied
 - [ ] Level 04: Signal in the Noise
 - [ ] Level 05: The Listener
