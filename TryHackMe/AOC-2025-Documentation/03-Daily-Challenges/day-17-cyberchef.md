@@ -273,18 +273,6 @@ decoding, web application inspection, incident response techniques.
 
 ---
 
-## Evidence
-
-![CyberChef Base64 Recipe](../07-Screenshots/Day17-1.png)
-*CyberChef recipe demonstrating Base64 chain — To Base64 followed by From Base64
-showing round-trip encoding and the drag-and-drop operation interface.*
-
-![Lock 5 Multi-Step Recipe](../07-Screenshots/Day17-2.png)
-*Lock 5 multi-step decode recipe built from Recipe ID header value — chained
-operations reversing the login system's encoding in correct order.*
-
----
-
 ## Key Takeaways
 
 **Encoding vs. Encryption (never mix these up):**
