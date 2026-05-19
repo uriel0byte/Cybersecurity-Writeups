@@ -1,198 +1,306 @@
-# Day 19: ICS / Modbus - Claus for Concern
+# Day 19: ICS/Modbus — Claus for Concern
 
-## 📋 Quick Facts
-- **Date Completed:** December 19, 2025
-- **Time Spent:** 2 hours
-- **Difficulty:** ★★★★ (Hard)
-- **Category:** ICS / SCADA / OT Security / Protocol Analysis
-- **Room URL:** https://tryhackme.com/room/ICS-modbus-aoc2025-g3m6n9b1v4
-
----
-
-## 🎯 Challenge Overview
-
-This challenge introduced Industrial Control Systems (ICS) and the Modbus protocol through a Christmas-themed scenario. The environment simulated a SCADA-controlled system where Programmable Logic Controllers (PLCs) manage physical processes (like Santa's factory equipment). Using Python 3 and Modbus communications, the goal was to understand how to read and manipulate PLC data over the network, identify insecure design patterns, and see how attackers can abuse ICS protocols that lack built-in security.
-
-**Learning Objectives:**
-- Understand basic ICS/SCADA concepts and components
-- Learn what PLCs are and how they relate to field devices
-- Understand what Modbus is and why it's still widely used
-- See how Modbus messages look and behave over TCP/IP
-- Use Python 3 to interact with Modbus (reading/writing registers/coils)
-- Recognize why ICS/OT protocols are risky when exposed
+**Date:** December 19, 2025  
+**Time Spent:** 2 hours  
+**Difficulty:** ★★★★ *(Official rating: Medium — rated harder; ICS/SCADA and Python scripting against live protocols were both completely new)*  
+**Category:** ICS / SCADA / OT Security / Protocol Analysis  
+**Room:** https://tryhackme.com/room/ICS-modbus-aoc2025-g3m6n9b1v4
 
 ---
 
-## 💡 What I Learned
+## Overview
 
-### ICS, SCADA, and PLCs – New Territory
+TBFC's drone delivery system is shipping Easter eggs instead of Christmas presents.
+The conveyor belts and robotic arms are fully operational — the system isn't broken,
+it's been manipulated. King Malhare bypassed the web interface entirely and hit the
+PLC directly over Modbus TCP, changing the package type register. The web dashboard
+shows everything as normal because it reads from the same manipulated values.
 
-This room covered a domain that is **rarely touched in Security+** and most entry-level material:
+The task was to run a reconnaissance script against the PLC, read the register map,
+identify the compromised values, and remediate — in the correct order, because the
+attacker left a trap.
 
-**ICS (Industrial Control Systems):**
-- Systems that control industrial processes (factories, power plants, pipelines, water treatment, etc.)
-- Focused on **safety, reliability, and uptime**, not just confidentiality
+First time touching ICS, SCADA, PLCs, or any industrial protocol.
 
-**SCADA (Supervisory Control and Data Acquisition):**
-- Type of ICS typically used for **large, distributed systems**
-- Central SCADA server talks to **remote devices** to monitor and control them
-- Example: Monitoring tank levels, opening/closing valves, starting/stopping pumps
+---
 
-**PLCs (Programmable Logic Controllers):**
-- Rugged industrial computers that directly control **physical equipment**
-- Read inputs (sensors, switches) and drive outputs (motors, relays, valves)
-- Execute ladder logic or similar control programs in real time
+## What I Learned
 
-**Key Point:**
-- In IT security, we protect **data and systems**
-- In OT/ICS security, we protect **physical processes and safety**
+### ICS, SCADA, and PLCs
 
-### Modbus – Simple, Old, and Insecure
+**ICS (Industrial Control Systems):** Systems that control industrial physical
+processes — factories, power plants, water treatment, pipelines. Security priority
+is safety and uptime first. Confidentiality is secondary. An outage or physical
+accident is worse than a data breach.
 
-**What is Modbus?**
-- One of the **oldest and most common industrial protocols**
-- Originally designed for serial communication (Modbus RTU)
-- Now commonly used over TCP/IP (Modbus/TCP)
-- Very simple, widely supported by PLCs and SCADA systems
+**SCADA (Supervisory Control and Data Acquisition):** The command center. Provides
+the human interface — dashboards, alarms, trending graphs. SCADA monitors and sends
+commands to the devices doing the actual work. TBFC uses SCADA to monitor its entire
+drone delivery operation.
 
-**Basic Modbus Concepts:**
-- **Client/Server model** (often called Master/Slave in ICS terms)
-- Client (SCADA / HMI / script) sends a **request**
-- Server (PLC or device) sends a **response**
+**PLC (Programmable Logic Controller):** A rugged industrial computer that runs
+automation logic 24/7 and directly controls physical equipment. Reads sensors and
+drives actuators (motors, valves, robotic arms). In TBFC's case, the PLC decides
+what type of package to load and which delivery zone to send it to. This is the
+device King Malhare actually compromised.
 
-**Typical Actions:**
-- Read coils (on/off bits)
-- Read holding registers (values)
-- Write single coil
-- Write single register
-- Write multiple coils/registers
+**IT vs. OT security:**
 
-**Critical Limitation:**
-- **No authentication**
-- **No encryption**
-- **No integrity protection**
+| | IT Security | OT/ICS Security |
+|---|---|---|
+| Priority | Confidentiality | Safety and uptime |
+| Acceptable downtime | Patching windows | Near zero |
+| Failure consequence | Data loss | Physical damage / safety incident |
+| Update cycle | Frequent | Rare (years) |
 
-If someone can reach the Modbus port (usually TCP 502), they can often:
-- Read process values
-- Change setpoints
-- Turn equipment on/off
-- Potentially cause physical damage or safety incidents
+### Modbus Protocol
 
-### Using Python 3 with Modbus
+One of the oldest industrial protocols, originally designed for serial communication
+(Modbus RTU), now commonly used over TCP/IP (Modbus/TCP) on **port 502**.
 
-One of the biggest jumps in this room was using **Python 3 not just to run a script**, but to actively interact with an ICS protocol.
+**Client/Server model:** The client (SCADA system, script, or attacker) sends
+requests. The server (PLC) responds.
 
-**New Experiences for Me:**
-- Importing libraries in Python 3 (e.g., `from pymodbus.client import ModbusTcpClient` or similar)
-- Creating a client object and connecting to a target IP/port
-- Sending read/write requests to Modbus registers or coils
-- Parsing responses in Python (values, status)
+**The security problem:** Modbus has no authentication, no encryption, and no
+integrity checking. If you can reach port 502, you can read and write values without
+proving your identity. There is no login prompt — the PLC just responds to requests.
 
-**General Flow in Code (Conceptual):**
+This was not a design oversight. Modbus was designed for isolated, trusted industrial
+networks. The problem is those networks are no longer isolated.
+
+**FrostyGoop:** Real-world ICS malware discovered in early 2024 that directly
+interfaces with industrial control systems via Modbus TCP port 502, enabling
+arbitrary reads and writes to device registers. King Malhare used the same approach.
+
+### Modbus Data Types
+
+Modbus organizes data into four types. The writable vs. read-only distinction
+matters for understanding what an attacker can and cannot change.
+
+| Type | Abbreviation | Data | Access |
+|---|---|---|---|
+| Coils | C | Boolean (True/False) | Read/Write |
+| Discrete Inputs | DI | Boolean (True/False) | Read-only |
+| Holding Registers | HR | 16-bit integer | Read/Write |
+| Input Registers | IR | 16-bit integer | Read-only |
+
+Coils and Holding Registers are writable — an attacker with Modbus access can
+change them to manipulate the physical process. Discrete Inputs and Input Registers
+reflect sensor readings that can only be observed.
+
+**Critical detail:** Modbus addresses start at 0, not 1. HR0 is address 0,
+C10 is address 10.
+
+### Reconnaissance
+
+**Nmap scan:**
+```bash
+nmap -sV -p 22,80,502 MACHINE_IP
+```
+
+**Open ports:**
+```
+22/tcp   SSH
+80/tcp   HTTP (web interface + CCTV feed)
+502/tcp  Modbus TCP
+```
+
+Checking `http://MACHINE_IP` shows the warehouse CCTV: robotic arms working,
+conveyor belts running — delivering Easter eggs. The system is functioning
+perfectly. It's been told to ship the wrong thing.
+
+**Run the reconnaissance script:**
+```bash
+python3 reconnaissance.py
+```
+
+**Output:**
+```
+HOLDING REGISTERS:
+HR0 (Package Type):     1    0=Christmas, 1=Eggs, 2=Baskets
+HR1 (Delivery Zone):    5    1-9=Normal zones, 10=Ocean dump
+HR4 (System Signature): 666  WARNING: Eggsploit signature detected
+
+COILS (Boolean Flags):
+C10 (Inventory Verification): False  [Should be True]
+C11 (Protection/Override):    True   ACTIVE — system monitoring for changes
+C12 (Emergency Dump):         False
+C13 (Audit Logging):          False  [Should be True]
+C14 (Christmas Restored):     False  [Auto-set when system is fixed]
+C15 (Self-Destruct Armed):    False
+```
+
+HR0=1 confirms it — the PLC is set to ship eggs. HR4=666 is the Eggsploit attack
+signature. C10 and C13 are disabled — inventory verification and audit logging
+both silenced. C11 is the one to watch.
+
+### The Trap: C11
+
+**From the crumpled note found near the PLC terminal:**
+```
+CRITICAL: Never change HR0 while C11 = True — will trigger countdown!
+```
+
+C11 is an override flag left active by the attacker. If you correct HR0 (package
+type) while C11 is still True, it triggers a countdown that locks the system. The
+attacker anticipated incident response and built a counter-measure into the compromise.
+
+**Correct remediation order:**
+```
+1. Disable C11 first  ← disarm the trap
+2. Fix HR0            ← restore Christmas packages
+3. Restore C10        ← re-enable inventory verification
+4. Restore C13        ← re-enable audit logging
+5. C14 auto-sets to True when the system recognizes the fix
+```
+
+Skipping step 1 and going straight to HR0 triggers the trap. This is a deliberate
+attacker TTP — anticipating blue team response and building resistance into the
+compromise.
+
+### Python with pymodbus
+
+**Library:** pymodbus 3.6.8  
+**Install (if not on AttackBox):** `pip3 install pymodbus==3.6.8`
+
 ```python
 from pymodbus.client import ModbusTcpClient
 
-client = ModbusTcpClient("MACHINE_IP", port=502)
+# Connect
+client = ModbusTcpClient('MACHINE_IP', port=502)
 client.connect()
 
-# Read holding registers
-result = client.read_holding_registers(address=0, count=10, unit=1)
+# Read holding registers (HR0 through HR4)
+result = client.read_holding_registers(address=0, count=5, slave=1)
 print(result.registers)
+# Output: [1, 5, 0, 0, 666]
 
-# Write a single register
-client.write_register(address=1, value=123, unit=1)
+# Read coils (C10 through C15)
+result = client.read_coils(address=10, count=6, slave=1)
+print(result.bits)
+# Output: [False, True, False, False, False, False]
+
+# Step 1: Disable C11 (disarm trap)
+client.write_coil(address=11, value=False, slave=1)
+
+# Step 2: Fix package type
+client.write_register(address=0, value=0, slave=1)
+
+# Steps 3-4: Restore monitoring
+client.write_coil(address=10, value=True, slave=1)
+client.write_coil(address=13, value=True, slave=1)
 
 client.close()
 ```
 
-**Why This Was Hard:**
-- I usually just "run Python scripts" without modifying them
-- Here, I had to understand what the script was doing
-- Needed to know which function to call to interact with Modbus
-- Had to connect ICS concepts (PLCs, registers, coils) with Python code
-
-### Security Implications of ICS/Modbus
-
-This room highlighted why ICS/OT security is **different and dangerous**:
-
-- Modbus has **no built-in security**
-- ICS networks historically assumed **trusted, isolated environments**
-- Modern connectivity (IT/OT convergence, remote access, cloud) breaks that assumption
-
-**Risks:**
-- Unauthenticated writes to PLCs can:
-  - Stop production
-  - Damage equipment
-  - Create unsafe conditions
-  - Lead to environmental impact
-
-**Famous Real-World Examples:**
-- Stuxnet (targeting Iranian nuclear centrifuges)
-- Attacks on power grids and water treatment plants
-
-**Key Takeaway:**
-- A simple Python script + open Modbus port = potential to cause REAL physical consequences
+**pymodbus 3.x note:** The parameter is `slave=1`, not `unit=1`. Using `unit=1`
+is pymodbus 2.x syntax and will throw a deprecation error on 3.6.8.
 
 ---
 
-## 🤔 Challenges I Faced
+## Challenges
 
-**Entirely New Domain:**
-- SCADA, ICS, PLCs, and Modbus are **not** typically covered deeply in Security+
-- First time seeing these concepts in a hands-on way
-- Hard to map mental model from traditional IT to OT/ICS
+Entirely new domain. The conceptual jump from IT security (protecting data) to OT
+security (protecting physical processes) required rebuilding the mental model from
+scratch. A compromised register in a PLC is not a data leak — it is machinery
+doing the wrong thing in the physical world.
 
-**Python 3 Usage:**
-- I’ve only used Python 3 to **run** scripts, not to actively build or modify them
-- Understanding imports, client connections, function calls was confusing
-- Mapping Modbus functions (read/write registers/coils) to Python methods took effort
+Python was the other wall. Prior experience was running scripts, not modifying
+them. Understanding the pymodbus client object, reading register output arrays,
+and knowing which function applies to coils vs. holding registers took time.
+The `slave=1` vs. `unit=1` distinction was a practical trip-up.
 
-**Conceptual Jump:**
-- Moving from "web apps and Windows logs" to "industrial protocols controlling physical systems"
-- Understanding that a "register" in Modbus corresponds to an actual physical parameter (like temperature, motor speed, valve position)
-
-**Overall:**
-- Hard to grasp at first (★★★★ fits)
-- But also very interesting because it’s a **rare and high-value niche**
+The C11 trap mechanic was the most interesting part — the attacker anticipated
+incident response and built a counter-measure into the compromise. That level of
+operational thinking is worth internalizing.
 
 ---
 
-## ✅ How This Helps My Career
+## Security+ Alignment
 
-ICS/OT security is a **high-demand, high-paying specialization** that most people never touch at entry level.
+**Domain 2.0 - Threats, Vulnerabilities and Mitigations (22%):** ICS/OT
+vulnerabilities, unauthenticated protocol access, physical consequences of cyber
+attacks.
 
-**Why This Room is Valuable:**
-- Exposed me to **ICS/SCADA** concepts most junior analysts never see
-- Showed how **old, insecure protocols** are still used to control critical infrastructure
-- Gave a taste of **Python scripting for protocol interaction**, not just normal scripting
-
-**Career Applications:**
-
-**Blue Team / SOC:**
-- Recognize Modbus traffic in PCAPs or logs
-- Understand why ICS protocols on flat networks are dangerous
-- Escalate incidents involving OT networks appropriately
-
-**Incident Response / Forensics:**
-- Investigate suspicious Modbus commands
-- Understand potential physical impact
-- Work with OT engineers during incidents
-
-**Threat Hunting:**
-- Hunt for Modbus traffic crossing boundaries where it shouldn’t
-- Look for suspicious writes to PLC registers
-
-**Long-Term Potential:**
-- ICS security consultants and OT security engineers are relatively rare
-- Niche specialization can lead to higher salaries and unique opportunities
+**Domain 3.0 - Security Architecture (18%):** IT/OT network segmentation, attack
+surface of industrial environments, legacy protocol risks.
 
 ---
 
-## 📚 Key Takeaways for Future Reference
+## Evidence
 
-- **ICS/SCADA ≠ regular IT** – priorities are safety and uptime, not just CIA triad
-- **PLCs** are the brains controlling physical devices in industrial systems
-- **Modbus** is simple but dangerously insecure: no auth, no encryption
-- If you can reach Modbus/TCP (port 502), you can often read/write critical process values
-- Python can be used to **directly talk to PLCs** via Modbus libraries
-- ICS/OT security is a niche but **high-impact** and **high-value** area for a Blue Team career
+![Reconnaissance Output](../07-Screenshots/Day19-1.png)
+*reconnaissance.py output: HR0=1 (Eggs), HR4=666 (Eggsploit signature), C11=True
+(trap active), C10 and C13 disabled — full compromise picture confirmed.*
+
+![Remediation Sequence](../07-Screenshots/Day19-2.png)
+*Modbus write sequence executed in correct order: C11 disabled first, HR0 corrected
+to 0, C10 and C13 restored — C14 auto-set to True confirming successful remediation.*
+
+---
+
+## Key Takeaways
+
+**Modbus data types:**
+
+| Type | Access | Use |
+|---|---|---|
+| Coils (C) | Read/Write | Boolean control flags |
+| Discrete Inputs (DI) | Read-only | Boolean sensor readings |
+| Holding Registers (HR) | Read/Write | Integer process setpoints |
+| Input Registers (IR) | Read-only | Integer sensor readings |
+
+**TBFC register map:**
+
+| Address | Name | Values | Compromised State |
+|---|---|---|---|
+| HR0 | Package Type | 0=Christmas, 1=Eggs, 2=Baskets | 1 (Eggs) |
+| HR1 | Delivery Zone | 1-9=Normal, 10=Ocean dump | 5 |
+| HR4 | System Signature | 666=Eggsploit | 666 |
+| C10 | Inventory Verification | True=Active | False |
+| C11 | Protection/Override | True=Trap armed | True |
+| C12 | Emergency Dump | False=Safe | False |
+| C13 | Audit Logging | True=Active | False |
+| C14 | Christmas Restored | Auto-set on fix | False |
+| C15 | Self-Destruct Armed | False=Safe | False |
+
+**Remediation order:**
+```
+1. write_coil(11, False)    ← disarm C11 trap FIRST
+2. write_register(0, 0)     ← restore Christmas packages
+3. write_coil(10, True)     ← re-enable inventory verification
+4. write_coil(13, True)     ← re-enable audit logging
+```
+
+**pymodbus quick reference:**
+```python
+from pymodbus.client import ModbusTcpClient
+
+client = ModbusTcpClient('MACHINE_IP', port=502)
+client.connect()
+
+# Read
+client.read_holding_registers(address=0, count=5, slave=1).registers
+client.read_coils(address=10, count=6, slave=1).bits
+
+# Write
+client.write_register(address=0, value=0, slave=1)
+client.write_coil(address=11, value=False, slave=1)
+
+client.close()
+```
+
+**Key terms:**
+
+| Term | Definition |
+|---|---|
+| ICS | Industrial Control Systems — systems managing physical industrial processes |
+| SCADA | Supervisory Control and Data Acquisition — human operator interface for ICS |
+| PLC | Programmable Logic Controller — rugged computer directly controlling physical equipment |
+| Modbus TCP | Industrial protocol over TCP/IP; no authentication, no encryption; default port 502 |
+| Holding Register | Writable 16-bit Modbus value storing process setpoints or configuration |
+| Coil | Writable boolean Modbus flag for on/off control |
+| FrostyGoop | 2024 ICS malware using Modbus TCP to manipulate industrial device registers |
+| IT/OT convergence | Connecting OT networks to corporate/internet — defeats assumed isolation |
+| Trap logic | Attacker-placed counter-measure that triggers if remediation is attempted in the wrong order |
+| slave=1 | pymodbus 3.x parameter identifying the target device unit (replaces unit=1 from 2.x) |
