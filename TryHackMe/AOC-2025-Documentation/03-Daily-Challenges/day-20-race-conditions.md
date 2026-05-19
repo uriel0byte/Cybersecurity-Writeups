@@ -154,18 +154,6 @@ concurrent request analysis, anomalous behavior detection.
 
 ---
 
-## Evidence
-
-![Burp Suite Parallel Group Setup](../07-Screenshots/Day20-1.png)
-*15 duplicate POST /process_checkout requests grouped in Burp Repeater, ready for
-parallel send with last-byte sync — attack group configured.*
-
-![Negative Stock Result](../07-Screenshots/Day20-2.png)
-*Orders page showing multiple confirmed SleighToy orders with stock pushed into
-negative values — race condition successfully triggered.*
-
----
-
 ## Key Takeaways
 
 **Three race condition types:**
