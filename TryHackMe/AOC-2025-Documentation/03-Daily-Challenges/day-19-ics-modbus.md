@@ -227,18 +227,6 @@ surface of industrial environments, legacy protocol risks.
 
 ---
 
-## Evidence
-
-![Reconnaissance Output](../07-Screenshots/Day19-1.png)
-*reconnaissance.py output: HR0=1 (Eggs), HR4=666 (Eggsploit signature), C11=True
-(trap active), C10 and C13 disabled — full compromise picture confirmed.*
-
-![Remediation Sequence](../07-Screenshots/Day19-2.png)
-*Modbus write sequence executed in correct order: C11 disabled first, HR0 corrected
-to 0, C10 and C13 restored — C14 auto-set to True confirming successful remediation.*
-
----
-
 ## Key Takeaways
 
 **Modbus data types:**
