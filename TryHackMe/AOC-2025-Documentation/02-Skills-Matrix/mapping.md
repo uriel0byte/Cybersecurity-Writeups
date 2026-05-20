@@ -1,399 +1,215 @@
-# Technical Skills Matrix - AOC 2025
+# Technical Skills Matrix — Advent of Cyber 2025
 
-## Complete Skills Inventory (All 24 Days)
+**Completed:** December 1–24, 2025 | **Platform:** TryHackMe | **Days:** 24/24  
+**Evidence:** Full writeups with screenshots, SPL/KQL queries, tool workflows, and room answers documented in `/03-Daily-Challenges/`.
 
-| Skill Category | AOC Days | Tools/Technologies | Proficiency | SOC Analyst Application | Job Match |
-|---------------|----------|-------------------|-------------|------------------------|-----------| 
-| **SIEM & Log Analysis** | 3, 10, 15, 22 | Splunk, Microsoft Sentinel, RITA, Zeek, SPL, KQL | ⭐⭐⭐⭐☆ | Alert triage, threat detection, log correlation, incident investigation, C2 detection | 78% of SOC jobs |
-| **Network Security** | 7, 22, 24 | Nmap, Netcat, dig, FTP, RITA, Zeek | ⭐⭐⭐⭐☆ | Service discovery, port scanning, protocol analysis, traffic monitoring, threat hunting | 65% of SOC jobs |
-| **Malware Detection** | 6, 13, 21 | PeStudio, ProcMon, Regshot, YARA, pluma, CyberChef | ⭐⭐⭐⭐☆ | Static/dynamic analysis, IOC identification, threat hunting, sandbox analysis, HTA analysis | 60% of SOC jobs |
-| **Email Security** | 2, 12 | SET, Email headers, SPF/DKIM/DMARC | ⭐⭐⭐⭐☆ | Phishing detection, email triage, header analysis, social engineering awareness | 55% of SOC jobs |
-| **Web Security** | 5, 11, 20, 24 | Browser DevTools, Burp Suite, JavaScript, cURL | ⭐⭐⭐☆☆ | Vulnerability assessment, XSS/IDOR detection, race conditions, API testing, CLI exploitation | 50% of SOC jobs |
-| **Linux Administration** | 1, 6, 7, 10 | Bash, grep, find, chmod, sudo, cURL | ⭐⭐⭐⭐☆ | System investigation, log analysis, file forensics, CLI proficiency, scripting | 70% of SOC jobs |
-| **Password Security & Cryptography** | 9, 17, 18 | John the Ripper, pdfcrack, fcrackzip, CyberChef, Base64, XOR, ROT13 | ⭐⭐⭐⭐☆ | Understanding attack methods, credential protection, hash cracking detection, deobfuscation | 45% of SOC jobs |
-| **Cloud Security** | 10, 14, 23 | Azure Sentinel, Azure Portal, KQL, Docker, AWS CLI, IAM, S3 | ⭐⭐⭐☆☆ | Cloud SIEM operations, Azure security, container security, AWS privilege escalation | 60% of SOC jobs |
-| **AI Security** | 4, 8 | Agentic AI, Prompt injection, ReAct prompting | ⭐⭐⭐☆☆ | Understanding AI vulnerabilities, emerging threat awareness, AI-assisted SOC | 30% of SOC jobs (growing) |
-| **Web Attack Forensics** | 15 | Splunk, Apache logs, Sysmon | ⭐⭐⭐⭐☆ | Attack pattern analysis, incident forensics, log correlation, command injection detection | 70% of SOC jobs |
-| **Windows Forensics** | 16 | Registry Explorer, Registry hives, regedit | ⭐⭐⭐☆☆ | Persistence detection, artifact recovery, incident response, registry analysis | 65% of SOC jobs |
-| **ICS/OT Security** | 19 | Python, pymodbus, Modbus TCP | ⭐⭐☆☆☆ | Critical infrastructure monitoring, protocol analysis, OT threat hunting, SCADA systems | 40% of SOC jobs (critical) |
-| **Container Security** | 14 | Docker, Docker CLI, container escape | ⭐⭐☆☆☆ | Container escape detection, image analysis, runtime security, misconfigurations | 50% of SOC jobs (growing) |
-| **C2 Detection & Analysis** | 22 | RITA, Zeek, PCAP analysis | ⭐⭐⭐⭐☆ | Beacon detection, threat hunting, network forensics, DNS tunneling analysis | 75% of SOC jobs |
-| **Cloud Security (AWS)** | 23 | AWS CLI, IAM, S3 | ⭐⭐⭐☆☆ | Cloud infrastructure security, privilege escalation, data exfiltration detection, role assumption | 80% of SOC jobs (growing) |
-| **Command-line Exploitation** | 24 | cURL, bash scripting, HTTP manipulation | ⭐⭐⭐☆☆ | HTTP manipulation, API testing, automated exploitation, User-Agent spoofing | 45% of SOC jobs |
+This matrix maps hands-on lab experience from the 24-day structured challenge series to SOC analyst skill requirements and Security+ SY0-701 exam domains. Proficiency ratings reflect actual lab performance in guided environments — not independent real-world experience.
 
-**Proficiency Legend:**
-- ⭐☆☆☆☆ Beginner (Basic familiarity)
-- ⭐⭐☆☆☆ Novice (Can use with guidance)
-- ⭐⭐⭐☆☆ Intermediate (Independent usage)
-- ⭐⭐⭐⭐☆ Advanced (Confident, can troubleshoot)
-- ⭐⭐⭐⭐⭐ Expert (Can teach others, optimize)
+---
+
+## Skills Overview
+
+| Skill Area | Days | Key Tools | Proficiency | SOC Analyst Application |
+|---|---|---|---|---|
+| SIEM & Log Analysis | 3, 10, 15, 22 | Splunk (SPL), Microsoft Sentinel (KQL), RITA, Zeek | ⭐⭐⭐☆☆ | Alert triage, log correlation, multi-source investigation, attack timeline reconstruction |
+| Web Attack Forensics | 3, 15 | Splunk, Apache access/error logs, Sysmon | ⭐⭐⭐☆☆ | Command injection detection, parent-child process analysis, IOC extraction |
+| Malware Analysis | 6, 13, 21 | PeStudio, ProcMon, Regshot, YARA, CyberChef, pluma | ⭐⭐⭐☆☆ | Static/dynamic analysis, IOC identification, persistence detection, HTA analysis |
+| Email Security & Phishing | 2, 12 | SET, email header analysis, SPF/DKIM/DMARC | ⭐⭐⭐☆☆ | Phishing detection, spoofing identification, header analysis, punycode recognition |
+| Linux Administration | 1, 7, 9, 22 | bash, grep, find, Nmap, Netcat, dig, ss | ⭐⭐⭐☆☆ | CLI investigation, log analysis, bash history forensics, service enumeration |
+| Password Security | 9, 17 | John the Ripper, pdfcrack, zip2john, CrackStation | ⭐⭐⭐☆☆ | Offline cracking detection, hash identification, credential compromise response |
+| Encoding & Obfuscation | 17, 18 | CyberChef, browser DevTools, PowerShell analysis | ⭐⭐⭐☆☆ | Payload deobfuscation, Base64/XOR/ROT decoding, malware evasion technique recognition |
+| Network Security | 7, 22 | Nmap, Netcat, dig, RITA, Zeek, PCAP | ⭐⭐⭐☆☆ | Port scanning, service enumeration, C2 beaconing detection, traffic analysis |
+| Windows Forensics | 6, 16 | Registry Explorer, Registry Editor, Sysmon | ⭐⭐☆☆☆ | Registry hive analysis, persistence mechanism identification, artifact recovery |
+| Web Application Security | 5, 11, 20, 24 | Browser DevTools, Burp Suite, cURL, bash | ⭐⭐☆☆☆ | IDOR, XSS, race conditions, HTTP manipulation, brute-force pattern recognition |
+| C2 Detection & Threat Hunting | 22 | RITA, Zeek, PCAP analysis | ⭐⭐☆☆☆ | Beacon detection, behavioral analysis, metadata-driven hunting in encrypted traffic |
+| Cloud Security — Azure | 10 | Microsoft Sentinel, KQL, Azure Portal | ⭐⭐☆☆☆ | Cloud SIEM operations, alert triage, Linux privilege escalation investigation |
+| Cloud Security — AWS | 23 | AWS CLI, IAM, STS, S3 | ⭐⭐☆☆☆ | IAM enumeration, privilege escalation via role assumption, CloudTrail monitoring |
+| Container Security | 14 | Docker, Docker CLI, docker exec | ⭐⭐☆☆☆ | Docker socket risk identification, container escape vectors, runtime hardening |
+| ICS / OT Security | 19 | Python, pymodbus, Modbus TCP | ⭐⭐☆☆☆ | Industrial protocol basics, Modbus register/coil interaction, OT incident response |
+| AI Security | 4, 8 | AI agents, prompt injection, ReAct/CoT | ⭐⭐☆☆☆ | Prompt injection recognition, AI-assisted SOC workflows, agentic AI attack surface |
+
+**Proficiency Scale:**  
+⭐☆☆☆☆ Exposure only &nbsp;|&nbsp; ⭐⭐☆☆☆ Guided lab experience &nbsp;|&nbsp; ⭐⭐⭐☆☆ Independent with reference &nbsp;|&nbsp; ⭐⭐⭐⭐☆ Confident, can troubleshoot &nbsp;|&nbsp; ⭐⭐⭐⭐⭐ Expert
 
 ---
 
 ## Security+ SY0-701 Domain Mapping
 
-### Domain 1.0 - General Security Concepts (12%)
-**Coverage: ⭐⭐⭐⭐☆ Strong**
+### Domain 1.0 — General Security Concepts (12%)
 
-| Day | Topic | Domain Alignment |
-|-----|-------|------------------|
-| 1 | Linux CLI | OS security, file permissions, access control |
-| 2 | Phishing | Social engineering, threat actors, attack motivations |
-| 5 | IDOR | Authentication vs authorization, access control |
-| 8 | Prompt Injection | Emerging threats (AI), application security |
-| 9 | Password Cracking | Cryptography concepts, password security |
-| 11 | XSS | Client-side security, browser security model |
-| 12 | Phishing Detection | Social engineering awareness, email security |
-| 17 | CyberChef | Cryptography, encoding, hash functions |
-| 18 | Obfuscation | Cryptography, code security concepts |
+| Day | Topic | Alignment |
+|---|---|---|
+| 1 | Linux CLI | File permissions, access control, least privilege |
+| 2 | Phishing | Social engineering, security awareness |
+| 5 | IDOR | Authentication vs. authorization, session management |
+| 8 | Prompt Injection | Emerging AI threats, application security |
+| 9 | Password Cracking | Cryptography concepts, password policy |
+| 11 | XSS | Secure coding, browser security model |
+| 17 | CyberChef | Encoding vs. encryption, hash functions |
+| 18 | Obfuscation | Encoding vs. encryption vs. obfuscation |
 
-### Domain 2.0 - Threats, Vulnerabilities & Mitigations (22%)
-**Coverage: ⭐⭐⭐⭐⭐ Excellent**
+### Domain 2.0 — Threats, Vulnerabilities & Mitigations (22%)
 
-| Day | Topic | Domain Alignment |
-|-----|-------|------------------|
-| 2 | Phishing | Phishing attack vectors, social engineering |
-| 5 | IDOR | Access control vulnerabilities, privilege escalation |
-| 6 | Malware Analysis | Malware analysis techniques, static/dynamic analysis |
-| 7 | Network Scanning | Reconnaissance, network scanning, vulnerability assessment |
-| 9 | Password Cracking | Password attacks, dictionary/brute-force |
+| Day | Topic | Alignment |
+|---|---|---|
+| 2 | Phishing | Phishing vectors, credential harvesting, social engineering |
+| 5 | IDOR | Broken access control (OWASP #1), privilege escalation |
+| 6 | Malware Analysis | Static/dynamic analysis, persistence, IOC identification |
+| 7 | Network Discovery | Reconnaissance, scanning, attack surface enumeration |
+| 9 | Password Cracking | Brute-force attacks, offline cracking, credential attacks |
 | 11 | XSS | Injection attacks, client-side vulnerabilities |
-| 12 | Phishing Detection | Threat intelligence, phishing indicators |
-| 13 | YARA Rules | Malware detection, IOC identification |
-| 14 | Containers | Container vulnerabilities, escape techniques |
-| 15 | Web Forensics | Web attack vectors, exploitation forensics |
-| 18 | Obfuscation | Code deobfuscation, malware analysis |
-| 19 | ICS/Modbus | OT/ICS threats, protocol attacks |
-| 20 | Race Conditions | Timing attacks, application vulnerabilities |
-| 21 | HTA Malware | Malware analysis, VBScript analysis |
-| 22 | C2 Detection | Command & control networks, threat hunting |
-| 23 | AWS IAM | Cloud privilege escalation, misconfigurations |
-| 24 | cURL Exploitation | Web API exploitation, HTTP attacks |
+| 12 | Phishing Analysis | Threat intelligence, email spoofing, typosquatting, punycode |
+| 13 | YARA Rules | Malware indicators, signature-based detection, IOCs |
+| 14 | Container Security | Container escape, Docker socket misconfigurations |
+| 15 | Web Forensics | Command injection, web attack vectors, exploitation |
+| 17 | CyberChef | Obfuscation, encoding techniques |
+| 18 | Obfuscation | Malware evasion, deobfuscation methodology |
+| 19 | ICS/Modbus | OT/ICS vulnerabilities, unauthenticated protocol access |
+| 20 | Race Conditions | TOCTOU, atomicity violations, application logic flaws |
+| 21 | HTA Malware | Living off the Land, fileless malware, VBScript/PowerShell |
+| 22 | C2 Detection | Command and control infrastructure, beaconing, DNS tunneling |
+| 23 | AWS Security | Cloud privilege escalation, IAM misconfigurations |
+| 24 | cURL Exploitation | Web API exploitation, HTTP attack patterns |
 
-### Domain 3.0 - Security Architecture (18%)
-**Coverage: ⭐⭐⭐⭐☆ Strong**
+### Domain 3.0 — Security Architecture (18%)
 
-| Day | Topic | Domain Alignment |
-|-----|-------|------------------|
+| Day | Topic | Alignment |
+|---|---|---|
 | 1 | Linux CLI | OS security, file system architecture |
-| 7 | Network Scanning | Network architecture, service placement |
-| 10 | Alert Triaging | Cloud security architecture (Azure) |
-| 11 | XSS | Web application security architecture |
-| 14 | Containers | Container security architecture, runtime |
-| 16 | Windows Forensics | OS architecture, registry structure |
-| 19 | ICS/Modbus | Industrial control system architecture |
-| 23 | AWS | Cloud infrastructure architecture |
+| 7 | Network Discovery | Network architecture, service placement, 0.0.0.0 vs 127.0.0.1 |
+| 10 | Alert Triage | Cloud SIEM architecture (Azure Sentinel) |
+| 14 | Container Security | Container isolation, namespaces, cgroups, microservices |
+| 16 | Registry Forensics | Windows OS architecture, registry structure |
+| 19 | ICS/Modbus | IT/OT network segmentation, industrial protocol design |
+| 22 | C2 Detection | Network security monitoring, SPAN ports, NSM architecture |
+| 23 | AWS Security | Cloud IAM architecture, least privilege, identity management |
 
-### Domain 4.0 - Security Operations (28%)
-**Coverage: ⭐⭐⭐⭐⭐ Exceptional**
+### Domain 4.0 — Security Operations (28%)
 
-| Day | Topic | Domain Alignment |
-|-----|-------|------------------|
-| 3 | Splunk SIEM | SIEM usage, log analysis, monitoring |
-| 4 | AI in Security | Security automation, AI-assisted operations |
-| 6 | Malware Analysis | Incident response, evidence collection |
-| 7 | Network Scanning | Service discovery, threat hunting |
-| 9 | Password Cracking | Detection and response, monitoring |
-| 10 | Alert Triaging | Alert triage, incident investigation, escalation |
-| 12 | Phishing Detection | Email security operations, threat detection |
-| 13 | YARA Rules | Threat hunting, malware detection, IOC analysis |
-| 15 | Web Forensics | Incident response, forensic analysis |
-| 16 | Registry Forensics | Incident investigation, artifact recovery |
-| 21 | HTA Malware | Malware analysis, incident response |
-| 22 | C2 Detection | Threat hunting, incident detection |
+| Day | Topic | Alignment |
+|---|---|---|
+| 3 | Splunk SIEM | SIEM operations, SPL queries, log analysis, alert triage |
+| 4 | AI in Security | Security automation, AI-assisted SOC workflows |
+| 6 | Malware Analysis | Incident response, evidence collection, sandbox analysis |
+| 7 | Network Discovery | Service discovery, network monitoring, threat hunting |
+| 9 | Password Cracking | Incident detection, offline cracking monitoring |
+| 10 | SOC Alert Triage | Alert triage, KQL queries, incident investigation, escalation |
+| 12 | Phishing Analysis | Email security operations, threat detection |
+| 13 | YARA Rules | Threat hunting, custom rule creation, IOC-based scanning |
+| 15 | Web Forensics | Incident response, multi-source log correlation, forensic analysis |
+| 16 | Registry Forensics | Digital forensics, artifact recovery, timeline reconstruction |
+| 21 | HTA Malware | Static malware analysis, IOC extraction, detection engineering |
+| 22 | C2 Detection | Proactive threat hunting, behavioral analysis, RITA/Zeek |
 
-### Domain 5.0 - Security Program Management (20%)
-**Coverage: ⭐☆☆☆☆ Limited**
-- Not a focus for AOC (technical hands-on event)
+### Domain 5.0 — Security Program Management (20%)
+Not a focus of the Advent of Cyber format. No meaningful coverage.
 
 ---
 
-## Tool Proficiency Breakdown
+## Tool Reference
 
-### SIEM & Analytics
-**Days:** 3, 10, 15, 22  
-**Proficiency:** ⭐⭐⭐⭐☆ Advanced
+### SIEM Platforms
 
-**Tools Mastered:**
-- Splunk Enterprise (SPL query writing, custom field extraction, timeline analysis)
-- Microsoft Sentinel (KQL, Azure cloud SIEM, alert correlation)
-- RITA (Real Intelligence Threat Analytics - beacon detection, C2 analysis)
-- Zeek (Network monitoring, connection analysis, protocol examination)
-
-**Capabilities:**
-- Write complex SPL/KQL queries
-- Correlate logs across multiple sources
-- Build attack timelines
-- Detect anomalies and suspicious patterns
-- Triage and investigate alerts
-- Detect C2 beaconing patterns
-- Analyze network traffic for threats
-
-### Network Analysis
-**Days:** 7, 22, 24  
-**Proficiency:** ⭐⭐⭐⭐☆ Advanced
-
-**Tools Mastered:**
-- Nmap (TCP/UDP scanning, service enumeration, banner grabbing)
-- Netcat (port connectivity, banner grabbing, data transfer)
-- dig (DNS queries, TXT record retrieval)
-- FTP (anonymous access, file transfer)
-- RITA (network traffic analysis, C2 detection)
-- Zeek (network flow analysis)
-
-**Capabilities:**
-- Perform comprehensive port scans
-- Identify running services and versions
-- Enumerate network resources
-- Understand network protocols (TCP, UDP, DNS, FTP, HTTP)
-- Detect command & control communications
+| Tool | Days | What Was Done |
+|---|---|---|
+| Splunk (SPL) | 3, 15 | Multi-source log correlation, attack chain reconstruction, 7-phase ransomware investigation, web forensics across Apache and Sysmon indexes |
+| Microsoft Sentinel (KQL) | 10 | 8-incident triage, Linux privilege escalation investigation across 4 hosts, MITRE ATT&CK mapping |
+| RITA | 22 | C2 beacon detection, Zeek log import, threat modifier analysis, behavioral hunting against `malhare.net` |
+| Zeek | 22 | PCAP-to-log conversion, conn/http/dns/ssl log analysis as RITA input |
 
 ### Malware Analysis
-**Days:** 6, 13, 21  
-**Proficiency:** ⭐⭐⭐⭐☆ Advanced
 
-**Tools Mastered:**
-- PeStudio (static analysis, strings, imports, resources)
-- Process Monitor (dynamic behavior, registry, file operations)
-- Regshot (registry comparison, persistence detection)
-- YARA (rule creation, pattern matching, malware hunting)
-- pluma (text editor for HTA/VBScript analysis)
-- CyberChef (Base64 decoding, deobfuscation)
+| Tool | Days | What Was Done |
+|---|---|---|
+| PeStudio | 6 | SHA256 extraction, string analysis, suspicious imports on HopHelper.exe |
+| Process Monitor | 6 | TCP activity filtering, registry write detection, C2 confirmation |
+| Regshot | 6 | Before/after registry comparison, Run key persistence confirmed |
+| YARA | 13 | Rule written from scratch, regex pattern matching, recursive scan |
+| pluma / text editor | 21 | Static HTA analysis, VBScript execution flow tracing |
 
-**Capabilities:**
-- Static analysis without execution
-- Dynamic analysis in sandbox
-- Identify persistence mechanisms
-- Create custom YARA rules
-- Track malware behavior
-- Analyze HTA (HTML Application) malware
-- Decode obfuscated malware code
+### Network & Recon
 
-### Web Security
-**Days:** 5, 8, 11, 20, 24  
-**Proficiency:** ⭐⭐⭐☆☆ Intermediate
+| Tool | Days | What Was Done |
+|---|---|---|
+| Nmap | 7 | Full TCP scan (`-p-`), UDP scan (`-sU`), banner grabbing (`--script=banner`) |
+| Netcat | 7 | Probed unknown service on port 25251, retrieved key fragment |
+| dig | 7 | DNS TXT record query against non-standard DNS server |
+| ss | 7 | On-host service discovery, found MySQL on localhost invisible to Nmap |
 
-**Tools Mastered:**
-- Browser DevTools (Network tab, Storage tab, JavaScript console)
-- Burp Suite (request interception, manipulation, Repeater)
-- JavaScript (payload crafting, XSS exploitation)
-- cURL (HTTP requests, CLI-based exploitation)
+### Forensics
 
-**Capabilities:**
-- Identify IDOR vulnerabilities
-- Test for XSS (reflected, stored)
-- Exploit prompt injection in AI systems
-- Exploit race conditions
-- Analyze authentication/authorization flaws
-- Manual web application testing
-- Command-line HTTP manipulation
+| Tool | Days | What Was Done |
+|---|---|---|
+| Registry Explorer | 16 | Loaded offline hives with SHIFT+Open (transaction log replay), found DroneManager Updater in Uninstall key, confirmed persistence via Run key |
+| Sysmon | 15 | Parent-child process analysis (`ParentImage`), whoami recon detection, encoded PowerShell hunting |
+| CyberChef | 17, 18, 21 | Multi-step decode recipes, Base64→ROT13, XOR with key, Lock 1–5 decode chains |
 
-### Email Security
-**Days:** 2, 12  
-**Proficiency:** ⭐⭐⭐⭐☆ Advanced
+### Cloud & Infrastructure
 
-**Tools Mastered:**
-- Social-Engineer Toolkit (phishing campaign creation)
-- Email header analysis (SPF, DKIM, DMARC)
-- Authentication-Results parsing
-
-**Capabilities:**
-- Create realistic phishing campaigns (red team)
-- Detect phishing emails (blue team)
-- Analyze email headers for spoofing
-- Identify typosquatting and punycode
-- Validate email authentication mechanisms
-
-### Password & Cryptography
-**Days:** 9, 17, 18  
-**Proficiency:** ⭐⭐⭐⭐☆ Advanced
-
-**Tools Mastered:**
-- John the Ripper (hash cracking, wordlist attacks)
-- pdfcrack (PDF password recovery)
-- fcrackzip (ZIP password recovery)
-- rockyou.txt wordlist
-- CyberChef (Base64, XOR, ROT13, MD5 hash analysis)
-
-**Capabilities:**
-- Dictionary attacks against encrypted files
-- Understand password-based encryption
-- Extract and crack hashes
-- Recognize weak password patterns
-- Multi-layer encoding/decoding
-- Deobfuscate encoded malware
-
-### Cloud Security
-**Days:** 10, 14, 23  
-**Proficiency:** ⭐⭐⭐☆☆ Intermediate
-
-**Tools Mastered:**
-- Microsoft Sentinel (cloud SIEM)
-- Azure Portal navigation
-- KQL (Kusto Query Language)
-- Docker (container runtime, escape techniques)
-- AWS CLI (IAM enumeration, S3 access)
-
-**Capabilities:**
-- Navigate Azure security services
-- Write basic KQL queries
-- Understand cloud SIEM concepts
-- Alert triage in cloud environment
-- Identify container vulnerabilities
-- Enumerate AWS permissions
-- Exploit AWS IAM misconfigurations
-
-### ICS/OT Security
-**Days:** 19  
-**Proficiency:** ⭐⭐☆☆☆ Novice-Intermediate
-
-**Tools Mastered:**
-- Python (scripting, automation)
-- pymodbus library (Modbus TCP client)
-- Modbus protocol (understanding, interaction)
-
-**Capabilities:**
-- Understand SCADA/PLC operations
-- Read/write Modbus coils and holding registers
-- Identify critical infrastructure attack vectors
-- Basic protocol fuzzing
-
-### Forensics & Analysis
-**Days:** 15, 16  
-**Proficiency:** ⭐⭐⭐⭐☆ Advanced
-
-**Tools Mastered:**
-- Splunk (web attack forensics, log correlation)
-- Apache access/error logs (web server forensics)
-- Sysmon (system activity monitoring)
-- Registry Explorer (Windows registry analysis)
-- Registry Editor (registry hive examination)
-
-**Capabilities:**
-- Analyze web attack patterns from logs
-- Correlate Apache logs with system events (Sysmon)
-- Identify command injection and exploitation
-- Extract Windows registry artifacts
-- Trace attacker activity through system logs
-- Recover deleted registry entries
-- Timeline reconstruction
-
-### Threat Detection & Hunting
-**Days:** 22  
-**Proficiency:** ⭐⭐⭐⭐☆ Advanced
-
-**Tools Mastered:**
-- RITA (Real Intelligence Threat Analytics)
-- Zeek (Network IDS/flow monitoring)
-- PCAP analysis tools
-
-**Capabilities:**
-- Detect C2 beaconing patterns
-- Identify DNS tunneling
-- Analyze suspicious network flows
-- Hunt for command & control communications
-- Correlate network indicators across datasets
-
-### Operating Systems
-**Days:** 1, 6  
-**Proficiency:** ⭐⭐⭐⭐☆ Advanced
-
-**Tools Mastered:**
-- Linux: bash, grep, find, cat, cd, ls, sudo, chmod, history, cURL
-- Windows: Registry analysis, ProcMon, Registry Explorer
-
-**Capabilities:**
-- Navigate Linux CLI confidently
-- Analyze bash history for forensics
-- Understand file permissions
-- Read and analyze Windows Registry
-- System investigation techniques
-- Parse command history for incident response
+| Tool | Days | What Was Done |
+|---|---|---|
+| AWS CLI | 23 | IAM enumeration, role assumption, S3 access, temporary credential export |
+| Docker | 14 | Container listing, exec into monitoring container, socket exploitation, privilege escalation to deployer |
+| pymodbus | 19 | Read holding registers and coils, wrote remediation sequence against live PLC |
 
 ---
 
-## Career Readiness Assessment
+## What This Series Covers and What It Doesn't
 
-### SOC Analyst Level 1 Requirements Match
+**Demonstrated through labs:**
+- Following structured SOC investigation workflows from detection to documentation
+- Using SIEM platforms (Splunk, Sentinel) to correlate logs and reconstruct attack chains
+- Performing static and dynamic malware analysis using standard tools
+- Reading and writing Splunk SPL and Microsoft Sentinel KQL queries with reference material
+- Identifying phishing indicators including header analysis, SPF/DKIM/DMARC failures, punycode, and typosquatting
+- Decoding multi-layer obfuscated payloads using CyberChef
+- Understanding Windows registry forensics and persistence mechanisms
+- Basic AWS IAM enumeration and understanding of privilege escalation via role assumption
+- Introductory ICS/Modbus protocol interaction and remediation
 
-| Requirement | Demonstrated | Days | Evidence |
-|-------------|-------------|------|----------|
-| SIEM experience | ✅ Strong | 3, 10, 15, 22 | Splunk + Sentinel + RITA/Zeek hands-on |
-| Log analysis | ✅ Strong | 1, 3, 10, 15 | SPL/KQL queries, bash history, web forensics |
-| Alert triage | ✅ Strong | 10 | MS Sentinel incident investigation |
-| Threat detection | ✅ Strong | 3, 6, 13, 22 | Attack chain reconstruction, YARA, C2 detection |
-| Email security | ✅ Strong | 2, 12 | Phishing detection + creation |
-| Network basics | ✅ Strong | 7, 22, 24 | Nmap, protocol understanding, traffic analysis |
-| Malware analysis | ✅ Strong | 6, 13, 21 | Static/dynamic, YARA rules, HTA analysis |
-| Linux proficiency | ✅ Strong | 1, 6, 7, 10, 24 | CLI navigation, troubleshooting, scripting |
-| Windows basics | ✅ Strong | 6, 9, 16 | Registry, ProcMon, forensics |
-| Cloud experience | ✅ Strong | 10, 14, 23 | Azure Sentinel, Docker, AWS security |
-| Web forensics | ✅ Strong | 15 | Apache + Sysmon correlation |
-| Incident response | ✅ Strong | 3, 10, 15, 16, 22 | Investigation methodologies, forensics |
-| Scripting | ✅ Moderate | 19, 24 | Python basics, bash scripting |
-| Threat hunting | ✅ Strong | 3, 22 | RITA, Zeek, manual hunting techniques |
-
-**Overall Match: 95%+** - Strong SOC analyst readiness with advanced forensics and threat hunting capabilities
+**Not yet covered — next development priorities:**
+- Incident response procedures beyond investigation: containment, eradication, recovery
+- Independent query construction without templates (the consistent gap across SIEM work)
+- Advanced threat hunting: hypothesis-driven, without guided room structure
+- Python scripting for automation beyond guided modification
+- Active Directory and Windows Event Log hunting in depth
+- MITRE ATT&CK framework application to original investigations
 
 ---
 
-## Next Steps to Advance Beyond SOC Analyst I
+## Using This for Applications
 
-### Skills to Continue Developing (Beyond AOC 2025)
+### Resume bullet (technical skills section)
+```
+Hands-on SOC analyst lab experience across 24 structured security challenges (TryHackMe 
+Advent of Cyber 2025): SIEM investigation using Splunk and Microsoft Sentinel, malware 
+analysis (static/dynamic), Windows Registry forensics, C2 detection with RITA/Zeek, 
+phishing analysis, YARA rule creation, and introductory cloud security (AWS IAM, Docker). 
+Full writeup documentation at: github.com/uriel0byte/Cybersecurity-Writeups
+```
 
-**High Priority:**
-1. **Advanced Scripting** - Python automation, PowerShell scripting
-2. **Threat Intelligence** - MITRE ATT&CK framework, TTP analysis
-3. **Advanced Cloud** - AWS GuardDuty, SecurityHub; Azure advanced features
-4. **Incident Response** - Containment, eradication, recovery procedures
+### For interview — STAR method examples
 
-**Medium Priority:**
-5. **Advanced Forensics** - Memory analysis, file system forensics
-6. **Kubernetes Security** - Container orchestration security
-7. **Threat Hunting** - Advanced hypothesis-based hunting
+**SIEM Investigation (Days 3, 15):**
+> Situation: Ransomware attack on TBFC web server / command injection against drone web UI.
+> Task: Investigate using Splunk to identify attacker, trace attack chain, and extract IOCs.
+> Action: Wrote SPL queries across web traffic, firewall, Apache, and Sysmon indexes; correlated seven attack phases; decoded Base64-encoded PowerShell payload.
+> Result: Reconstructed complete attack timeline, identified C2 communication, confirmed 126KB of exfiltrated data.
 
-**Long-term (SOC Analyst II → Senior):**
-8. Security automation (SOAR platforms)
-9. Threat intelligence platform (TIP) administration
-10. Security program development and management
+**Malware Analysis (Days 6, 21):**
+> Situation: Suspicious executable and malicious HTA file received via phishing email.
+> Task: Investigate without executing on a production system.
+> Action: Static analysis with PeStudio (HopHelper.exe) and pluma (survey.hta); dynamic analysis with Regshot and ProcMon; decoded two-layer payload (Base64 → ROT13) in CyberChef.
+> Result: Confirmed HTTP C2 to 138.62.51.186, registry Run key persistence, and fileless PowerShell execution chain.
 
----
-
-## How to Use This Matrix
-
-### For Resume:
-"Developed hands-on proficiency in SIEM operations (Splunk, Microsoft Sentinel, RITA, Zeek), malware analysis (static/dynamic, YARA, HTA), forensics (Windows Registry, web attack forensics), network security (Nmap, threat hunting), and cloud security (Azure, AWS, Docker) through 24-day TryHackMe Advent of Cyber challenge. Demonstrated SOC analyst capabilities including alert triage, threat hunting, incident investigation, and C2 detection with 50+ security tools."
-
-### For Cover Letter:
-Pick 2-3 strongest skills that match job description and provide specific examples from AOC days. Examples:
-- "Days 3 & 10: SIEM expertise with Splunk and Microsoft Sentinel"
-- "Day 22: C2 detection using RITA and Zeek"
-- "Days 15-16: Forensics investigation combining web and registry analysis"
-
-### For Interview:
-Use actual challenge scenarios as STAR method examples:
-
-**Example 1 - SIEM & Log Analysis:**
-- **Situation:** Day 3 - Ransomware attack on web server
-- **Task:** Investigate using Splunk SIEM
-- **Action:** Wrote SPL queries to identify attacker IP, traced attack chain from reconnaissance to exfiltration
-- **Result:** Identified SQL injection, webshell upload, and C2 communication; created detection rules
-
-**Example 2 - Threat Hunting:**
-- **Situation:** Day 22 - Detect C2 beaconing in network traffic
-- **Task:** Hunt for command & control infrastructure using RITA and Zeek
-- **Action:** Analyzed network flows, identified suspicious DNS patterns and HTTP beaconing
-- **Result:** Successfully isolated C2 infrastructure and alerted on future communications
-
-**Example 3 - Forensics:**
-- **Situation:** Day 15-16 - Investigate web attack incident
-- **Task:** Correlate Apache logs with Sysmon events and Windows Registry artifacts
-- **Action:** Reconstructed attack timeline, identified command injection, traced lateral movement
-- **Result:** Documented complete incident chain and provided remediation recommendations
+**Threat Hunting (Day 22):**
+> Situation: Suspicious quiet period after series of attacks on TBFC infrastructure.
+> Task: Proactively hunt for C2 beaconing in captured network traffic.
+> Action: Converted PCAP to Zeek logs, imported into RITA, applied beacon score and prevalence filters to isolate `rabbithole.malhare.net` as C2 infrastructure.
+> Result: Identified active C2 beaconing through behavioral analysis without relying on known signatures.
 
 ---
 
-**Last Updated:** January 18, 2026  
-**Days Completed:** 24/24 (100%)  
-**Total Tools Used:** 50+  
-**Security+ Domains Covered:** 4/5 (strong coverage in Domains 2.0, 3.0, and 4.0)
+**Last Updated:** January 2026  
+**Days Completed:** 24/24  
+**Security+ Domains Covered:** 1.0, 2.0, 3.0, 4.0 (strong); 5.0 (none)
