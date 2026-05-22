@@ -18,8 +18,8 @@ This matrix maps hands-on lab experience from the 24-day structured challenge se
 | Linux Administration | 1, 7, 9, 22 | bash, grep, find, Nmap, Netcat, dig, ss | ⭐⭐⭐☆☆ | CLI investigation, log analysis, bash history forensics, service enumeration |
 | Password Security | 9, 17 | John the Ripper, pdfcrack, zip2john, CrackStation | ⭐⭐⭐☆☆ | Offline cracking detection, hash identification, credential compromise response |
 | Encoding & Obfuscation | 17, 18 | CyberChef, browser DevTools, PowerShell analysis | ⭐⭐⭐☆☆ | Payload deobfuscation, Base64/XOR/ROT decoding, malware evasion technique recognition |
-| Network Security | 7, 22 | Nmap, Netcat, dig, RITA, Zeek, PCAP | ⭐⭐⭐☆☆ | Port scanning, service enumeration, C2 beaconing detection, traffic analysis |
-| Windows Forensics | 6, 16 | Registry Explorer, Registry Editor, Sysmon | ⭐⭐☆☆☆ | Registry hive analysis, persistence mechanism identification, artifact recovery |
+| Network Security | 7 | Nmap, Netcat, dig, FTP, ss | ⭐⭐⭐☆☆ | Port scanning, service enumeration, protocol analysis, localhost vs. external service exposure |
+| Windows Forensics | 6, 16 | Registry Explorer, Registry Editor, ProcMon, Regshot | ⭐⭐☆☆☆ | Registry hive analysis, persistence mechanism identification, artifact recovery |
 | Web Application Security | 5, 11, 20, 24 | Browser DevTools, Burp Suite, cURL, bash | ⭐⭐☆☆☆ | IDOR, XSS, race conditions, HTTP manipulation, brute-force pattern recognition |
 | C2 Detection & Threat Hunting | 22 | RITA, Zeek, PCAP analysis | ⭐⭐☆☆☆ | Beacon detection, behavioral analysis, metadata-driven hunting in encrypted traffic |
 | Cloud Security — Azure | 10 | Microsoft Sentinel, KQL, Azure Portal | ⭐⭐☆☆☆ | Cloud SIEM operations, alert triage, Linux privilege escalation investigation |
@@ -175,34 +175,65 @@ Not a focus of the Advent of Cyber format. No meaningful coverage.
 - Active Directory and Windows Event Log hunting in depth
 - MITRE ATT&CK framework application to original investigations
 
+## MITRE ATT&CK Mapping
+
+Techniques observed or investigated across the 24-day series. Evidence column references the specific day and what was seen.
+
+| Tactic | Technique ID | Technique Name | Day(s) | Evidence |
+|---|---|---|---|---|
+| Initial Access | T1566.001 | Phishing: Spearphishing Attachment | 2, 12, 21 | HTA file disguised as salary survey; HopHelper.exe delivered via email |
+| Initial Access | T1190 | Exploit Public-Facing Application | 3, 15 | SQL injection against web server; command injection via CGI script |
+| Execution | T1059.001 | Command and Scripting Interpreter: PowerShell | 15, 21 | `powershell.exe -nop -w hidden -c` launched from httpd.exe; fileless `$U→$C→$B→Invoke-Command` chain in HTA payload |
+| Execution | T1218.005 | Signed Binary Proxy Execution: Mshta | 21 | `mshta.exe` executed `survey.hta` outside browser sandbox — no custom malware binary |
+| Execution | T1204.002 | User Execution: Malicious File | 6, 21 | User ran `HopHelper.exe` (claimed to be scheduling tool); opened `survey.hta` (claimed to be salary survey) |
+| Persistence | T1547.001 | Boot or Logon Autostart Execution: Registry Run Keys | 6, 16 | HopHelper.exe added to `HKCU\...\Run`; DroneManager `dronehelper.exe --background` added to Run key |
+| Persistence | T1547.006 | Boot or Logon Autostart Execution: Kernel Modules | 10 | `malicious_mod.ko` inserted via `insmod` on compromised Linux hosts — survives reboots |
+| Privilege Escalation | T1548.003 | Abuse Elevation Control Mechanism: Sudo | 10 | Alice added to sudoers group; `NOPASSWD:ALL` entry written to `/etc/sudoers` |
+| Privilege Escalation | T1611 | Escape to Host | 14 | Docker socket mounted in monitoring container — used `docker exec` to pivot to privileged deployer container |
+| Privilege Escalation | T1078.004 | Valid Accounts: Cloud Accounts | 23 | `sts:AssumeRole` used to escalate from limited `sir.carrotbane` user to `bucketmaster` role with S3 access |
+| Defense Evasion | T1027 | Obfuscated Files or Information | 17, 18, 21 | Base64+XOR+ROT13 layered payload in SantaStealer.ps1; two-layer Base64→ROT13 in HTA second stage |
+| Defense Evasion | T1036 | Masquerading | 6, 21 | HopHelper.exe presented as scheduling program; DroneManager Updater using legitimate software naming convention |
+| Discovery | T1046 | Network Service Discovery | 7 | Nmap full TCP scan (`-p-`) and UDP scan against tbfc-devqa01 |
+| Discovery | T1033 | System Owner/User Discovery | 15 | `whoami` executed via cmd.exe immediately after command injection confirmed code execution |
+| Discovery | T1069.003 | Permission Groups Discovery: Cloud Groups | 23 | `aws iam list-roles` enumerated available roles; BucketMasterPolicy read before assuming role |
+| Credential Access | T1110.002 | Brute Force: Password Cracking | 9 | Dictionary attack against encrypted PDF and ZIP using `pdfcrack` and `john` with `rockyou.txt` |
+| Credential Access | T1003.002 | OS Credential Dumping: Security Account Manager | 10 | `cp /etc/shadow` executed on compromised hosts — shadow file staged for credential harvest |
+| Collection | T1005 | Data from Local System | 1, 21 | `eggstrike.sh` collected wishlist data to `/tmp/dump.txt`; HTA collected `ComputerName` and `UserName` via `WScript.Network` |
+| Command and Control | T1071.001 | Application Layer Protocol: Web Protocols | 6, 22 | HopHelper.exe used HTTP to C2 at `138.62.51.186`; rabbithole.malhare.net beacon detected over HTTPS |
+| Command and Control | T1132.001 | Data Encoding: Standard Encoding | 15, 21 | Base64-encoded PowerShell in HTTP query parameter; Base64→ROT13 in downloaded C2 payload |
+| Exfiltration | T1048 | Exfiltration Over Alternative Protocol | 3 | `backup.zip` and `logs.tar.gz` downloaded via curl/zgrab; 126KB transferred to attacker IP |
+| Exfiltration | T1041 | Exfiltration Over C2 Channel | 21 | `ComputerName` and `UserName` sent via HTTP GET to `survey.bestfestiivalcompany.com/details` |
+| Impact | T1486 | Data Encrypted for Impact | 3 | `bunnylock.bin` ransomware executed via webshell — deployed after data exfiltration |
+| Impact | T0831 | Manipulation of Control (ICS) | 19 | HR0 register changed from 0 (Christmas) to 1 (Eggs) via unauthenticated Modbus TCP write |
+
 ---
 
-## Using This for Applications
+## Interview Reference
 
-### Resume bullet (technical skills section)
+**Resume bullet:**
 ```
-Hands-on SOC analyst lab experience across 24 structured security challenges (TryHackMe 
-Advent of Cyber 2025): SIEM investigation using Splunk and Microsoft Sentinel, malware 
-analysis (static/dynamic), Windows Registry forensics, C2 detection with RITA/Zeek, 
-phishing analysis, YARA rule creation, and introductory cloud security (AWS IAM, Docker). 
+Hands-on SOC analyst lab experience across 24 structured security challenges (TryHackMe
+Advent of Cyber 2025): SIEM investigation using Splunk and Microsoft Sentinel, malware
+analysis (static/dynamic), Windows Registry forensics, C2 detection with RITA/Zeek,
+phishing analysis, YARA rule creation, and introductory cloud security (AWS IAM, Docker).
 Full writeup documentation at: github.com/uriel0byte/Cybersecurity-Writeups
 ```
 
-### For interview — STAR method examples
+**STAR examples for interview:**
 
-**SIEM Investigation (Days 3, 15):**
+*SIEM Investigation (Days 3, 15)*
 > Situation: Ransomware attack on TBFC web server / command injection against drone web UI.
 > Task: Investigate using Splunk to identify attacker, trace attack chain, and extract IOCs.
 > Action: Wrote SPL queries across web traffic, firewall, Apache, and Sysmon indexes; correlated seven attack phases; decoded Base64-encoded PowerShell payload.
 > Result: Reconstructed complete attack timeline, identified C2 communication, confirmed 126KB of exfiltrated data.
 
-**Malware Analysis (Days 6, 21):**
+*Malware Analysis (Days 6, 21)*
 > Situation: Suspicious executable and malicious HTA file received via phishing email.
 > Task: Investigate without executing on a production system.
-> Action: Static analysis with PeStudio (HopHelper.exe) and pluma (survey.hta); dynamic analysis with Regshot and ProcMon; decoded two-layer payload (Base64 → ROT13) in CyberChef.
+> Action: Static analysis with PeStudio and pluma; dynamic analysis with Regshot and ProcMon; decoded two-layer payload (Base64→ROT13) in CyberChef.
 > Result: Confirmed HTTP C2 to 138.62.51.186, registry Run key persistence, and fileless PowerShell execution chain.
 
-**Threat Hunting (Day 22):**
+*Threat Hunting (Day 22)*
 > Situation: Suspicious quiet period after series of attacks on TBFC infrastructure.
 > Task: Proactively hunt for C2 beaconing in captured network traffic.
 > Action: Converted PCAP to Zeek logs, imported into RITA, applied beacon score and prevalence filters to isolate `rabbithole.malhare.net` as C2 infrastructure.
