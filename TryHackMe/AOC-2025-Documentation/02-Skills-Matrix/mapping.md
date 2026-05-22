@@ -181,7 +181,8 @@ Techniques observed or investigated across the 24-day series. Evidence column re
 
 | Tactic | Technique ID | Technique Name | Day(s) | Evidence |
 |---|---|---|---|---|
-| Initial Access | T1566.001 | Phishing: Spearphishing Attachment | 2, 12, 21 | HTA file disguised as salary survey; HopHelper.exe delivered via email |
+| Initial Access | T1566.001 | Phishing: Spearphishing Attachment | 12, 21 | HTA file disguised as voice message (Day 12); survey.hta disguised as salary survey (Day 21) |
+| Initial Access | T1566.002 | Phishing: Spearphishing Link | 2 | SET campaign sent link to credential harvesting server at `http://CONNECTION_IP:8000` |
 | Initial Access | T1190 | Exploit Public-Facing Application | 3, 15 | SQL injection against web server; command injection via CGI script |
 | Execution | T1059.001 | Command and Scripting Interpreter: PowerShell | 15, 21 | `powershell.exe -nop -w hidden -c` launched from httpd.exe; fileless `$U→$C→$B→Invoke-Command` chain in HTA payload |
 | Execution | T1218.005 | Signed Binary Proxy Execution: Mshta | 21 | `mshta.exe` executed `survey.hta` outside browser sandbox — no custom malware binary |
@@ -192,12 +193,12 @@ Techniques observed or investigated across the 24-day series. Evidence column re
 | Privilege Escalation | T1611 | Escape to Host | 14 | Docker socket mounted in monitoring container — used `docker exec` to pivot to privileged deployer container |
 | Privilege Escalation | T1078.004 | Valid Accounts: Cloud Accounts | 23 | `sts:AssumeRole` used to escalate from limited `sir.carrotbane` user to `bucketmaster` role with S3 access |
 | Defense Evasion | T1027 | Obfuscated Files or Information | 17, 18, 21 | Base64+XOR+ROT13 layered payload in SantaStealer.ps1; two-layer Base64→ROT13 in HTA second stage |
-| Defense Evasion | T1036 | Masquerading | 6, 21 | HopHelper.exe presented as scheduling program; DroneManager Updater using legitimate software naming convention |
+| Defense Evasion | T1036 | Masquerading | 6, 16, 21 | HopHelper.exe presented as scheduling program (Day 6); DroneManager Updater using legitimate software naming convention (Day 16); survey.hta presented as internal HR salary survey (Day 21) |
 | Discovery | T1046 | Network Service Discovery | 7 | Nmap full TCP scan (`-p-`) and UDP scan against tbfc-devqa01 |
 | Discovery | T1033 | System Owner/User Discovery | 15 | `whoami` executed via cmd.exe immediately after command injection confirmed code execution |
 | Discovery | T1069.003 | Permission Groups Discovery: Cloud Groups | 23 | `aws iam list-roles` enumerated available roles; BucketMasterPolicy read before assuming role |
 | Credential Access | T1110.002 | Brute Force: Password Cracking | 9 | Dictionary attack against encrypted PDF and ZIP using `pdfcrack` and `john` with `rockyou.txt` |
-| Credential Access | T1003.002 | OS Credential Dumping: Security Account Manager | 10 | `cp /etc/shadow` executed on compromised hosts — shadow file staged for credential harvest |
+| Credential Access | T1003.008 | OS Credential Dumping: /etc/passwd and /etc/shadow | 10 | `cp /etc/shadow` executed on compromised Linux hosts — shadow file staged for offline credential harvest |
 | Collection | T1005 | Data from Local System | 1, 21 | `eggstrike.sh` collected wishlist data to `/tmp/dump.txt`; HTA collected `ComputerName` and `UserName` via `WScript.Network` |
 | Command and Control | T1071.001 | Application Layer Protocol: Web Protocols | 6, 22 | HopHelper.exe used HTTP to C2 at `138.62.51.186`; rabbithole.malhare.net beacon detected over HTTPS |
 | Command and Control | T1132.001 | Data Encoding: Standard Encoding | 15, 21 | Base64-encoded PowerShell in HTTP query parameter; Base64→ROT13 in downloaded C2 payload |
