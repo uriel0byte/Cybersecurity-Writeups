@@ -175,6 +175,14 @@ execution history) is fundamental to Windows IR.
 These days cover techniques that directly support SOC work even though
 they are not pure investigation rooms.
 
+**Day 1 — Linux CLI & Bash History Forensics:** Navigated a compromised
+server (`tbfc-web01`), recovered attacker activity from `.bash_history`
+(curl exfiltration commands to `files.hopsec.thm`, obfuscated C2 callback),
+located `eggstrike.sh` via `find`, and confirmed brute-force origin via
+`grep "Failed password" auth.log`. The incident response order — situational
+awareness → log review → suspicious file discovery → attacker command
+history — is the same workflow used in real Linux host investigations.
+
 **Day 12 — Phishing Analysis:** Email header analysis, SPF/DKIM/DMARC
 verification, punycode detection, legitimate-platform phishing flows.
 Daily triage skill for any SOC analyst.
@@ -211,3 +219,6 @@ Understanding offensive techniques makes defensive detection rules better.
 But they are not the primary skillset being built here.
 
 ---
+
+*Full writeups: `/03-Daily-Challenges/` — all 24 days with screenshots,
+queries, and verified room answers.*
