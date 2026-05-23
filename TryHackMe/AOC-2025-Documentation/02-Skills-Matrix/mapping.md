@@ -173,7 +173,7 @@ Not a focus of the Advent of Cyber format. No meaningful coverage.
 - Advanced threat hunting: hypothesis-driven, without guided room structure
 - Python scripting for automation beyond guided modification
 - Active Directory and Windows Event Log hunting in depth
-- MITRE ATT&CK framework application to original investigations
+- Applying MITRE ATT&CK to independent investigations without a guided room structure
 
 ## MITRE ATT&CK Mapping
 
