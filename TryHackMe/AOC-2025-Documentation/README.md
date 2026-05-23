@@ -229,4 +229,3 @@ daily challenge files for full write-ups with screenshots.
 ---
 
 *Last updated: February 2026*
-*Always learning, always cataloging the next threat.*
