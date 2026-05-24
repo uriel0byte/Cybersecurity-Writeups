@@ -12,6 +12,7 @@ The ILS background is not incidental. Cataloging and extracting intelligence fro
 | Folder | Contents |
 |---|---|
 | `/BreachLab` | Professional investigation reports and methodologies covering Linux fundamentals (Ghost track) and OSINT/Passive Intelligence (Specter track) |
+| `/LetsDefend-Investigations` | SOC alert investigations covering brute force, web attacks, malware, and more — full kill chain analysis with MITRE ATT&CK mapping |
 | `/CyberDefenders` | Incident response reports from SOC Analyst Tier 1 track labs |
 | `/TryHackMe` | Challenge write-ups including full Advent of Cyber 2025 documentation |
 | `/HackTheBox` | Starting point labs and free tier walkthroughs |
