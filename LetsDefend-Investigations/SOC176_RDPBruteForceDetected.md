@@ -118,6 +118,7 @@ Host `172.16.17.148` was isolated via the EDR platform, cutting the attacker's s
 - Reset the `Matthew` account and audit for any accounts created during the access window.
 - Block `218.92.0.56` at the perimeter firewall.
 - Close Port 3389 to the public internet. RDP should not be internet-facing under any circumstances.
+- Enforce strong password policies, regular password changes.
 - Enforce MFA on all remote access.
 - Put remote access behind a VPN. RDP sessions should only be reachable from inside the tunnel.
 - Remove or disable generic accounts (`admin`, `guest`, `sysadmin`) on internet-facing hosts.
