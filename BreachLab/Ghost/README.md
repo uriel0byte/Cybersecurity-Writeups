@@ -17,8 +17,8 @@ This directory contains my technical documentation and command references for ea
 - [x] Level 02: In The Shadows
 - [x] Level 03: Access Denied
 - [x] Level 04: Signal in the Noise
-- [ ] Level 05: The Listener
-- [ ] Level 06: Ghost in the Machine
+- [x] Level 05: The Listener
+- [x] Level 06: Ghost in the Machine
 - [ ] Level 07: Lost in Translation
 - [ ] Level 08: Something's Running
 - [ ] Level 09: Noise Floor
