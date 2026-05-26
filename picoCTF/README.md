@@ -40,7 +40,7 @@ The core of this section. File analysis, steganography, disk forensics, PCAP ana
 | Matryoshka Doll | Nested image extraction | binwalk | ✅ |
 | Redaction Gone Wrong | Improper PDF redaction | PDF reader | ✅ |
 | Sleuthkit Apprentice | Disk partition + file recovery | mmls, fls, icat | ✅ |
-| Sleuthkit Intro | Partition size analysis | mmls, nc | ✅ |
+| Sleuthkit Intro | Partition size analysis | mmls | ✅ |
 | SoMeta | XMP metadata analysis | exiftool | ✅ |
 | St3g0 | LSB Steganography (PNG) | zsteg | ✅ |
 | Trivial Flag Transfer Protocol | TFTP + steganography | Wireshark, steghide, ROT13 | ✅ |
