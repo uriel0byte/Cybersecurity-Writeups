@@ -19,8 +19,8 @@ This directory contains my technical documentation and command references for ea
 - [x] Level 04: Signal in the Noise
 - [x] Level 05: The Listener
 - [x] Level 06: Ghost in the Machine
-- [ ] Level 07: Lost in Translation
-- [ ] Level 08: Something's Running
+- [x] Level 07: Lost in Translation
+- [x] Level 08: Something's Running
 - [ ] Level 09: Noise Floor
 - [ ] Level 10: Binary Strings
 - [ ] Level 11: Wrapped Three Deep
