@@ -61,7 +61,7 @@ A real failure I had to diagnose and recover from myself. The exercise forced me
 
 ## Lab Profiles
 
-[HackTheBox](https://app.hackthebox.com/profile/#2566537) · [TryHackMe](https://tryhackme.com/p/poseidon.smash) · [CyberDefenders](https://cyberdefenders.org/p/poseidon.smash) · [LabEx](https://labex.io/users/uriel0byte-11746032) · [PicoCTF/CyLab](https://learn.cylabacademy.org/users/urielbyte) ·  [LetsDefend](https://app.letsdefend.io/user/urielbyte) · [SecurityBlueTeamLabs](https://blueteamlabs.online/home/user/82d77b7cbeca1bbfed8b49)
+[HackTheBox](https://profile.hackthebox.com/profile/019e7a4a-2e3a-723c-b2e9-c3f4152411a4)  · [TryHackMe](https://tryhackme.com/p/urielbyte) · [CyberDefenders](https://cyberdefenders.org/p/poseidon.smash) · [LabEx](https://labex.io/users/uriel0byte-11746032) · [PicoCTF/CyLab](https://learn.cylabacademy.org/users/urielbyte) ·  [LetsDefend](https://app.letsdefend.io/user/urielbyte) · [SecurityBlueTeamLabs](https://blueteamlabs.online/home/user/82d77b7cbeca1bbfed8b49)
 
 ---
 
