@@ -21,8 +21,8 @@ This directory contains my technical documentation and command references for ea
 - [x] Level 06: Ghost in the Machine
 - [x] Level 07: Lost in Translation
 - [x] Level 08: Something's Running
-- [ ] Level 09: Noise Floor
-- [ ] Level 10: Binary Strings
+- [x] Level 09: Noise Floor
+- [x] Level 10: Binary Strings
 - [ ] Level 11: Wrapped Three Deep
 - [ ] Level 12: Key Not Password
 - [ ] Level 13: Port 30000
