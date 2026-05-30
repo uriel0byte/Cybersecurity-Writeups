@@ -51,11 +51,19 @@ The ILS background is not incidental. Cataloging and extracting intelligence fro
 
 ## Featured Write-ups
 
-**[Windows 11 Filesystem & Boot Configuration Recovery](./Incident-Response/Win11-Filesystem-Recovery-0xc0000102.md)**
+**[BreachLab](./BreachLab)**
 
-A real failure I had to diagnose and recover from myself. The exercise forced me to map the Windows boot sequence end-to-end, interact with TPM and BitLocker directly via CLI, and perform offline forensic recovery on a corrupted filesystem. In a SOC context, being able to distinguish a cascading hardware fault from a destructive payload matters.
+**[CyberDefender](./CyberDefender)**
+
+**[LetsDefend](./LetsDefend-Investigations)**
 
 **[Advent of Cyber 2025](./TryHackMe/AOC-2025-Documentation/README.md)**
+
+**[picoctf](./picoCTF)**
+
+**[Windows 11 Filesystem & Boot Configuration Recovery](./Incident-Response/Win11-Filesystem-Recovery-0xc0000102.md)**
+
+    A real failure I had to diagnose and recover from myself. The exercise forced me to map the Windows boot sequence end-to-end, interact with TPM and BitLocker directly via CLI, and perform offline forensic recovery on a corrupted filesystem. In a SOC context, being able to distinguish a cascading hardware fault from a destructive payload matters.
 
 ---
 
