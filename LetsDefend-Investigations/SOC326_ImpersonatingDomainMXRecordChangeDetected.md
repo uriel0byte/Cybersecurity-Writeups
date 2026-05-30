@@ -6,7 +6,7 @@
 | **Alert ID**   | EventID 304                                                  |
 | **Alert Time** | September 17, 2024 — 12:05 PM                                |
 | **Category**   | Threat Intel / Phishing Infrastructure                       |
-| **Verdict**    | True Positive — Endpoint Compromised                         |
+| **Verdict**    | True Positive — Host Compromised                         |
 | **Status**     | Closed                                                       |
 
 ---
