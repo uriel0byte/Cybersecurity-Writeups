@@ -9,6 +9,7 @@ Hands-on SOC alert investigations completed on the LetsDefend platform. Each rep
 | Alert ID | Rule Name                        | Category              | Verdict                        | Report |
 |----------|----------------------------------|-----------------------|--------------------------------|--------|
 | SOC176   | RDP Brute Force Detected         | Brute Force           | True Positive — Host Compromised | [View](SOC176_RDPBruteForceDetected.md) |
+| SOC326   | Impersonating Domain MX Record Change Detected | Threat Intel / Phishing | True Positive — Endpoint Compromised | [View](SOC326_ImpersonatingDomainMXRecord.md) |
 
 ---
 
