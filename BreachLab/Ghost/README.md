@@ -23,8 +23,8 @@ This directory contains my technical documentation and command references for ea
 - [x] Level 08: Something's Running
 - [x] Level 09: Noise Floor
 - [x] Level 10: Binary Strings
-- [ ] Level 11: Wrapped Three Deep
-- [ ] Level 12: Key Not Password
+- [x] Level 11: Wrapped Three Deep
+- [x] Level 12: Key Not Password
 - [ ] Level 13: Port 30000
 - [ ] Level 14: TLS, Not Plaintext
 - [ ] Level 15: Port Range
