@@ -25,8 +25,8 @@ This directory contains my technical documentation and command references for ea
 - [x] Level 10: Binary Strings
 - [x] Level 11: Wrapped Three Deep
 - [x] Level 12: Key Not Password
-- [ ] Level 13: Port 30000
-- [ ] Level 14: TLS, Not Plaintext
+- [x] Level 13: Port 30000
+- [x] Level 14: TLS, Not Plaintext
 - [ ] Level 15: Port Range
 - [ ] Level 16: Diff
 - [ ] Level 17: No Shell For You
