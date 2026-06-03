@@ -27,9 +27,9 @@ This directory contains my technical documentation and command references for ea
 - [x] Level 12: Key Not Password
 - [x] Level 13: Port 30000
 - [x] Level 14: TLS, Not Plaintext
-- [ ] Level 15: Port Range
-- [ ] Level 16: Diff
-- [ ] Level 17: No Shell For You
+- [x] Level 15: Port Range
+- [x] Level 16: Diff
+- [x] Level 17: No Shell For You
 - [ ] Level 18: Wrong User
 - [ ] Level 19: Your First Script
 - [ ] Level 20: Cron Discovery
