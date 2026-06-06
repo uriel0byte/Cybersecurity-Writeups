@@ -34,6 +34,6 @@ This directory contains my technical documentation and command references for ea
 - [x] Level 19: Your First Script
 - [x] Level 20: Cron Discovery
 - [x] Level 21: Git Archaeology
-- [ ] Classified — Level 22: Gatekeeper
+- [x] Level 22: Ghost Graduation
 
 **Direct Link:** [Link](https://breachlab.org/tracks/ghost)
