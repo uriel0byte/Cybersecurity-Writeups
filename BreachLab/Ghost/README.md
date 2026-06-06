@@ -1,7 +1,7 @@
 # BreachLab: Ghost Track
 **Linux & Shell Fundamentals**
 
-![Certification](./Certifications/breachlab-ghost-urielbyte-GHST-0D15-367D-C676.pdf)
+![Certification](./Certifications/breachlab-ghost-urielbyte-GHST-0D15-367D-C676.png)
 
 ## Overview
 Ghost is the foundational track of the BreachLab series. It focuses on core Linux mechanics, file system enumeration, and command-line fluency. Without these fundamentals, advanced defensive security and incident response disciplines are out of reach.
