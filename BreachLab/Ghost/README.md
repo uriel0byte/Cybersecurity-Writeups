@@ -31,8 +31,9 @@ This directory contains my technical documentation and command references for ea
 - [x] Level 16: Diff
 - [x] Level 17: No Shell For You
 - [x] Level 18: Wrong User
-- [ ] Level 19: Your First Script
-- [ ] Level 20: Cron Discovery
-- [ ] Level 21: Git Archaeology
+- [x] Level 19: Your First Script
+- [x] Level 20: Cron Discovery
+- [x] Level 21: Git Archaeology
+- [ ] Classified — Level 22: Gatekeeper
 
 **Direct Link:** [Link](https://breachlab.org/tracks/ghost)
