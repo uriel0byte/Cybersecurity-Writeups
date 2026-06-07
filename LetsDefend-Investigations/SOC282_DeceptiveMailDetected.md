@@ -86,10 +86,6 @@ Because the firewall action was **Allowed**, I checked Felix's host (`172.16.20.
 
 * **Terminal History:** This is where the compromise was confirmed. Starting at `13:01`, `Coffee.exe` spawned `cmd.exe` and rapidly ran a sequence of automated discovery commands:
 
-![cmd.exe spawned by Coffee.exe](./Screenshots/image_1780812823062_0.png)
-
-![Terminal History](./Screenshots/image_1780812218299_0.png)
-
   * `systeminfo`
   * `hostname`
   * `wmic logicaldisk get caption,description...`
@@ -97,6 +93,10 @@ Because the firewall action was **Allowed**, I checked Felix's host (`172.16.20.
   * `tasklist /svc`
   * `ipconfig /all`
   * `route print`
+
+![cmd.exe spawned by Coffee.exe](./Screenshots/image_1780812823062_0.png)
+
+![Terminal History](./Screenshots/image_1780812218299_0.png)
 
 * **Network Action:** Following the execution, the host initiated several outbound connections, indicating potential Command and Control (C2) activity.
 
