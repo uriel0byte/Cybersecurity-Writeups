@@ -104,7 +104,7 @@ At `13:01:00`, `Coffee.exe` spawned `cmd.exe` (PID 6700).
 
 ![Terminal history — discovery commands](./Screenshots/image_1780812218299_0.png)
 
-**C2 connection:** At `13:00:39`, one second after `Coffee.exe` executed, the host connected to `37.120.233[.]226` on port 3451 over TCP. This is the confirmed C2 address. The connection was established before the discovery commands even ran, meaning the malware phoned home immediately on execution.
+**C2 connection:** At `13:00:39`, one second after `Coffee.exe` executed, the host connected to `37.120.233[.]226`. This is the confirmed C2 address. The connection was established before the discovery commands even ran, meaning the malware phoned home immediately on execution.
 
 ![Network actions — C2 connection at 37.120.233.226](./Screenshots/image_1780812535579_0.png)
 
