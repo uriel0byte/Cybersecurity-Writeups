@@ -75,9 +75,9 @@ I pivoted to Email Security, searched by sender IP `103.80.134.63`, and found on
 
 With the firewall action confirmed as Allowed, I checked Felix's host (`172.16.20.151`) in Endpoint Security, filtering from the email timestamp forward.
 
-![Felix host — contained, browser history](./Screenshots/image_1780811917101_0.png)
-
 **Browser history:** At `12:59`, Felix visited the AWS S3 URL about 3.5 hours after the email arrived. The file was downloaded.
+
+![Felix host — contained, browser history](./Screenshots/image_1780811917101_0.png)
 
 **Process execution:** At `13:00:38`, `Coffee.exe` (PID 6697) launched from `C:\Users\Felix\Downloads\Coffee.exe`, spawned by `explorer.exe`.
 
