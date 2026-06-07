@@ -19,7 +19,7 @@ An external IP from China ran an RDP brute force against host `172.16.17.148` (M
 
 ## Kill Chain
 
-### 1. IP Reputation Check
+### 1. Threat Intelligence & IP Reputation
 
 Before touching the SIEM, I queried `218.92.0.56` across three sources.
 
@@ -110,7 +110,7 @@ TightVNC gives GUI remote access that works independently of RDP. Even if Port 3
 ## Containment & Remediation
 
 **Containment**
-Host `172.16.17.148` was isolated via the EDR platform, cutting the attacker's session and blocking lateral movement.
+* Host `172.16.17.148` was isolated via the EDR platform, cutting the attacker's session and blocking lateral movement.
 
 **Remediation**
 
