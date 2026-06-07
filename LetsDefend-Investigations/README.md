@@ -42,4 +42,8 @@ Each investigation follows the LetsDefend playbook structure but extends it wher
 
 ---
 
+[LetsDefend Profile](https://app.letsdefend.io/user/urielbyte)
+
+---
+
 *Supawat H. (uriel0byte) — Blue Team / SOC Tier 1 Practice*
