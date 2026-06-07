@@ -20,7 +20,7 @@ Analyze a sandbox report using Any.Run to identify Stealc malware behavior, extr
 
 ---
 
-## Investigation Methodology & Findings
+## Kill Chain
 
 ### **Step 1: Identifying the Threat actor**
   * *Method:* The payload was extracted. The MD5 hash associated with the payload was identified and analyzed using VirusTotal. Identifying it as a Trojan/Ransomware, which does data exfiltration and credential theft. The creation time of the malware was determined. This helps to build a timeline of the attack if it's targeted, active campaign or just a commodity malware.
