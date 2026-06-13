@@ -19,7 +19,7 @@ On January 1, 2024, a phishing email was delivered to `claire@letsdefend.io` fro
 
 ## Kill Chain
 
-### 1. IP Reputation
+### 1. Threat Intelligence & IP Reputation
 
 Before touching any logs, I queried the SMTP IP `158.69.201.47` across four sources.
 
