@@ -10,7 +10,7 @@ The focus here is producing structured, technical write-ups that reconstruct the
 
 | Sherlock | Focus Area | Tools | Report |
 | --- | --- | --- | --- |
-| [Name] | [e.g., Network Forensics] | [e.g., Wireshark] | [Link] |
+| Brutus | DFIR | grep, file, wc, head, python3, utmp.py | [Link](Brutus/README.md) |
 
 ---
 
