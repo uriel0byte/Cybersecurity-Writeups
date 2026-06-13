@@ -24,17 +24,6 @@ Each investigation is treated as a formal incident report. Standard workflow:
 4. **Documentation:** Detail the findings, exact commands used, and remediation steps. All platform flags are strictly redacted to comply with HTB rules and maintain focus on the methodology.
 
 ---
-
-## Tools Used
-
-| Tool | Purpose |
-| --- | --- |
-| Wireshark | PCAP analysis, protocol filtering, stream reconstruction|
-| CyberChef | Encoding/decoding Swiss Army knife|
-| grep / jq | Log parsing and data extraction pipelines|
-| Volatility | Memory dump forensics and process extraction |
-
----
 *Note: To comply with Hack The Box platform rules, all specific challenge flags within these reports have been redacted.*
 
 *Supawat H. (uriel0byte) — Blue Team / SOC Tier 1 Practice*
