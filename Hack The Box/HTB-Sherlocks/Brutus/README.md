@@ -173,6 +173,16 @@ grep 'sudo' auth.log
 
 ## Lessons Learned
 
+**auth.log (/var/log/auth.log) vs. wtmp (/var/log/wtmp)**
+
+auth.log and wtmp are two critical Linux logging artifacts used for system administration, auditing, and security investigations. While auth.log tracks the exact authentication events in plaintext, wtmp acts as a historical record of all successful logins, logouts, and system reboots stored in a binary format.
+
+* auth.log  
+This plaintext file records all authentication-related activities. It is highly useful for spotting brute-force attacks, identifying sudo privilege abuse, and tracing SSH logins.
+
+* wtmp  
+Because wtmp tracks system state and session history, it is invaluable for establishing exactly when a user session actually started or if a server was rebooted. Because it is a binary file, opening it with a standard text editor will result in unreadable characters.
+
 **Filter by PID, not by IP**
 
 I grepped by IP and scrolled through the output for Tasks 7 and 8. That works on a 385-line log and nowhere else. The right approach is to grab the `sshd` PID from the `Accepted password` line, then filter on that PID. It isolates the full session lifecycle — connect, activity, disconnect — without noise from concurrent sessions or background cron jobs. `grep 'sshd\[2491\]'` is precise. `grep '65.2.161.68'` is not.
