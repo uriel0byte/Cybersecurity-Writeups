@@ -11,6 +11,7 @@ The focus here is producing structured, technical write-ups that reconstruct the
 | Sherlock | Focus Area | Tools | Report |
 | --- | --- | --- | --- |
 | Brutus | DFIR | grep, file, wc, head, python3, utmp.py | [Link](Brutus/README.md) |
+| Telly | SOC | Wireshark, DB Browser for SQLite, NVD (web) | [Link](Telly/README.md) |
 
 ---
 
