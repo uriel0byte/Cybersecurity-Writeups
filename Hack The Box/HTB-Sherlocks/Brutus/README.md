@@ -178,10 +178,15 @@ grep 'sudo' auth.log
 auth.log and wtmp are two critical Linux logging artifacts used for system administration, auditing, and security investigations. While auth.log tracks the exact authentication events in plaintext, wtmp acts as a historical record of all successful logins, logouts, and system reboots stored in a binary format.
 
 * auth.log  
-This plaintext file records all authentication-related activities. It is highly useful for spotting brute-force attacks, identifying sudo privilege abuse, and tracing SSH logins.
+The auth.log file is primarily used for tracking authentication mechanisms. Whenever a
+user attempts to log in, switch users, or perform any task that requires authentication, an
+entry is made in this log file. This includes activities involving sshd (SSH daemon), sudo
+actions, and cron jobs requiring authentication.
 
 * wtmp  
-Because wtmp tracks system state and session history, it is invaluable for establishing exactly when a user session actually started or if a server was rebooted. Because it is a binary file, opening it with a standard text editor will result in unreadable characters.
+The wtmp file logs all login and logout events on the system. It's a binary file, typically
+located at /var/log/wtmp . The last command can be used to read this file, providing a
+history of user logins and logouts, system reboots, and runlevel changes.
 
 **Filter by PID, not by IP**
 
