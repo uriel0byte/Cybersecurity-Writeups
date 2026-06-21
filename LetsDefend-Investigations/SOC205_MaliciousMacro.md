@@ -60,7 +60,7 @@ Querying the EDR Endpoint Security tab for host `172.16.17.198` returned an erro
 
 The SIEM returned 17 events. The relevant logs reconstructed the full execution chain:
 
-![SOC205_ErrorEDR](ScreenshotsSOC205_ErrorEDR.png)
+![SOC205_ErrorEDR](Screenshots/SOC205_ErrorEDR.png)
 
 ![SOC205_SIEM1](Screenshots/SOC205_SIEM1.png)
 
