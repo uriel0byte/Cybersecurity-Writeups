@@ -74,7 +74,7 @@ Why Discover is wrong: Discover is a broadcast sent before the device has an IP.
 
 ### Phase 2: Credential Capture
 
-**Task 3 — What is the username whose hash was captured?**
+**Task 3 — Now we need to confirm whether the attacker captured the user's hash and it is crackable!! What is the username whose hash was captured?**
 
 > `john.deacon`
 
@@ -92,7 +92,7 @@ Worth noting: I tried `ntlmssp.challenge.target_info` first because I'd used it 
 
 ---
 
-**Task 4 — When were the hashes captured the first time?**
+**Task 4 — In NTLM traffic we can see that the victim credentials were relayed multiple times to the attacker's machine. When were the hashes captured the First time?**
 
 > `2024-06-24 11:18:30`
 
@@ -104,7 +104,7 @@ With `ntlmssp` filter still active, the first three packets are NEGOTIATE, CHALL
 
 ---
 
-**Task 5 — What was the typo the victim made when navigating to the file share?**
+**Task 5 — What was the typo made by the victim when navigating to the file share that caused his credentials to be leaked?**
 
 > `DCC01`
 
@@ -114,7 +114,7 @@ Already visible from Task 1. The victim queried for `DCC01` instead of `DC01`. D
 
 ### Phase 3: Hash Extraction
 
-**Task 6 — What is the NTLM server challenge value?**
+**Task 6 — To get the actual credentials of the victim user we need to stitch together multiple values from the ntlm negotiation packets. What is the NTLM server challenge value?**
 
 > `601019d191f054f1`
 
@@ -130,7 +130,7 @@ SMB2 → Session Setup Response (0x1) → Security Blob → GSS-API Generic
 
 ---
 
-**Task 7 — What is the NTProofStr value?**
+**Task 7 — Now doing something similar find the NTProofStr value.**
 
 > `c0cc803a6d9fb5a9082253a04dbd4cd4`
 
@@ -146,7 +146,7 @@ SMB2 → Session Setup Response (0x1) → Security Blob → GSS-API Generic
 
 ---
 
-**Task 8 — Recover the plaintext password from the captured hash.**
+**Task 8 — To test the password complexity, try recovering the password from the information found from packet capture. This is a crucial step as this way we can find whether the attacker was able to crack this and how quickly.**
 
 > `NotMyPassword0K?`
 
@@ -173,7 +173,7 @@ sudo hashcat hash.txt /usr/share/wordlists/rockyou.txt.gz
 
 ### Phase 4: Intent Confirmation
 
-**Task 9 — What is the actual file share the victim was trying to navigate to?**
+**Task 9 — Just to get more context surrounding the incident, what is the actual file share that the victim was trying to navigate to?**
 
 > `\\DC01\DC-Confidential`
 
@@ -213,10 +213,10 @@ Filter: smb2
 
 **The LLMNR/SMB2 Attack Chain Architecture**
 This investigation clarified how broadcast protocols and authentication mechanisms interact during a Man-in-the-Middle attack:
-1. **The Trigger (DNS Failure):** A user mistypes a network share path (e.g., `\\DCC01`), causing standard DNS resolution to fail[cite: 24].
-2. **The Fallback (LLMNR):** Windows defaults to LLMNR, broadcasting a request to the local subnet asking if any device claims the unknown hostname[cite: 24, 26].
-3. **The Poisoning (Responder):** The attacker's rogue machine immediately responds, falsely claiming the requested hostname and directing the victim to their IP[cite: 24, 26].
-4. **The Capture (SMB2/NTLM):** The victim attempts to connect to the spoofed file share via SMB2. When the attacker's machine demands authentication, the victim's system automatically transmits the NetNTLMv2 cryptographic hash, which is captured for offline password cracking[cite: 24, 26].
+1. **The Trigger (DNS Failure):** A user mistypes a network share path (e.g., `\\DCC01`), causing standard DNS resolution to fail.
+2. **The Fallback (LLMNR):** Windows defaults to LLMNR, broadcasting a request to the local subnet asking if any device claims the unknown hostname.
+3. **The Poisoning (Responder):** The attacker's rogue machine immediately responds, falsely claiming the requested hostname and directing the victim to their IP.
+4. **The Capture (SMB2/NTLM):** The victim attempts to connect to the spoofed file share via SMB2. When the attacker's machine demands authentication, the victim's system automatically transmits the NetNTLMv2 cryptographic hash, which is captured for offline password cracking.
 
 **LLMNR is a fallback that trusts everyone**
 
