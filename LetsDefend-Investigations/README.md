@@ -12,6 +12,7 @@ Hands-on SOC alert investigations completed on the LetsDefend platform. Each rep
 | SOC326   | Impersonating Domain MX Record Change Detected | Threat Intel / Phishing | True Positive — Host Compromised | [View](SOC326_ImpersonatingDomainMXRecordChangeDetected.md) |
 | SOC282   | Phishing Alert - Deceptive Mail Detected | Phishing / Initial Access | True Positive — Host Compromised | [View](SOC282_DeceptiveMailDetected.md)
 | SOC251 | Quishing Detected (QR Code Phishing) | Reconnaissance / Phishing | True Positive — Credentials Potentially Compromised | [View](SOC251_QuishingDetected.md) |
+| SOC205 | Malicious Macro has been executed | Malware / Execution | True Positive — Host Compromised | [View](SOC205_MaliciousMacro.md) 
 
 ---
 
