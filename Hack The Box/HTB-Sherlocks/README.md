@@ -12,7 +12,8 @@ The focus here is producing structured, technical write-ups that reconstruct the
 | --- | --- | --- | --- |
 | Brutus | DFIR | grep, file, wc, head, python3, utmp.py | [Link](Brutus/README.md) |
 | Telly | SOC | Wireshark, DB Browser for SQLite, NVD (web) | [Link](Telly/README.md) |
-| Noxious | SOC | Wireshark, hashcat | [Link](Noxious/README.md)
+| Noxious | SOC | Wireshark, hashcat | [Link](Noxious/README.md) |
+| FortySeven-1 | Threat Intelligence | Securelist, Knownsec 404, MITRE ATT&CK | [Link](FortySeven-1/README.md)
 
 ---
 
