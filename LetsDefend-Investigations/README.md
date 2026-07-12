@@ -14,6 +14,7 @@ Hands-on SOC alert investigations completed on the LetsDefend platform. Each rep
 | SOC251 | Quishing Detected (QR Code Phishing) | Reconnaissance / Phishing | True Positive — Credentials Potentially Compromised | [View](SOC251_QuishingDetected.md) |
 | SOC205 | Malicious Macro has been executed | Malware / Execution | True Positive — Host Compromised | [View](SOC205_MaliciousMacro.md) |
 | SOC104 | Malware Detected | Malware / Execution | True Positive — Host Compromised | [View](SOC104_MalwareDetected.md) |
+| SOC141 | Phishing URL Detected | Phishing / Initial Access | True Positive — Credentials Potentially Compromised | [View](SOC141_PhishingURLDetected.md) |
 
 ---
 
