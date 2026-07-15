@@ -15,6 +15,7 @@ Hands-on SOC alert investigations completed on the LetsDefend platform. Each rep
 | SOC205 | Malicious Macro has been executed | Malware / Execution | True Positive — Host Compromised | [View](SOC205_MaliciousMacro.md) |
 | SOC104 | Malware Detected | Malware / Execution | True Positive — Host Compromised | [View](SOC104_MalwareDetected.md) |
 | SOC141 | Phishing URL Detected | Phishing / Initial Access | True Positive — Credentials Potentially Compromised | [View](SOC141_PhishingURLDetected.md) |
+| SOC140 | Phishing Mail Detected - Suspicious Task Scheduler | Phishing / Initial Access | True Positive — Delivery Blocked | [View](SOC140_PhishingMailDetected.md) |
 
 ---
 
