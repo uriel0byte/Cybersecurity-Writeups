@@ -97,6 +97,7 @@ Linux CLI, file operations, encoding/decoding, Git, scripting, and basic network
 | strings it | strings on ELF binary | strings, grep | ✅ |
 | what's a netcat | Netcat basics | nc | ✅ |
 | Multicode | Nested encoding | CyberChef | ✅ |
+| Piece by Piece | Scattered zip files | zip, unzip | ✅ |
 
 ### Medium
 
