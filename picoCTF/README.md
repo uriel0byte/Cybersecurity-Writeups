@@ -98,6 +98,7 @@ Linux CLI, file operations, encoding/decoding, Git, scripting, and basic network
 | what's a netcat | Netcat basics | nc | ✅ |
 | Multicode | Nested encoding | CyberChef | ✅ |
 | Piece by Piece | Scattered zip files | zip, unzip | ✅ |
+| Password Profiler | OSINT to creating a wordlist | cupp.py, check_password.py | ✅ |
 
 ### Medium
 
