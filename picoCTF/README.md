@@ -99,6 +99,7 @@ Linux CLI, file operations, encoding/decoding, Git, scripting, and basic network
 | Multicode | Nested encoding | CyberChef | ✅ |
 | Piece by Piece | Scattered zip files | zip, unzip | ✅ |
 | Password Profiler | OSINT to creating a wordlist | cupp.py, check_password.py | ✅ |
+| SUDO MAKE ME A SANDWICH | sudo | sudo emacs | ✅ |
 
 ### Medium
 
